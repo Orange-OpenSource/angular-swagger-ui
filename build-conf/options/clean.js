@@ -15,6 +15,8 @@ module.exports = {
 		files: [{
 			dot: true,
 			src: [
+				'dist/scripts/swagger-client.js',
+				'dist/scripts/swagger-model.js',
 				'dist/scripts/templates.js'
 			]
 		}]
