@@ -1,16 +1,20 @@
 <div class="swagger-ui" aria-live="polite" aria-relevant="additions removals">
-	<h3 ng-bind="infos.title"></h3>
-	<p ng-bind-html="infos.description"></p>
-	<div ng-if="infos.contact">
-		<a href="{{infos.contact.url}}">contact the developer</a>
+	<div class="api-name">
+		<h3 ng-bind="infos.title"></h3>
 	</div>
-	<div ng-if="infos.license">
-		<span>license: </span><a href="{{infos.license.url}}" ng-bind="infos.license.name"></a>
+	<div class="api-description" ng-bind-html="infos.description"></div>
+	<div class="api-infos">
+		<div class="api-infos-contact" ng-if="infos.contact">
+			<a href="{{infos.contact.url}}">contact the developer</a>
+		</div>
+		<div class="api-infos-license" ng-if="infos.license">
+			<span>license: </span><a href="{{infos.license.url}}" ng-bind="infos.license.name"></a>
+		</div>
 	</div>
-	<ul class="list-unstyled">
+	<ul class="list-unstyled endpoints">
 	    <li ng-repeat="api in resources" class="endpoint" ng-class="{active:api.open}">
 	        <div class="clearfix">
-		        <ul class="list-inline pull-left">
+		        <ul class="list-inline pull-left endpoint-heading">
 		            <li>
 		                <h4>
 			                <a href="javascript:;" ng-click="api.open=!api.open" ng-bind="api.name"></a>
@@ -18,7 +22,7 @@
 			            </h4>
 		            </li>
 		        </ul>
-		        <ul class="list-inline pull-right">
+		        <ul class="list-inline pull-right endpoint-actions">
 		            <li>
 		                <a href="javascript:;" ng-click="api.open=!api.open">open/hide</a>
 		            </li>
@@ -62,7 +66,7 @@
 		                			<select ng-model="form[op.id].responseType" ng-options="item for item in op.produces track by item" id="responseContentType{{op.id}}" name="responseContentType{{op.id}}" required></select>
 		                		</div>
 		                	</div>
-		                	<div ng-if="op.parameters">
+		                	<div ng-if="op.parameters" class="table-responsive">
 		                		<h5>parameters</h5>
 		                		<table class="table table-condensed parameters">
 		                			<thead>
@@ -122,7 +126,7 @@
 		                			</tbody>
 		                		</table>
 	                		</div>
-		                	<div>
+		                	<div class="table-responsive">
 		                		<h5>response messages</h5>
 		                		<table class="table responses">
 		                			<thead>
