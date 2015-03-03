@@ -61,6 +61,11 @@
   margin: 0;
   font: inherit;
   table-layout: fixed;
+  min-width: 650px;
+}
+.swagger-ui .operation .content .table-responsive .table td,
+.swagger-ui .operation .content .table-responsive .table th {
+  white-space: initial;
 }
 .swagger-ui .operation .content thead th {
   color: #666;
