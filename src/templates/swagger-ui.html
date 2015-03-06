@@ -38,7 +38,7 @@
 	            <li ng-repeat="op in api.operations" class="operation {{op.httpMethod}}">
 	                <div class="heading">
 	                    <a ng-click="op.open=!op.open" href="javascript:;">
-	                        <div>
+	                        <div class="clearfix">
 	                            <span class="http-method text-uppercase" ng-bind="op.httpMethod"></span>
 	                            <span class="path" ng-bind="op.path"></span>
 	                            <span class="description pull-right" ng-bind="op.summary"></span>
