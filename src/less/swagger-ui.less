@@ -25,7 +25,25 @@
 .swagger-ui{
 
     .endpoint{
+
+        border-bottom: 1px solid #ddd;
+
+        &:last-child{
+            border: 0;
+        }
         
+        &.active,
+        &:hover{
+
+            h4 a{
+                color: #000;
+            }
+
+            .endpoint-actions li a{
+                color: #555;
+            }
+        }
+
         a{
 
             text-decoration: none;
@@ -37,11 +55,11 @@
             }
         }
 
-        h4 span{
+        .endpoint-heading span{
             color: #999;
         }
 
-        ul.pull-right{
+        .endpoint-actions{
 
             line-height: @headings-line-height;
             margin: (@line-height-computed / 2) 0;
@@ -56,16 +74,6 @@
             }
         }
 
-        &.active {
-
-            a{
-                color: #000;
-            }
-
-            ul.pull-right li a{
-                color: #555;
-            }
-        }
     }
 
     .operation{
