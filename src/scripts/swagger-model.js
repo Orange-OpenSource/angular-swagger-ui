@@ -135,12 +135,12 @@ angular
 				if (def) {
 					if (!modelCache[schema.$ref]) {
 						// object not in cache
-						var strModel = ['<strong>' + className + ' {</strong>'],
+						var strModel = ['<div><strong>' + className + ' {</strong>'],
 							buffer = [];
 
 						for (var name in def.properties) {
 							var prop = def.properties[name],
-								propModel = ['<strong class="pad">' + name + '</strong> (<span class="type">'];
+								propModel = ['<div class="pad"><strong>' + name + '</strong> (<span class="type">'];
 
 							// build type
 							if (prop.$ref) {
@@ -172,13 +172,13 @@ angular
 							if (prop.enum) {
 								propModel.push(' = ', angular.toJson(prop.enum).replace(/,/g, ' or '));
 							}
-							propModel.push(',');
+							propModel.push(',</div>');
 							strModel.push(propModel.join(''));
 						}
 						strModel.push('<strong>}</strong>');
-						strModel.push(buffer.join(''));
+						strModel.push(buffer.join(''), '</div>');
 						// cache generated object
-						modelCache[schema.$ref] = strModel.join('\n');
+						modelCache[schema.$ref] = strModel.join('');
 					}
 					model = modelCache[schema.$ref];
 				}
