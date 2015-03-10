@@ -2,13 +2,15 @@
     "name": "angular-swagger-ui",
     "license": "MIT",
     "version": "1.0.0",
-    "description": "Angular implementation of Swagger UI",
+    "description": "AngularJS implementation of Swagger UI",
     "homepage": "https://github.com/maales/angular-swagger-ui",
     "keywords": [
         "angular",
         "bootstrap",
         "swagger",
-        "swagger-ui"
+        "swagger-ui",
+        "api",
+        "documentation"
     ],
     "authors": [
         "maales"
