@@ -58,8 +58,8 @@
 			                			<li><a href="javascript:;" ng-click="op.responseClass.display=0" ng-class="{active:op.responseClass.display===0}">model</a></li>
 			                			<li><a href="javascript:;" ng-click="op.responseClass.display=1" ng-class="{active:op.responseClass.display===1}">model schema</a></li>
 			                		</ul>
-			                		<pre class="model" ng-if="op.responseClass.display===0" ng-bind-html="op.responseClass.model"></pre>
-			                		<pre ng-if="op.responseClass.display===1" ng-bind="op.responseClass.json"></pre>
+			                		<pre class="model" ng-if="op.responseClass.display===0" ng-bind-html="op.responseClass.schema.model"></pre>
+			                		<pre ng-if="op.responseClass.display===1" ng-bind="op.responseClass.schema.json"></pre>
 		                		</div>
 		                		<div ng-if="op.produces">
 		                			<label for="responseContentType{{op.id}}">response content type</label>
@@ -141,7 +141,12 @@
 		                					<td ng-bind="code"></td>
 		                					<td ng-bind-html="resp.description"></td>
 		                					<td>
-		                						<pre ng-if="resp.schema&&resp.schema.json" ng-bind="resp.schema.json"></pre>
+		                						<ul ng-if="resp.schema&&resp.schema.model&&resp.schema.json" class="list-inline schema">
+						                			<li><a href="javascript:;" ng-click="resp.display=0" ng-class="{active:resp.display===0}">model</a></li>
+						                			<li><a href="javascript:;" ng-click="resp.display=1" ng-class="{active:resp.display===1}">model schema</a></li>
+						                		</ul>
+						                		<pre class="model" ng-if="resp.display===0&&resp.schema&&resp.schema.model" ng-bind-html="resp.schema.model"></pre>
+						                		<pre ng-if="resp.display===1&&resp.schema&&resp.schema.json" ng-bind="resp.schema.json"></pre>
 		                					</td>
 		                				</tr>
 		                			</tbody>

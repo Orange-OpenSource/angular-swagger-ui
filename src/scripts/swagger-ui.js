@@ -123,20 +123,15 @@ angular
 							var resp = operation.responses[code];
 							resp.description = $sce.trustAsHtml(resp.description);
 							if (resp.schema) {
-								var sample = swaggerModel.generateSampleJson(swagger, resp.schema);
-								if (code === '200') {
-									var responseClass = operation.responseClass = {
-										status: code,
-										display: -1
-									};
-									if (resp.schema.type === 'array' || resp.schema.$ref) {
-										responseClass.display = 1; // display schema
-										responseClass.json = sample;
-										responseClass.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, resp.schema));
-									}
-									//TODO delete 200 response from array as swagger-ui does ?
-								} else {
-									resp.schema.json = sample;
+								resp.schema.json = swaggerModel.generateSampleJson(swagger, resp.schema);
+								if (resp.schema.type === 'array' || resp.schema.$ref) {
+									resp.display = 1; // display schema
+									resp.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, resp.schema));
+								}
+								if (code === '200' || code === '201') {
+									operation.responseClass = resp;
+									operation.responseClass.status = code;
+									delete operation.responses[code];
 								}
 							}
 						}
