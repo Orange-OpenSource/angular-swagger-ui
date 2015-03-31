@@ -64,10 +64,7 @@ angular
 			console.log(swagger);
 			$scope.infos = swagger.info;
 			$scope.infos.description = $sce.trustAsHtml($scope.infos.description);
-			var contact = $scope.infos.contact;
-			if (contact) {
-				contact.url = contact.email ? 'mailto:' + contact.email : contact.url;
-			}
+
 			var operationId = 0,
 				paramId = 0,
 				map = {},
@@ -113,6 +110,9 @@ angular
 							param.schema.display = 1; // display schema
 							param.schema.json = swaggerModel.generateSampleJson(swagger, param.schema);
 							param.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, param.schema));
+						}
+						if (param.in === 'body'){
+							operation.consumes = operation.consumes || ['application/json'];
 						}
 						paramId++;
 					}
@@ -182,7 +182,6 @@ angular
 					operation.loading = false;
 					operation.tryItResult = result;
 				});
-
 		};
 
 	}])
