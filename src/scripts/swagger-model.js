@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi')
-	.service('swaggerModel', ['$filter', function($filter) {
+	.service('swaggerModel', function() {
 
 		/**
 		 * sample object cache to avoid generating the same one multiple times
@@ -95,7 +95,7 @@ angular
 						result = 'string';
 						break;
 					case 'date':
-						result = $filter('date')(new Date(), 'yyyy-MM-dd');
+						result = (new Date()).toISOString().split('T')[0];
 						break;
 					case 'date-time':
 						result = (new Date()).toISOString();
@@ -196,4 +196,4 @@ angular
 			modelCache = {};
 		};
 
-	}]);
+	});
