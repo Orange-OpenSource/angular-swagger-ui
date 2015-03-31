@@ -5,7 +5,9 @@
 	<div class="api-description" ng-bind-html="infos.description"></div>
 	<div class="api-infos">
 		<div class="api-infos-contact" ng-if="infos.contact">
-			<a href="{{infos.contact.url}}">contact the developer</a>
+			<div ng-if="infos.contact.name" class="api-infos-contact-name">created by <span ng-bind="infos.contact.name"></span></div>
+			<div ng-if="infos.contact.url" class="api-infos-contact-url">see more at <a href="{{infos.contact.url}}" ng-bind="infos.contact.url"></a></div>
+			<a ng-if="infos.contact.email" class="api-infos-contact-url" href="mailto:{{infos.contact.email}}?subject={{infos.title}}">contact the developer</a>
 		</div>
 		<div class="api-infos-license" ng-if="infos.license">
 			<span>license: </span><a href="{{infos.license.url}}" ng-bind="infos.license.name"></a>
@@ -61,7 +63,7 @@
 			                		<pre class="model" ng-if="op.responseClass.display===0" ng-bind-html="op.responseClass.schema.model"></pre>
 			                		<pre ng-if="op.responseClass.display===1" ng-bind="op.responseClass.schema.json"></pre>
 		                		</div>
-		                		<div ng-if="op.produces">
+		                		<div ng-if="op.produces" class="content-type">
 		                			<label for="responseContentType{{op.id}}">response content type</label>
 		                			<select ng-model="form[op.id].responseType" ng-options="item for item in op.produces track by item" id="responseContentType{{op.id}}" name="responseContentType{{op.id}}" required></select>
 		                		</div>
@@ -92,7 +94,7 @@
 			                						<div ng-if="param.in==='body'">
 			                							<textarea id="param{{param.id}}" ng-model="form[op.id][param.name]" ng-required="param.required"></textarea>
 			                							<br>
-			                							<div ng-if="op.consumes">
+			                							<div ng-if="op.consumes" class="content-type">
 								                			<label for="bodyContentType{{op.id}}">parameter content type</label>
 								                			<select ng-model="form[op.id].contentType" id="bodyContentType{{op.id}}" name="bodyContentType{{op.id}}" ng-options="item for item in op.consumes track by item"></select>
 								                		</div>
