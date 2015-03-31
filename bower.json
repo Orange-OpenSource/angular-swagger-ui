@@ -1,7 +1,7 @@
 {
     "name": "angular-swagger-ui",
     "license": "MIT",
-    "version": "1.0.0",
+    "version": "0.1.2",
     "description": "AngularJS implementation of Swagger UI",
     "homepage": "https://github.com/maales/angular-swagger-ui",
     "keywords": [
@@ -17,6 +17,9 @@
     ],
     "ignore": [
         "**/.*"
+    ],
+    "main": [
+        "dist/scripts/swagger-ui.min.js"
     ],
     "dependencies": {
         "angular": "~1.3",
