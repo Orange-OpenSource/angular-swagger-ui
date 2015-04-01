@@ -104,6 +104,7 @@ angular
 						var param = params[j];
 						param.id = paramId;
 						param.type = swaggerModel.getType(param);
+						param.subtype = param.type === 'array' && param.enum ? 'enum' : param.type;
 						// put param into form scope
 						form[operationId][param.name] = param.default || '';
 						if (param.schema) {
