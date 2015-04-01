@@ -36,7 +36,7 @@
 		            </li>
 		        </ul>
 	        </div>
-	        <ul class="list-unstyled collapse" ng-class="{in:api.open}">
+	        <ul class="list-unstyled collapse operations" ng-class="{in:api.open}">
 	            <li ng-repeat="op in api.operations" class="operation {{op.httpMethod}}">
 	                <div class="heading">
 	                    <a ng-click="op.open=!op.open" href="javascript:;">
@@ -61,7 +61,7 @@
 			                			<li><a href="javascript:;" ng-click="op.responseClass.display=1" ng-class="{active:op.responseClass.display===1}">model schema</a></li>
 			                		</ul>
 			                		<pre class="model" ng-if="op.responseClass.display===0" ng-bind-html="op.responseClass.schema.model"></pre>
-			                		<pre ng-if="op.responseClass.display===1" ng-bind="op.responseClass.schema.json"></pre>
+			                		<pre class="model-schema" ng-if="op.responseClass.display===1" ng-bind="op.responseClass.schema.json"></pre>
 		                		</div>
 		                		<div ng-if="op.produces" class="content-type">
 		                			<label for="responseContentType{{op.id}}">response content type</label>
@@ -119,7 +119,7 @@
 						                			<li><a href="javascript:;" ng-click="param.schema.display=1" ng-class="{active:param.schema.display===1}">model schema</a></li>
 						                		</ul>
 						                		<pre class="model" ng-if="param.schema.display===0&&param.schema.model" ng-bind-html="param.schema.model"></pre>
-						                		<div ng-if="param.schema.display===1&&param.schema.json">
+						                		<div class="model-schema" ng-if="param.schema.display===1&&param.schema.json">
 			                						<pre ng-bind="param.schema.json" ng-click="form[op.id][param.name]=param.schema.json" aria-described-by="help-{{param.id}}"></pre>
 			                						<div id="help-{{param.id}}">click to set as parameter value</div>
 			                					</div>
@@ -148,7 +148,7 @@
 						                			<li><a href="javascript:;" ng-click="resp.display=1" ng-class="{active:resp.display===1}">model schema</a></li>
 						                		</ul>
 						                		<pre class="model" ng-if="resp.display===0&&resp.schema&&resp.schema.model" ng-bind-html="resp.schema.model"></pre>
-						                		<pre ng-if="resp.display===1&&resp.schema&&resp.schema.json" ng-bind="resp.schema.json"></pre>
+						                		<pre class="model-schema" ng-if="resp.display===1&&resp.schema&&resp.schema.json" ng-bind="resp.schema.json"></pre>
 		                					</td>
 		                				</tr>
 		                			</tbody>
