@@ -111,7 +111,7 @@ angular
 							param.schema.json = swaggerModel.generateSampleJson(swagger, param.schema);
 							param.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, param.schema));
 						}
-						if (param.in === 'body'){
+						if (param.in === 'body') {
 							operation.consumes = operation.consumes || ['application/json'];
 						}
 						paramId++;
@@ -124,15 +124,22 @@ angular
 							resp.description = $sce.trustAsHtml(resp.description);
 							if (resp.schema) {
 								resp.schema.json = swaggerModel.generateSampleJson(swagger, resp.schema);
-								if (resp.schema.type === 'array' || resp.schema.$ref) {
+								if (resp.schema.type === 'object' || resp.schema.type === 'array' || resp.schema.$ref) {
 									resp.display = 1; // display schema
 									resp.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, resp.schema));
+								} else if (resp.schema.type === 'string') {
+									delete resp.schema;
 								}
 								if (code === '200' || code === '201') {
 									operation.responseClass = resp;
+									operation.responseClass.display = 1;
 									operation.responseClass.status = code;
 									delete operation.responses[code];
+								} else {
+									operation.hasResponses = true;
 								}
+							} else {
+								operation.hasResponses = true;
 							}
 						}
 					}
@@ -142,6 +149,13 @@ angular
 					res.operations = res.operations || [];
 					res.operations.push(operation);
 					operationId++;
+				}
+			}
+			// cleanup resources
+			for (var i = 0; i < resources.length; i++) {
+				var operations = resources[i].operations;
+				if (!operations || (operations && operations.length === 0)) {
+					resources.splice(i, 1);
 				}
 			}
 			// sort resources alphabeticaly

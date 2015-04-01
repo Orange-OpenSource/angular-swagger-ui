@@ -68,7 +68,7 @@
 		                			<select ng-model="form[op.id].responseType" ng-options="item for item in op.produces track by item" id="responseContentType{{op.id}}" name="responseContentType{{op.id}}" required></select>
 		                		</div>
 		                	</div>
-		                	<div ng-if="op.parameters" class="table-responsive">
+		                	<div ng-if="op.parameters&&op.parameters.length>0" class="table-responsive">
 		                		<h5>parameters</h5>
 		                		<table class="table table-condensed parameters">
 		                			<thead>
@@ -128,7 +128,7 @@
 		                			</tbody>
 		                		</table>
 	                		</div>
-		                	<div class="table-responsive">
+		                	<div class="table-responsive" ng-if="op.hasResponses">
 		                		<h5>response messages</h5>
 		                		<table class="table responses">
 		                			<thead>
