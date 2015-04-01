@@ -65,6 +65,8 @@ angular
 				}
 			} else if (schema.type === 'array') {
 				sample = [getSampleObj(swagger, schema.items)];
+			} else if (schema.type === 'object') {
+				sample = {};
 			} else {
 				sample = getSampleValue(getType(schema), schema.defaultValue || schema.example);
 			}
@@ -128,6 +130,8 @@ angular
 				return item.required && item.required.indexOf(name) !== -1;
 			}
 
+			console.log(schema.type)
+
 			if (schema.$ref) {
 				var className = getClassName(schema),
 					def = swagger.definitions && swagger.definitions[className];
@@ -183,7 +187,18 @@ angular
 					model = modelCache[schema.$ref];
 				}
 			} else if (schema.type === 'array') {
-				model = '<strong>array {\n\n}</strong>';
+				var parts = ['<strong>Array ['];
+				var sub = '';
+				if (schema.items.$ref) {
+					parts.push(getClassName(schema.items));
+					sub = generateModel(swagger, schema.items);
+				} else {
+					parts.push(getType(schema.items));
+				}
+				parts.push(']</strong><br><br>', sub);
+				model = parts.join('');
+			} else if (schema.type === 'object') {
+				model = '<strong>Inline Model {<br>}</strong>';
 			}
 			return model;
 		};
