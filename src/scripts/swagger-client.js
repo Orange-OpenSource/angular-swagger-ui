@@ -11,8 +11,16 @@ angular
 	.service('swaggerClient', ['$q', '$http', function($q, $http) {
 
 		function formatResult(deferred, data, status, headers, config) {
+			var query = '';
+			if (config.params){
+				var parts = [];
+				for ( var key in config.params){
+					parts.push(key + '=' + encodeURIComponent(config.params[key]));
+				}
+				query = '?' + parts.join('&');
+			}
 			deferred.resolve({
-				url: config.url,
+				url: config.url + query,
 				response: {
 					body: data ? (angular.isString(data) ? data : angular.toJson(data, true)) : 'no content',
 					status: status,
