@@ -64,10 +64,7 @@ angular
 			console.log(swagger);
 			$scope.infos = swagger.info;
 			$scope.infos.description = $sce.trustAsHtml($scope.infos.description);
-			var contact = $scope.infos.contact;
-			if (contact) {
-				contact.url = contact.email ? 'mailto:' + contact.email : contact.url;
-			}
+
 			var operationId = 0,
 				paramId = 0,
 				map = {},
@@ -107,12 +104,16 @@ angular
 						var param = params[j];
 						param.id = paramId;
 						param.type = swaggerModel.getType(param);
+						param.subtype = param.type === 'array' && param.enum ? 'enum' : param.type;
 						// put param into form scope
 						form[operationId][param.name] = param.default || '';
 						if (param.schema) {
 							param.schema.display = 1; // display schema
 							param.schema.json = swaggerModel.generateSampleJson(swagger, param.schema);
 							param.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, param.schema));
+						}
+						if (param.in === 'body') {
+							operation.consumes = operation.consumes || ['application/json'];
 						}
 						paramId++;
 					}
@@ -123,21 +124,23 @@ angular
 							var resp = operation.responses[code];
 							resp.description = $sce.trustAsHtml(resp.description);
 							if (resp.schema) {
-								var sample = swaggerModel.generateSampleJson(swagger, resp.schema);
-								if (code === '200') {
-									var responseClass = operation.responseClass = {
-										status: code,
-										display: -1
-									};
-									if (resp.schema.type === 'array' || resp.schema.$ref) {
-										responseClass.display = 1; // display schema
-										responseClass.json = sample;
-										responseClass.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, resp.schema));
-									}
-									//TODO delete 200 response from array as swagger-ui does ?
-								} else {
-									resp.schema.json = sample;
+								resp.schema.json = swaggerModel.generateSampleJson(swagger, resp.schema);
+								if (resp.schema.type === 'object' || resp.schema.type === 'array' || resp.schema.$ref) {
+									resp.display = 1; // display schema
+									resp.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, resp.schema));
+								} else if (resp.schema.type === 'string') {
+									delete resp.schema;
 								}
+								if (code === '200' || code === '201') {
+									operation.responseClass = resp;
+									operation.responseClass.display = 1;
+									operation.responseClass.status = code;
+									delete operation.responses[code];
+								} else {
+									operation.hasResponses = true;
+								}
+							} else {
+								operation.hasResponses = true;
 							}
 						}
 					}
@@ -147,6 +150,13 @@ angular
 					res.operations = res.operations || [];
 					res.operations.push(operation);
 					operationId++;
+				}
+			}
+			// cleanup resources
+			for (var i = 0; i < resources.length; i++) {
+				var operations = resources[i].operations;
+				if (!operations || (operations && operations.length === 0)) {
+					resources.splice(i, 1);
 				}
 			}
 			// sort resources alphabeticaly
@@ -187,7 +197,6 @@ angular
 					operation.loading = false;
 					operation.tryItResult = result;
 				});
-
 		};
 
 	}])
@@ -219,8 +228,16 @@ angular
 	.service('swaggerClient', ['$q', '$http', function($q, $http) {
 
 		function formatResult(deferred, data, status, headers, config) {
+			var query = '';
+			if (config.params){
+				var parts = [];
+				for ( var key in config.params){
+					parts.push(key + '=' + encodeURIComponent(config.params[key]));
+				}
+				query = '?' + parts.join('&');
+			}
 			deferred.resolve({
-				url: config.url,
+				url: config.url + query,
 				response: {
 					body: data ? (angular.isString(data) ? data : angular.toJson(data, true)) : 'no content',
 					status: status,
@@ -309,7 +326,7 @@ angular
 
 angular
 	.module('swaggerUi')
-	.service('swaggerModel', ['$filter', function($filter) {
+	.service('swaggerModel', function() {
 
 		/**
 		 * sample object cache to avoid generating the same one multiple times
@@ -366,6 +383,8 @@ angular
 				}
 			} else if (schema.type === 'array') {
 				sample = [getSampleObj(swagger, schema.items)];
+			} else if (schema.type === 'object') {
+				sample = {};
 			} else {
 				sample = getSampleValue(getType(schema), schema.defaultValue || schema.example);
 			}
@@ -396,7 +415,7 @@ angular
 						result = 'string';
 						break;
 					case 'date':
-						result = $filter('date')(new Date(), 'yyyy-MM-dd');
+						result = (new Date()).toISOString().split('T')[0];
 						break;
 					case 'date-time':
 						result = (new Date()).toISOString();
@@ -429,6 +448,8 @@ angular
 				return item.required && item.required.indexOf(name) !== -1;
 			}
 
+			console.log(schema.type)
+
 			if (schema.$ref) {
 				var className = getClassName(schema),
 					def = swagger.definitions && swagger.definitions[className];
@@ -436,12 +457,12 @@ angular
 				if (def) {
 					if (!modelCache[schema.$ref]) {
 						// object not in cache
-						var strModel = ['<strong>' + className + ' {</strong>'],
+						var strModel = ['<div><strong>' + className + ' {</strong>'],
 							buffer = [];
 
 						for (var name in def.properties) {
 							var prop = def.properties[name],
-								propModel = ['<strong class="pad">' + name + '</strong> (<span class="type">'];
+								propModel = ['<div class="pad"><strong>' + name + '</strong> (<span class="type">'];
 
 							// build type
 							if (prop.$ref) {
@@ -473,18 +494,29 @@ angular
 							if (prop.enum) {
 								propModel.push(' = ', angular.toJson(prop.enum).replace(/,/g, ' or '));
 							}
-							propModel.push(',');
+							propModel.push(',</div>');
 							strModel.push(propModel.join(''));
 						}
 						strModel.push('<strong>}</strong>');
-						strModel.push(buffer.join(''));
+						strModel.push(buffer.join(''), '</div>');
 						// cache generated object
-						modelCache[schema.$ref] = strModel.join('\n');
+						modelCache[schema.$ref] = strModel.join('');
 					}
 					model = modelCache[schema.$ref];
 				}
 			} else if (schema.type === 'array') {
-				model = '<strong>array {\n\n}</strong>';
+				var parts = ['<strong>Array ['];
+				var sub = '';
+				if (schema.items.$ref) {
+					parts.push(getClassName(schema.items));
+					sub = generateModel(swagger, schema.items);
+				} else {
+					parts.push(getType(schema.items));
+				}
+				parts.push(']</strong><br><br>', sub);
+				model = parts.join('');
+			} else if (schema.type === 'object') {
+				model = '<strong>Inline Model {<br>}</strong>';
 			}
 			return model;
 		};
@@ -497,11 +529,10 @@ angular
 			modelCache = {};
 		};
 
-	}]);
-
+	});
 angular.module('swaggerUiTemplates', ['templates/swagger-ui.html']);
 
 angular.module('templates/swagger-ui.html', []).run(['$templateCache', function($templateCache) {
   $templateCache.put('templates/swagger-ui.html',
-    '<div class="swagger-ui" aria-live="polite" aria-relevant="additions removals"> <div class="api-name"> <h3 ng-bind="infos.title"></h3> </div> <div class="api-description" ng-bind-html="infos.description"></div> <div class="api-infos"> <div class="api-infos-contact" ng-if="infos.contact"> <a href="{{infos.contact.url}}">contact the developer</a> </div> <div class="api-infos-license" ng-if="infos.license"> <span>license: </span><a href="{{infos.license.url}}" ng-bind="infos.license.name"></a> </div> </div> <ul class="list-unstyled endpoints"> <li ng-repeat="api in resources" class="endpoint" ng-class="{active:api.open}"> <div class="clearfix"> <ul class="list-inline pull-left endpoint-heading"> <li> <h4> <a href="javascript:;" ng-click="api.open=!api.open" ng-bind="api.name"></a> <span ng-if="api.description"> : <span ng-bind="api.description"></span></span> </h4> </li> </ul> <ul class="list-inline pull-right endpoint-actions"> <li> <a href="javascript:;" ng-click="api.open=!api.open">open/hide</a> </li> <li> <a href="javascript:;" ng-click="expand(api)">list operations</a> </li> <li> <a href="javascript:;" ng-click="expand(api,true)">expand all</a> </li> </ul> </div> <ul class="list-unstyled collapse" ng-class="{in:api.open}"> <li ng-repeat="op in api.operations" class="operation {{op.httpMethod}}"> <div class="heading"> <a ng-click="op.open=!op.open" href="javascript:;"> <div> <span class="http-method text-uppercase" ng-bind="op.httpMethod"></span> <span class="path" ng-bind="op.path"></span> <span class="description pull-right" ng-bind="op.summary"></span> </div> </a> </div> <div class="content collapse" ng-class="{in:op.open}"> <div ng-if="op.description"> <h5>implementation notes</h5> <p ng-bind="op.description"></p> </div> <form role="form" name="tryItForm" ng-submit="tryItForm.$valid&&submitTryIt(op)"> <div ng-if="op.responseClass" class="response"> <h5>response class (status {{op.responseClass.status}})</h5> <div ng-if="op.responseClass.display!==-1"> <ul class="list-inline schema"> <li><a href="javascript:;" ng-click="op.responseClass.display=0" ng-class="{active:op.responseClass.display===0}">model</a></li> <li><a href="javascript:;" ng-click="op.responseClass.display=1" ng-class="{active:op.responseClass.display===1}">model schema</a></li> </ul> <pre class="model" ng-if="op.responseClass.display===0" ng-bind-html="op.responseClass.model"></pre> <pre ng-if="op.responseClass.display===1" ng-bind="op.responseClass.json"></pre> </div> <div ng-if="op.produces"> <label for="responseContentType{{op.id}}">response content type</label> <select ng-model="form[op.id].responseType" ng-options="item for item in op.produces track by item" id="responseContentType{{op.id}}" name="responseContentType{{op.id}}" required></select> </div> </div> <div ng-if="op.parameters" class="table-responsive"> <h5>parameters</h5> <table class="table table-condensed parameters"> <thead> <tr> <th class="name">parameter <th class="value">value <th class="desc">description <th class="type">parameter type <th class="data">data type   <tbody> <tr ng-repeat="param in op.parameters"> <td ng-class="{bold:param.required}"> <label for="param{{param.id}}" ng-bind="param.name"></label>  <td ng-class="{bold:param.required}"> <div ng-if="tryIt"> <div ng-if="param.in!==\'body\'" ng-switch="param.type"> <input ng-switch-when="file" type="file" file-input ng-model="form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?\'(required)\':\'\'}}" ng-required="param.required"> <input ng-switch-default type="text" ng-model="form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?\'(required)\':\'\'}}" ng-required="param.required"> </div> <div ng-if="param.in===\'body\'"> <textarea id="param{{param.id}}" ng-model="form[op.id][param.name]" ng-required="param.required"></textarea> <br> <div ng-if="op.consumes"> <label for="bodyContentType{{op.id}}">parameter content type</label> <select ng-model="form[op.id].contentType" id="bodyContentType{{op.id}}" name="bodyContentType{{op.id}}" ng-options="item for item in op.consumes track by item"></select> </div> </div> </div> <div ng-if="!tryIt"> <div ng-if="param.in!==\'body\'"> <div ng-if="param.default"><span ng-bind="param.default"></span> (default)</div> <div ng-if="param.required"><strong>(required)</strong></div> </div> </div>  <td ng-class="{bold:param.required}" ng-bind="param.description"> <td ng-bind="param.in"> <td ng-if="param.type" ng-switch="param.type"> <span ng-switch-when="array" ng-bind="\'Array[\'+param.items.type+\']\'"></span> <span ng-switch-default ng-bind="param.type"></span>  <td ng-if="param.schema"> <ul class="list-inline schema"> <li><a href="javascript:;" ng-click="param.schema.display=0" ng-class="{active:param.schema.display===0}">model</a></li> <li><a href="javascript:;" ng-click="param.schema.display=1" ng-class="{active:param.schema.display===1}">model schema</a></li> </ul> <pre class="model" ng-if="param.schema.display===0&&param.schema.model" ng-bind-html="param.schema.model"></pre> <div ng-if="param.schema.display===1&&param.schema.json"> <pre ng-bind="param.schema.json" ng-click="form[op.id][param.name]=param.schema.json" aria-described-by="help-{{param.id}}"></pre> <div id="help-{{param.id}}">click to set as parameter value</div> </div>    </table> </div> <div class="table-responsive"> <h5>response messages</h5> <table class="table responses"> <thead> <tr> <th class="code">HTTP status code <th>reason <th>response model   <tbody> <tr ng-repeat="(code, resp) in op.responses"> <td ng-bind="code"> <td ng-bind-html="resp.description"> <td> <pre ng-if="resp.schema&&resp.schema.json" ng-bind="resp.schema.json"></pre>    </table> </div> <div ng-if="tryIt"> <button class="btn btn-default" ng-click="op.tryItResult=false;op.hideTryItResult=false" type="submit" ng-disabled="op.loading" ng-bind="op.loading?\'loading...\':\'try it out!\'"></button> <a class="hide-try-it" ng-if="op.tryItResult&&!op.hideTryItResult" ng-click="op.hideTryItResult=true" href="javascript:;">hide response</a> </div> </form> <div ng-if="op.tryItResult" ng-show="!op.hideTryItResult"> <h5>request URL</h5> <pre ng-bind="op.tryItResult.url"></pre> <h5>response body</h5> <pre ng-bind="op.tryItResult.response.body"></pre> <h5>response code</h5> <pre ng-bind="op.tryItResult.response.status"></pre> <h5>response headers</h5> <pre ng-bind="op.tryItResult.response.headers"></pre> </div> </div> </li> </ul> </li> </ul> </div>');
+    '<div class="swagger-ui" aria-live="polite" aria-relevant="additions removals"> <div class="api-name"> <h3 ng-bind="infos.title"></h3> </div> <div class="api-description" ng-bind-html="infos.description"></div> <div class="api-infos"> <div class="api-infos-contact" ng-if="infos.contact"> <div ng-if="infos.contact.name" class="api-infos-contact-name">created by <span ng-bind="infos.contact.name"></span></div> <div ng-if="infos.contact.url" class="api-infos-contact-url">see more at <a href="{{infos.contact.url}}" ng-bind="infos.contact.url"></a></div> <a ng-if="infos.contact.email" class="api-infos-contact-url" href="mailto:{{infos.contact.email}}?subject={{infos.title}}">contact the developer</a> </div> <div class="api-infos-license" ng-if="infos.license"> <span>license: </span><a href="{{infos.license.url}}" ng-bind="infos.license.name"></a> </div> </div> <ul class="list-unstyled endpoints"> <li ng-repeat="api in resources" class="endpoint" ng-class="{active:api.open}"> <div class="clearfix"> <ul class="list-inline pull-left endpoint-heading"> <li> <h4> <a href="javascript:;" ng-click="api.open=!api.open" ng-bind="api.name"></a> <span ng-if="api.description"> : <span ng-bind="api.description"></span></span> </h4> </li> </ul> <ul class="list-inline pull-right endpoint-actions"> <li> <a href="javascript:;" ng-click="api.open=!api.open">open/hide</a> </li> <li> <a href="javascript:;" ng-click="expand(api)">list operations</a> </li> <li> <a href="javascript:;" ng-click="expand(api,true)">expand operations</a> </li> </ul> </div> <ul class="list-unstyled collapse operations" ng-class="{in:api.open}"> <li ng-repeat="op in api.operations" class="operation {{op.httpMethod}}"> <div class="heading"> <a ng-click="op.open=!op.open" href="javascript:;"> <div class="clearfix"> <span class="http-method text-uppercase" ng-bind="op.httpMethod"></span> <span class="path" ng-bind="op.path"></span> <span class="description pull-right" ng-bind="op.summary"></span> </div> </a> </div> <div class="content collapse" ng-class="{in:op.open}"> <div ng-if="op.description"> <h5>implementation notes</h5> <p ng-bind="op.description"></p> </div> <form role="form" name="tryItForm" ng-submit="tryItForm.$valid&&submitTryIt(op)"> <div ng-if="op.responseClass" class="response"> <h5>response class (status {{op.responseClass.status}})</h5> <div ng-if="op.responseClass.display!==-1"> <ul class="list-inline schema"> <li><a href="javascript:;" ng-click="op.responseClass.display=0" ng-class="{active:op.responseClass.display===0}">model</a></li> <li><a href="javascript:;" ng-click="op.responseClass.display=1" ng-class="{active:op.responseClass.display===1}">model schema</a></li> </ul> <pre class="model" ng-if="op.responseClass.display===0" ng-bind-html="op.responseClass.schema.model"></pre> <pre class="model-schema" ng-if="op.responseClass.display===1" ng-bind="op.responseClass.schema.json"></pre> </div> <div ng-if="op.produces" class="content-type"> <label for="responseContentType{{op.id}}">response content type</label> <select ng-model="form[op.id].responseType" ng-options="item for item in op.produces track by item" id="responseContentType{{op.id}}" name="responseContentType{{op.id}}" required></select> </div> </div> <div ng-if="op.parameters&&op.parameters.length>0" class="table-responsive"> <h5>parameters</h5> <table class="table table-condensed parameters"> <thead> <tr> <th class="name">parameter <th class="value">value <th class="desc">description <th class="type">parameter type <th class="data">data type   <tbody> <tr ng-repeat="param in op.parameters"> <td ng-class="{bold:param.required}"> <label for="param{{param.id}}" ng-bind="param.name"></label>  <td ng-class="{bold:param.required}"> <div ng-if="tryIt"> <div ng-if="param.in!==\'body\'" ng-switch="param.subtype"> <input ng-switch-when="file" type="file" file-input ng-model="form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?\'(required)\':\'\'}}" ng-required="param.required"> <select ng-switch-when="enum" ng-model="form[op.id][param.name]" id="param{{param.id}}"> <option ng-repeat="value in param.enum" value="{{value}}" ng-bind="value+(param.default===value?\' (default)\':\'\')" ng-selected="param.default===value"> </select> <input ng-switch-default type="text" ng-model="form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?\'(required)\':\'\'}}" ng-required="param.required"> </div> <div ng-if="param.in===\'body\'"> <textarea id="param{{param.id}}" ng-model="form[op.id][param.name]" ng-required="param.required"></textarea> <br> <div ng-if="op.consumes" class="content-type"> <label for="bodyContentType{{op.id}}">parameter content type</label> <select ng-model="form[op.id].contentType" id="bodyContentType{{op.id}}" name="bodyContentType{{op.id}}" ng-options="item for item in op.consumes track by item"></select> </div> </div> </div> <div ng-if="!tryIt"> <div ng-if="param.in!==\'body\'"> <div ng-if="param.default"><span ng-bind="param.default"></span> (default)</div> <div ng-if="param.enum"> <span ng-repeat="value in param.enum">{{value}}<span ng-if="!$last"> or </span></span> </div> <div ng-if="param.required"><strong>(required)</strong></div> </div> </div>  <td ng-class="{bold:param.required}" ng-bind="param.description"> <td ng-bind="param.in"> <td ng-if="param.type" ng-switch="param.type"> <span ng-switch-when="array" ng-bind="\'Array[\'+param.items.type+\']\'"></span> <span ng-switch-default ng-bind="param.type"></span>  <td ng-if="param.schema"> <ul class="list-inline schema"> <li><a href="javascript:;" ng-click="param.schema.display=0" ng-class="{active:param.schema.display===0}">model</a></li> <li><a href="javascript:;" ng-click="param.schema.display=1" ng-class="{active:param.schema.display===1}">model schema</a></li> </ul> <pre class="model" ng-if="param.schema.display===0&&param.schema.model" ng-bind-html="param.schema.model"></pre> <div class="model-schema" ng-if="param.schema.display===1&&param.schema.json"> <pre ng-bind="param.schema.json" ng-click="form[op.id][param.name]=param.schema.json" aria-described-by="help-{{param.id}}"></pre> <div id="help-{{param.id}}">click to set as parameter value</div> </div>    </table> </div> <div class="table-responsive" ng-if="op.hasResponses"> <h5>response messages</h5> <table class="table responses"> <thead> <tr> <th class="code">HTTP status code <th>reason <th>response model   <tbody> <tr ng-repeat="(code, resp) in op.responses"> <td ng-bind="code"> <td ng-bind-html="resp.description"> <td> <ul ng-if="resp.schema&&resp.schema.model&&resp.schema.json" class="list-inline schema"> <li><a href="javascript:;" ng-click="resp.display=0" ng-class="{active:resp.display===0}">model</a></li> <li><a href="javascript:;" ng-click="resp.display=1" ng-class="{active:resp.display===1}">model schema</a></li> </ul> <pre class="model" ng-if="resp.display===0&&resp.schema&&resp.schema.model" ng-bind-html="resp.schema.model"></pre> <pre class="model-schema" ng-if="resp.display===1&&resp.schema&&resp.schema.json" ng-bind="resp.schema.json"></pre>    </table> </div> <div ng-if="tryIt"> <button class="btn btn-default" ng-click="op.tryItResult=false;op.hideTryItResult=false" type="submit" ng-disabled="op.loading" ng-bind="op.loading?\'loading...\':\'try it out!\'"></button> <a class="hide-try-it" ng-if="op.tryItResult&&!op.hideTryItResult" ng-click="op.hideTryItResult=true" href="javascript:;">hide response</a> </div> </form> <div ng-if="op.tryItResult" ng-show="!op.hideTryItResult"> <h5>request URL</h5> <pre ng-bind="op.tryItResult.url"></pre> <h5>response body</h5> <pre ng-bind="op.tryItResult.response.body"></pre> <h5>response code</h5> <pre ng-bind="op.tryItResult.response.status"></pre> <h5>response headers</h5> <pre ng-bind="op.tryItResult.response.headers"></pre> </div> </div> </li> </ul> </li> </ul> </div>');
 }]);

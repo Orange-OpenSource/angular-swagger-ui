@@ -24,8 +24,30 @@
 
 .swagger-ui{
 
+    .api-description{
+        margin-bottom: 20px;
+    }
+
     .endpoint{
+
+        border-bottom: 1px solid #ddd;
+
+        &:last-child{
+            border: 0;
+        }
         
+        &.active,
+        &:hover{
+
+            h4 a{
+                color: #000;
+            }
+
+            .endpoint-actions li a{
+                color: #555;
+            }
+        }
+
         a{
 
             text-decoration: none;
@@ -37,11 +59,11 @@
             }
         }
 
-        h4 span{
+        .endpoint-heading span{
             color: #999;
         }
 
-        ul.pull-right{
+        .endpoint-actions{
 
             line-height: @headings-line-height;
             margin: (@line-height-computed / 2) 0;
@@ -56,16 +78,6 @@
             }
         }
 
-        &.active {
-
-            a{
-                color: #000;
-            }
-
-            ul.pull-right li a{
-                color: #555;
-            }
-        }
     }
 
     .operation{
@@ -96,6 +108,10 @@
             margin: 2px 10px 0 0;
         }
 
+        .content-type label{
+            margin-right: 5px;
+        }
+
         .content{
 
             padding: 10px;
@@ -118,6 +134,7 @@
                 td,
                 th{
                     white-space: initial;
+                    word-break: break-word;
                 }
             }
 
@@ -133,6 +150,7 @@
                 max-height: 200px;
                 overflow: auto;
                 font-size: .9em;
+                word-wrap: initial;
             }
 
             input,
@@ -186,6 +204,8 @@
                 max-height: initial;
                 cursor: text;
                 font-size: .9em;
+                word-break: break-word;
+                white-space: normal;
 
                 .type{
                     color: #5555aa;
@@ -198,7 +218,7 @@
 
             .parameters{
 
-                pre{
+                pre.model-schema{
 
                     cursor: pointer;
 

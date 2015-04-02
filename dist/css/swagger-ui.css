@@ -1,3 +1,20 @@
+.swagger-ui .api-description {
+  margin-bottom: 20px;
+}
+.swagger-ui .endpoint {
+  border-bottom: 1px solid #ddd;
+}
+.swagger-ui .endpoint:last-child {
+  border: 0;
+}
+.swagger-ui .endpoint.active h4 a,
+.swagger-ui .endpoint:hover h4 a {
+  color: #000;
+}
+.swagger-ui .endpoint.active .endpoint-actions li a,
+.swagger-ui .endpoint:hover .endpoint-actions li a {
+  color: #555;
+}
 .swagger-ui .endpoint a {
   text-decoration: none;
   color: #999;
@@ -6,24 +23,18 @@
   color: #000;
   text-decoration: underline;
 }
-.swagger-ui .endpoint h4 span {
+.swagger-ui .endpoint .endpoint-heading span {
   color: #999;
 }
-.swagger-ui .endpoint ul.pull-right {
+.swagger-ui .endpoint .endpoint-actions {
   line-height: 1.1;
   margin: 10px 0;
 }
-.swagger-ui .endpoint ul.pull-right li {
+.swagger-ui .endpoint .endpoint-actions li {
   border-right: 1px solid #ddd;
 }
-.swagger-ui .endpoint ul.pull-right li:last-child {
+.swagger-ui .endpoint .endpoint-actions li:last-child {
   border-right: 0;
-}
-.swagger-ui .endpoint.active a {
-  color: #000;
-}
-.swagger-ui .endpoint.active ul.pull-right li a {
-  color: #555;
 }
 .swagger-ui .operation {
   margin-bottom: 10px;
@@ -48,6 +59,9 @@
 .swagger-ui .operation .description {
   margin: 2px 10px 0 0;
 }
+.swagger-ui .operation .content-type label {
+  margin-right: 5px;
+}
 .swagger-ui .operation .content {
   padding: 10px;
   border-top: 0 !important;
@@ -66,6 +80,7 @@
 .swagger-ui .operation .content .table-responsive .table td,
 .swagger-ui .operation .content .table-responsive .table th {
   white-space: initial;
+  word-break: break-word;
 }
 .swagger-ui .operation .content thead th {
   color: #666;
@@ -78,6 +93,7 @@
   max-height: 200px;
   overflow: auto;
   font-size: .9em;
+  word-wrap: initial;
 }
 .swagger-ui .operation .content input,
 .swagger-ui .operation .content textarea {
@@ -118,6 +134,8 @@
   max-height: initial;
   cursor: text;
   font-size: .9em;
+  word-break: break-word;
+  white-space: normal;
 }
 .swagger-ui .operation .content pre.model .type {
   color: #5555aa;
@@ -125,10 +143,10 @@
 .swagger-ui .operation .content pre.model .pad {
   margin-left: 1em;
 }
-.swagger-ui .operation .content .parameters pre {
+.swagger-ui .operation .content .parameters pre.model-schema {
   cursor: pointer;
 }
-.swagger-ui .operation .content .parameters pre:hover {
+.swagger-ui .operation .content .parameters pre.model-schema:hover {
   background-color: #ffd;
 }
 .swagger-ui .operation .content .parameters .name {
