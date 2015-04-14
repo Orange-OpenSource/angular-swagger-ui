@@ -6,14 +6,14 @@ module.exports = {
     options: {
         // Change this to '0.0.0.0' to access the server from outside.
         hostname: '127.0.0.1',
-        livereload: 35729
+        livereload: 36729
     },
     //
     // Define a web server to test development
     //
     dev: {
         options: {
-            port: 9000,
+            port: 9002,
             open: true,
             base: 'src',
             middleware: function(connect, options, middlewares) {
@@ -31,7 +31,7 @@ module.exports = {
     //
     dist: {
         options: {
-            port: 9001,
+            port: 9003,
             open: true,
             livereload: false,
             base: 'dist'
