@@ -146,6 +146,13 @@ angular
 					}
 					operation.tags = operation.tags || ['default'];
 					// map operation to resource
+					var tag = operation.tags[0];
+					if (typeof map[tag] === 'undefined') {
+						map[tag] = resources.length;
+						resources.push({
+							name: tag
+						});
+					}
 					var res = resources[map[operation.tags[0]]]; //TODO make sure there is only one defined !
 					res.operations = res.operations || [];
 					res.operations.push(operation);
