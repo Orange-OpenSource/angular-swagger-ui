@@ -137,16 +137,19 @@
   word-break: break-word;
   white-space: normal;
 }
+.swagger-ui .operation .content pre.model .model-item {
+  margin-bottom: 5px;
+}
 .swagger-ui .operation .content pre.model .type {
   color: #5555aa;
 }
 .swagger-ui .operation .content pre.model .pad {
   margin-left: 1em;
 }
-.swagger-ui .operation .content .parameters pre.model-schema {
+.swagger-ui .operation .content .parameters .model-schema pre {
   cursor: pointer;
 }
-.swagger-ui .operation .content .parameters pre.model-schema:hover {
+.swagger-ui .operation .content .parameters .model-schema pre:hover {
   background-color: #ffd;
 }
 .swagger-ui .operation .content .parameters .name {
