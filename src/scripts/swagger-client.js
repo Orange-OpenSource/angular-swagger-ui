@@ -12,12 +12,14 @@ angular
 
 		function formatResult(deferred, data, status, headers, config) {
 			var query = '';
-			if (config.params){
+			if (config.params) {
 				var parts = [];
-				for ( var key in config.params){
+				for (var key in config.params) {
 					parts.push(key + '=' + encodeURIComponent(config.params[key]));
 				}
-				query = '?' + parts.join('&');
+				if (parts.length > 0) {
+					query = '?' + parts.join('&');
+				}
 			}
 			deferred.resolve({
 				url: config.url + query,
