@@ -13,7 +13,8 @@ module.exports = function(grunt) {
             'html2js:dist',
             'concat:dist',
             'uglify:dist',
-            'clean:postdist'
+            'clean:postdist',
+            'concat:copyright'
         ];
         if (target === 'server') {
             tasks.push('connect:dist:keepalive');

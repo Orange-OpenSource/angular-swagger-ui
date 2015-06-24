@@ -10,5 +10,12 @@ module.exports = {
 			'dist/scripts/templates.js'
 		],
 		dest: 'dist/scripts/swagger-ui.js'
+	},
+	copyright: {
+		src: [
+			'copyright.txt',
+			'dist/scripts/swagger-ui.min.js'
+		],
+		dest: 'dist/scripts/swagger-ui.min.js'
 	}
 }
