@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 
     <!-- build:css(.tmp) css/swagger-ui.css -->
     <link rel="stylesheet" href="css/swagger-ui.css">
@@ -35,7 +35,7 @@
             .module('myApp', ['swaggerUi'])
             .controller('MyCtrl', function($scope){
                 // init form
-                $scope.url = 'http://petstore.swagger.io/v2/swagger.json';
+                $scope.url = $scope.swaggerUrl = 'http://petstore.swagger.io/v2/swagger.json';
                 // error management
                 $scope.myErrorHandler = function(data, status){
                     alert('failed to load swagger: '+status);
