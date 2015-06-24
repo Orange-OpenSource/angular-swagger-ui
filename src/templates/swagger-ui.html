@@ -52,7 +52,7 @@
 	                		<h5>implementation notes</h5>
 	                		<p ng-bind="op.description"></p>
 	                	</div>
-	                	<form role="form" name="tryItForm" ng-submit="tryItForm.$valid&&submitTryIt(op)">
+	                	<form role="form" name="explorerForm" ng-submit="explorerForm.$valid&&submitExplorer(op)">
 		                	<div ng-if="op.responseClass" class="response">
 		                		<h5>response class (status {{op.responseClass.status}})</h5>
 		                		<div ng-if="op.responseClass.display!==-1">
@@ -86,7 +86,7 @@
 		                						<label for="param{{param.id}}" ng-bind="param.name"></label>
 		                					</td>
 		                					<td ng-class="{bold:param.required}">
-		                						<div ng-if="tryIt">
+		                						<div ng-if="apiExplorer">
 		                							<div ng-if="param.in!=='body'" ng-switch="param.subtype">
 			                							<input ng-switch-when="file" type="file" file-input ng-model="form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?'(required)':''}}" ng-required="param.required">
 			                							<select ng-switch-when="enum" ng-model="form[op.id][param.name]" id="param{{param.id}}">
@@ -103,7 +103,7 @@
 								                		</div>
 			                						</div>
 		                						</div>
-		                						<div ng-if="!tryIt">
+		                						<div ng-if="!apiExplorer">
 		                							<div ng-if="param.in!=='body'">
 		                								<div ng-if="param.default"><span ng-bind="param.default"></span> (default)</div>
 		                								<div ng-if="param.enum">
@@ -160,20 +160,20 @@
 		                			</tbody>
 		                		</table>
 		                	</div>
-		                	<div ng-if="tryIt">
-		                		<button class="btn btn-default" ng-click="op.tryItResult=false;op.hideTryItResult=false" type="submit" ng-disabled="op.loading" ng-bind="op.loading?'loading...':'try it out!'"></button>
-			                	<a class="hide-try-it" ng-if="op.tryItResult&&!op.hideTryItResult" ng-click="op.hideTryItResult=true" href="javascript:;">hide response</a>
+		                	<div ng-if="apiExplorer">
+		                		<button class="btn btn-default" ng-click="op.explorerResult=false;op.hideExplorerResult=false" type="submit" ng-disabled="op.loading" ng-bind="op.loading?'loading...':'try it out!'"></button>
+			                	<a class="hide-try-it" ng-if="op.explorerResult&&!op.hideExplorerResult" ng-click="op.hideExplorerResult=true" href="javascript:;">hide response</a>
 		                	</div>
 	                	</form>
-	                	<div ng-if="op.tryItResult" ng-show="!op.hideTryItResult">
+	                	<div ng-if="op.explorerResult" ng-show="!op.hideExplorerResult">
 	                		<h5>request URL</h5>
-	                		<pre ng-bind="op.tryItResult.url"></pre>
+	                		<pre ng-bind="op.explorerResult.url"></pre>
 	                		<h5>response body</h5>
-	                		<pre ng-bind="op.tryItResult.response.body"></pre>
+	                		<pre ng-bind="op.explorerResult.response.body"></pre>
 	                		<h5>response code</h5>
-	                		<pre ng-bind="op.tryItResult.response.status"></pre>
+	                		<pre ng-bind="op.explorerResult.response.status"></pre>
 	                		<h5>response headers</h5>
-	                		<pre ng-bind="op.tryItResult.response.headers"></pre>
+	                		<pre ng-bind="op.explorerResult.response.headers"></pre>
 	                	</div>
 	                </div>
 	            </li>

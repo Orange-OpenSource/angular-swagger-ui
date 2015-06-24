@@ -1,8 +1,8 @@
 /*
- * angular-swagger-ui
- * http://github.com/maales/angular-swagger-ui
- * Version: 0.1.0 - 2015-02-26
- * License: MIT
+ * Orange angular-swagger-ui - v0.1.5
+ *
+ * (C) 2015 Orange, all right reserved
+ * MIT Licensed
  */
 'use strict';
 

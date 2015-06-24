@@ -1,8 +1,8 @@
 /*
- * angular-swagger-ui
- * http://github.com/maales/angular-swagger-ui
- * Version: 0.1.0 - 2015-02-26
- * License: MIT
+ * Orange angular-swagger-ui - v0.1.5
+ *
+ * (C) 2015 Orange, all right reserved
+ * MIT Licensed
  */
 'use strict';
 
@@ -16,9 +16,9 @@ angular
 			templateUrl: 'templates/swagger-ui.html',
 			scope: {
 				url: '=',
-				tryIt: '=',
+				apiExplorer: '=',
 				errorHandler: '=',
-				transformTryIt: '='
+				apiExplorerTransform: '='
 			}
 		};
 	})
@@ -28,7 +28,7 @@ angular
 
 		// WARNING only Swagger 2.0 is supported (@see https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md)
 		// WARNING XML is not supported
-		// WARNING authentication is not implemented, please use 'transform-try-it' directive's param to customize API calls
+		// WARNING authentication is not implemented, please use 'api-explorer-transform' directive's param to customize API calls
 
 		//TODO find a way to implement permalinks !!
 
@@ -61,7 +61,6 @@ angular
 		 * parses swagger description to ease HTML generation
 		 */
 		function parseV2() {
-			console.log(swagger);
 			$scope.infos = swagger.info;
 			$scope.infos.description = $sce.trustAsHtml($scope.infos.description);
 
@@ -180,7 +179,6 @@ angular
 			// display swagger
 			$scope.form = form;
 			$scope.resources = resources;
-			console.log(resources);
 		}
 
 		/**
@@ -196,13 +194,13 @@ angular
 		/**
 		 * sends a sample API request
 		 */
-		$scope.submitTryIt = function(operation) {
+		$scope.submitExplorer = function(operation) {
 			operation.loading = true;
 			swaggerClient
-				.send(swagger, operation, $scope.form[operation.id], $scope.transformTryIt)
+				.send(swagger, operation, $scope.form[operation.id], $scope.apiExplorerTransform)
 				.then(function(result) {
 					operation.loading = false;
-					operation.tryItResult = result;
+					operation.explorerResult = result;
 				});
 		};
 
