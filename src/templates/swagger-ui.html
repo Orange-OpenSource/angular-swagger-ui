@@ -1,4 +1,5 @@
 <div class="swagger-ui" aria-live="polite" aria-relevant="additions removals">
+	<h3 class="swagger-loading" ng-if="loading">loading ...</h3>
 	<div class="api-name">
 		<h3 ng-bind="infos.title"></h3>
 	</div>
@@ -19,27 +20,27 @@
 		        <ul class="list-inline pull-left endpoint-heading">
 		            <li>
 		                <h4>
-			                <a href="javascript:;" ng-click="api.open=!api.open" ng-bind="api.name"></a>
+			                <a href="javascript:;" ng-click="api.open=!api.open;permalink(api.open?api.name:null)" ng-bind="api.name"></a>
 			                <span ng-if="api.description"> : <span ng-bind="api.description"></span></span>
 			            </h4>
 		            </li>
 		        </ul>
 		        <ul class="list-inline pull-right endpoint-actions">
 		            <li>
-		                <a href="javascript:;" ng-click="api.open=!api.open">open/hide</a>
+		                <a href="javascript:;" ng-click="api.open=!api.open;permalink(api.open?api.name:null)">open/hide</a>
 		            </li>
 		            <li>
-		                <a href="javascript:;" ng-click="expand(api)">list operations</a>
+		                <a href="javascript:;" ng-click="expand(api);permalink(api.name)">list operations</a>
 		            </li>
 		            <li>
-		                <a href="javascript:;" ng-click="expand(api,true)">expand operations</a>
+		                <a href="javascript:;" ng-click="expand(api,true);permalink(api.name+'*')">expand operations</a>
 		            </li>
 		        </ul>
 	        </div>
 	        <ul class="list-unstyled collapse operations" ng-class="{in:api.open}">
 	            <li ng-repeat="op in api.operations" class="operation {{op.httpMethod}}">
 	                <div class="heading">
-	                    <a ng-click="op.open=!op.open" href="javascript:;">
+	                    <a ng-click="op.open=!op.open;permalink(op.open?op.operationId:null)" href="javascript:;">
 	                        <div class="clearfix">
 	                            <span class="http-method text-uppercase" ng-bind="op.httpMethod"></span>
 	                            <span class="path" ng-bind="op.path"></span>
