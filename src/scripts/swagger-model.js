@@ -48,7 +48,9 @@ angular
 		 */
 		function getSampleObj(swagger, schema) {
 			var sample;
-			if (schema.properties) {
+			if (schema.default || schema.example){
+				sample = schema.default || schema.example;
+			} else if (schema.properties) {
 				sample = {};
 				for (var name in schema.properties) {
 					sample[name] = getSampleObj(swagger, schema.properties[name]);
@@ -68,7 +70,7 @@ angular
 			} else if (schema.type === 'object') {
 				sample = {};
 			} else {
-				sample = getSampleValue(getType(schema), schema.defaultValue || schema.example);
+				sample = getSampleValue(getType(schema));
 			}
 			return sample;
 		}
@@ -76,33 +78,29 @@ angular
 		/**
 		 * generates a sample value for a basic type
 		 */
-		function getSampleValue(type, defaultValue) {
+		function getSampleValue(type) {
 			var result;
-			if (typeof defaultValue !== 'undefined') {
-				result = defaultValue;
-			} else {
-				switch (type) {
-					case 'long':
-					case 'integer':
-						result = 0;
-						break;
-					case 'boolean':
-						result = false;
-						break;
-					case 'double':
-					case 'number':
-						result = 0.0;
-						break;
-					case 'string':
-						result = 'string';
-						break;
-					case 'date':
-						result = (new Date()).toISOString().split('T')[0];
-						break;
-					case 'date-time':
-						result = (new Date()).toISOString();
-						break;
-				}
+			switch (type) {
+				case 'long':
+				case 'integer':
+					result = 0;
+					break;
+				case 'boolean':
+					result = false;
+					break;
+				case 'double':
+				case 'number':
+					result = 0.0;
+					break;
+				case 'string':
+					result = 'string';
+					break;
+				case 'date':
+					result = (new Date()).toISOString().split('T')[0];
+					break;
+				case 'date-time':
+					result = (new Date()).toISOString();
+					break;
 			}
 			return result;
 		}
