@@ -181,4 +181,7 @@
 	        </ul>
 	    </li>
 	</ul>
+	<div class="api-version" ng-if="infos">
+		[BASE URL: <span class="h4" ng-bind="infos.basePath"></span>, API VERSION: <span class="h4" ng-bind="infos.version"></span>, HOST: <span class="h4" ng-bind="infos.scheme"></span>://<span class="h4" ng-bind="infos.host"></span>]
+	</div>
 </div>

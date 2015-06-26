@@ -71,6 +71,9 @@ angular
 			 */
 			function parseV2() {
 				$scope.infos = swagger.info;
+				$scope.infos.scheme = swagger.schemes && swagger.schemes[0] || 'http';
+				$scope.infos.basePath = swagger.basePath;
+				$scope.infos.host = swagger.host;
 				$scope.infos.description = $sce.trustAsHtml($scope.infos.description);
 
 				var operationId = 0,
