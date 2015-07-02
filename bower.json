@@ -20,7 +20,7 @@
     ],
     "main": [
         "dist/scripts/swagger-ui.min.js",
-		"dist/css/swagger-ui.min.css"
+	    "dist/css/swagger-ui.min.css"
     ],
     "dependencies": {
         "angular": "~1.3",
