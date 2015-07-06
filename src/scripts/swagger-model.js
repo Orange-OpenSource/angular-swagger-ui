@@ -205,7 +205,7 @@ angular
 					buffer.push(getClassName(schema.items));
 					sub = generateModel(swagger, schema.items);
 				} else {
-					parts.push(getType(schema.items));
+					buffer.push(getType(schema.items));
 				}
 				buffer.push(']</strong><br><br>', sub);
 				model = buffer.join('');
