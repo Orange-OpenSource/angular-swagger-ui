@@ -7,6 +7,12 @@
 .swagger-ui .api-description {
   margin-bottom: 20px;
 }
+.swagger-ui .api-version {
+  color: #999;
+}
+.swagger-ui .external-docs {
+  color: #000;
+}
 .swagger-ui .endpoint {
   border-bottom: 1px solid #ddd;
 }
