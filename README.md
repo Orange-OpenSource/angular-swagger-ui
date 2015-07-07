@@ -19,12 +19,10 @@ Swagger UI helps developers discovering your RESTful API by providing an online 
 
 `bower install angular-swagger-ui --save`
 
-### Install Dependencies
+### Dependencies
 
-1. Install [angularJS](https://angularjs.org)
-	* `bower install angular --save`
-2. Install [bootstrap CSS](http://getbootstrap.com)
-    * `bower install bootstrap --save`
+1. [angularJS](https://angularjs.org)
+2. [bootstrap CSS](http://getbootstrap.com)
 
 ## Demo
 
@@ -39,6 +37,13 @@ See LICENSE file for copyright details.
 
 ## Getting Started
 
+Include angular-swagger-ui as a dependency into your application
+```
+<script type="text/javascript">
+	angular.module('yourApp', ['swaggerUi']);
+	...
+</script>
+```
 Create an HTML element in your angularJS application's template or in your HTML page
 ```
 <div swagger-ui url="URLToYourSwagger" api-explorer="true"></div>
