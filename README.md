@@ -85,7 +85,7 @@ $scope.yourErrorHandler = function(/*HTTP response*/ response, /*HTTP status*/ s
 
 #### Customize API explorer HTTP requests
 ```
-<div swagger-ui url="URLToYourSwagger" transform-request="yourTransformFunction"></div>
+<div swagger-ui url="URLToYourSwagger" api-explorer-transform="yourTransformFunction"></div>
 ```
 ```
 $scope.yourTransformFunction = function(/*request options*/ options){
