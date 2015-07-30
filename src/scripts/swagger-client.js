@@ -16,8 +16,6 @@ angular
 			var pad = 0;
 			angular.forEach(xml.split('\r\n'), function (node, index) {
 				var indent = 0;
-				console.log("printing node...")
-				console.log(node);
 				if (node.match(/.+<\/\w[^>]*>$/)) {
 					indent = 0;
 				} else if (node.match(/^<\/\w/)) {
