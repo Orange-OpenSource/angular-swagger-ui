@@ -51,10 +51,11 @@ angular
 					query = '?' + parts.join('&');
 				}
 			}
+
 			deferred.resolve({
 				url: config.url + query,
 				response: {
-					body: data ? ((headers.Accept = 'application/xml') ? formatXml(data) : angular.toJson(data, true)) : 'no content',
+					body: data ? ((config.headers.Accept.indexOf('application/xml') > -1) ? formatXml(data) : angular.toJson(data, true)) : 'no content',
 					status: status,
 					headers: angular.toJson(headers(), true)
 				}

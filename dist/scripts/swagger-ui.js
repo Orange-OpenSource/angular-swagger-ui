@@ -346,8 +346,6 @@ angular
 			var pad = 0;
 			angular.forEach(xml.split('\r\n'), function (node, index) {
 				var indent = 0;
-				console.log("printing node...")
-				console.log(node);
 				if (node.match(/.+<\/\w[^>]*>$/)) {
 					indent = 0;
 				} else if (node.match(/^<\/\w/)) {
@@ -383,10 +381,11 @@ angular
 					query = '?' + parts.join('&');
 				}
 			}
+
 			deferred.resolve({
 				url: config.url + query,
 				response: {
-					body: data ? ((headers.Accept = 'application/xml') ? formatXml(data) : angular.toJson(data, true)) : 'no content',
+					body: data ? ((config.headers.Accept.indexOf('application/xml') > -1) ? formatXml(data) : angular.toJson(data, true)) : 'no content',
 					status: status,
 					headers: angular.toJson(headers(), true)
 				}
