@@ -170,6 +170,12 @@ angular
 				for (var path in swagger.paths) {
 					for (var httpMethod in swagger.paths[path]) {
 						var operation = swagger.paths[path][httpMethod];
+						if(!operation.consumes) {
+							operation.consumes = swagger.consumes;
+						}
+						if(!operation.produces) {
+							operation.produces = swagger.produces;
+						}
 						//TODO manage 'deprecated' operations ?
 						operation.id = operationId;
 						form[operationId] = {
@@ -333,6 +339,38 @@ angular
 angular
 	.module('swaggerUi')
 	.service('swaggerClient', ['$q', '$http', function($q, $http) {
+		function formatXml(xml) {
+			var formatted = '';
+			var reg = /(>)(<)(\/*)/g;
+			xml = xml.replace(reg, '$1\r\n$2$3');
+			var pad = 0;
+			angular.forEach(xml.split('\r\n'), function (node, index) {
+				var indent = 0;
+				console.log("printing node...")
+				console.log(node);
+				if (node.match(/.+<\/\w[^>]*>$/)) {
+					indent = 0;
+				} else if (node.match(/^<\/\w/)) {
+					if (pad != 0) {
+						pad -= 1;
+					}
+				} else if (node.match(/^<\w[^>]*[^\/]>.*$/)) {
+					indent = 1;
+				} else {
+					indent = 0;
+				}
+
+				var padding = '';
+				for (var i = 0; i < pad; i++) {
+					padding += '  ';
+				}
+
+				formatted += padding + node + '\r\n';
+				pad += indent;
+			});
+
+			return formatted;
+		}
 
 		function formatResult(deferred, data, status, headers, config) {
 			var query = '';
@@ -348,7 +386,7 @@ angular
 			deferred.resolve({
 				url: config.url + query,
 				response: {
-					body: data ? (angular.isString(data) ? data : angular.toJson(data, true)) : 'no content',
+					body: data ? ((headers.Accept = 'application/xml') ? formatXml(data) : angular.toJson(data, true)) : 'no content',
 					status: status,
 					headers: angular.toJson(headers(), true)
 				}

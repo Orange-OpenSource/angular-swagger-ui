@@ -170,6 +170,12 @@ angular
 				for (var path in swagger.paths) {
 					for (var httpMethod in swagger.paths[path]) {
 						var operation = swagger.paths[path][httpMethod];
+						if(!operation.consumes) {
+							operation.consumes = swagger.consumes;
+						}
+						if(!operation.produces) {
+							operation.produces = swagger.produces;
+						}
 						//TODO manage 'deprecated' operations ?
 						operation.id = operationId;
 						form[operationId] = {
