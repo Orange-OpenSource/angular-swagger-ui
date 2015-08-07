@@ -15,9 +15,13 @@ Swagger UI helps developers discovering your RESTful API by providing an online 
 
 ## Quick Start
 
-### Install
+### Install original
 
 `bower install angular-swagger-ui --save`
+
+### Install fork
+
+`bower install angular-swagger-ui-fork --save`
 
 ### Dependencies
 
