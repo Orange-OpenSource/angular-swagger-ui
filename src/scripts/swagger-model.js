@@ -48,6 +48,7 @@ angular
 		 */
 		function getSampleObj(swagger, schema) {
 			var sample;
+            schema = schema || {}
 			if (schema.default || schema.example){
 				sample = schema.default || schema.example;
 			} else if (schema.properties) {
@@ -197,6 +198,7 @@ angular
 			} else if (schema.type === 'array') {
 				var buffer = ['<strong>Array ['];
 				var sub = '';
+                schema.items = schema.items || {}
 				if (schema.items.properties) {
 					var name = 'Inline Model' + countInLine++;
 					buffer.push(name);
