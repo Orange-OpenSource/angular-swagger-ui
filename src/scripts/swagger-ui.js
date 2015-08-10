@@ -7,7 +7,7 @@
 'use strict';
 
 angular
-	.module('swaggerUi', ['ng', 'swaggerUiTemplates'])
+	.module('swaggerUi', ['ng', 'ngSanitize', 'swaggerUiTemplates'])
 	.directive('swaggerUi', function() {
 
 		return {
@@ -65,7 +65,63 @@ angular
 					});
 				}
 			});
+			function resolveInline(spec, property, objs, unresolvedRefs) {
+				var ref = property.$ref;
 
+				if (ref) {
+					if (ref.indexOf('http') === 0) {
+						if (Array.isArray(objs[ref])) {
+							objs[ref].push({obj: property, resolveAs: 'inline'});
+						} else {
+							objs[ref] = [{obj: property, resolveAs: 'inline'}];
+						}
+					} else if (ref.indexOf('#') === 0) {
+						// local resolve
+						var shortenedRef = ref.substring(1);
+						var i, parts = shortenedRef.split('/'), location = spec;
+
+						for (i = 0; i < parts.length; i++) {
+							var part = parts[i];
+
+							if (part.length > 0) {
+								location = location[part];
+							}
+						}
+
+						if (location) {
+							delete property.$ref;
+
+							var key;
+
+							for (key in location) {
+								property[key] = location[key];
+							}
+						} else {
+							unresolvedRefs[ref] = null;
+						}
+					}
+				} else if (property.type === 'array') {
+					resolveTo(property.items, objs);
+				}
+			}
+
+			function resolveTo(property, objs) {
+				var ref = property.$ref;
+
+				if (ref) {
+					if (ref.indexOf('http') === 0) {
+						if (Array.isArray(objs[ref])) {
+							objs[ref].push({obj: property, resolveAs: '$ref'});
+						} else {
+							objs[ref] = [{obj: property, resolveAs: '$ref'}];
+						}
+					}
+				} else if (property.type === 'array') {
+					var items = property.items;
+
+					resolveTo(items, objs);
+				}
+			}
 			/**
 			 * parses swagger description to ease HTML generation
 			 */
@@ -81,7 +137,20 @@ angular
 					map = {},
 					form = {},
 					resources = [],
-					openPath = $location.search().open;
+					openPath = $location.search().open,
+					resolvedRefs = {}, unresolvedRefs = {},
+					resolutionTable = {}; // store objects for dereferencing;
+
+				// models
+				for (var name in swagger.definitions) {
+					var model = swagger.definitions[name];
+
+					for (var propertyName in model.properties) {
+						var property = model.properties[propertyName];
+
+						resolveTo(property, resolutionTable);
+					}
+				}
 
 				// parse resources
 				if (!swagger.tags) {
@@ -101,6 +170,12 @@ angular
 				for (var path in swagger.paths) {
 					for (var httpMethod in swagger.paths[path]) {
 						var operation = swagger.paths[path][httpMethod];
+						if(!operation.consumes) {
+							operation.consumes = swagger.consumes;
+						}
+						if(!operation.produces) {
+							operation.produces = swagger.produces;
+						}
 						//TODO manage 'deprecated' operations ?
 						operation.id = operationId;
 						form[operationId] = {
@@ -130,6 +205,10 @@ angular
 							}
 							if (param.in === 'body') {
 								operation.consumes = operation.consumes || ['application/json'];
+							}
+							if (param.$ref) {
+								// parameter reference
+								resolveInline(swagger, param, resolutionTable, unresolvedRefs);
 							}
 							paramId++;
 						}
@@ -170,7 +249,7 @@ angular
 							});
 						}
 						var res = resources[map[operation.tags[0]]];
-						operation.open = openPath === operation.operationId || openPath === res.name + '*';
+						operation.open = openPath && (openPath === operation.operationId || openPath === res.name + '*');
 						res.operations = res.operations || [];
 						res.operations.push(operation);
 						if (operation.open) {

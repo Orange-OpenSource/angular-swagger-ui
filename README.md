@@ -6,12 +6,19 @@ Swagger helps you documenting your RESTful API.
 
 Swagger UI helps developers discovering your RESTful API by providing an online documentation with an integrated API explorer.
 
+
 ### Warning 
 > Only Swagger 2.0 is supported
 
-> application/xml is not supported
+> ~~application/xml is not supported~~
 
 > Authentication is not implemented, please use 'api-explorer-transform' directive's param to customize API calls
+
+###Updates
+
+application/xml is now supported
+
+see https://github.com/vineey/angular-swagger-ui/blob/master/CHANGELOG.md for more information
 
 ## Quick Start
 
