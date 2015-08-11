@@ -331,6 +331,9 @@ angular
 							values.body.append(param.name, value);
 						}
 						break;
+                    case 'body':
+                        values.body = value;
+                        break;
 				}
 			}
 
