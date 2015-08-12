@@ -7,7 +7,7 @@ Swagger helps you documenting your RESTful API.
 Swagger UI helps developers discovering your RESTful API by providing an online documentation with an integrated API explorer.
 
 ### Warning 
-> Only Swagger 2.0 is supported
+> Only JSON Swagger 2.0 is supported
 
 > Authentication is not implemented, please use modules to customize API calls
 
