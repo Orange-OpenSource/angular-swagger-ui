@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.1.5
+ * Orange angular-swagger-ui - v0.2
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -17,15 +17,15 @@ angular
 			scope: {
 				url: '=',
 				apiExplorer: '=',
-				errorHandler: '=',
-				apiExplorerTransform: '='
+				errorHandler: '='
 			}
 		};
 	})
-	.controller('swaggerUiController', ['$scope', '$http', '$sce', '$location', 'swaggerModel', 'swaggerClient',
-		function($scope, $http, $sce, $location, swaggerModel, swaggerClient) {
+	.controller('swaggerUiController', ['$scope', '$http', '$sce', '$location', '$q', 'swaggerModel', 'swaggerClient', 'swaggerModules',
+		function($scope, $http, $sce, $location, $q, swaggerModel, swaggerClient, swaggerModules) {
 
-			var swagger;
+			var swagger,
+				hasErrorHandler;
 
 			// WARNING only Swagger 2.0 is supported (@see https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md)
 			// WARNING application/xml is not supported
@@ -33,35 +33,59 @@ angular
 
 			function get(url, callback) {
 				$scope.loading = true;
-				var notifyError = typeof $scope.errorHandler === 'function';
-				$http.get(url)
-					.success(function(data /*, status, headers, config*/ ) {
-						$scope.loading = false;
-						callback(data);
+				var options = {
+					method: 'GET',
+					url: url
+				};
+				swaggerModules
+					.execute(swaggerModules.BEFORE_LOAD, options)
+					.then(function() {
+						$http(options)
+							.success(callback)
+							.error(function(data, status) {
+								onError({
+									code: status,
+									message: data
+								});
+							});
 					})
-					.error(function(data, status /*, headers, config*/ ) {
-						$scope.loading = false;
-						if (notifyError) {
-							$scope.errorHandler(data, status);
-						}
+					.catch(onError);
+			}
+
+			function swaggerLoaded() {
+				$scope.loading = false;
+				if (swagger.swagger === '2.0') {
+					parseV2(swagger);
+				} else {
+					onError({
+						code: '415',
+						message: 'unsupported swagger version'
 					});
+				}
+			}
+
+			function onError(error) {
+				$scope.loading = false;
+				if (typeof $scope.errorHandler === 'function') {
+					$scope.errorHandler(error.message, error.code);
+				}
 			}
 
 			$scope.$watch('url', function(url) {
 				//reset
+				hasErrorHandler = typeof $scope.errorHandler === 'function';
 				$scope.infos = {};
 				$scope.resources = [];
 				$scope.form = {};
 				if (url && url !== '') {
-					// load Swagger description
-					var notifyError = typeof $scope.errorHandler === 'function';
+					// load Swagger descriptor
 					get(url, function(data) {
 						swagger = data;
-						if (data.swagger === '2.0') {
-							parseV2(swagger);
-						} else if (notifyError) {
-							$scope.errorHandler('unsupported swagger version', '415');
-						}
+						// execute modules
+						swaggerModules
+							.execute(swaggerModules.BEFORE_PARSE, url, swagger)
+							.then(swaggerLoaded)
+							.catch(onError);
 					});
 				}
 			});
@@ -70,8 +94,13 @@ angular
 			 * parses swagger description to ease HTML generation
 			 */
 			function parseV2() {
+				// build URL params
+				var location = window.location;
+				swagger.schemes = (swagger.schemes && [swagger.schemes[0]]) || [location.protocol.replace(':', '')];
+				swagger.host = swagger.host || location.host;
+
 				$scope.infos = swagger.info;
-				$scope.infos.scheme = swagger.schemes && swagger.schemes[0] || 'http';
+				$scope.infos.scheme = swagger.schemes[0];
 				$scope.infos.basePath = swagger.basePath;
 				$scope.infos.host = swagger.host;
 				$scope.infos.description = $sce.trustAsHtml($scope.infos.description);
@@ -103,6 +132,8 @@ angular
 						var operation = swagger.paths[path][httpMethod];
 						//TODO manage 'deprecated' operations ?
 						operation.id = operationId;
+						operation.consumes = operation.consumes || swagger.consumes;
+						operation.produces = operation.produces || swagger.produces;
 						form[operationId] = {
 							contentType: operation.consumes && operation.consumes.length === 1 ? operation.consumes[0] : 'application/json',
 							responseType: 'application/json'
@@ -114,9 +145,14 @@ angular
 							//TODO manage 'collectionFormat' (csv, multi etc.) ?
 							//TODO manage constraints (pattern, min, max etc.) ?
 							var param = params[j];
+							if (param.$ref) {
+								var parts = param.$ref.replace('#/', '').split('/');
+								param = swagger[parts[0]][parts[1]];
+								params[j] = param;
+							}
 							param.id = paramId;
 							param.type = swaggerModel.getType(param);
-							if (param.items && param.items.enum){
+							if (param.items && param.items.enum) {
 								param.enum = param.items.enum;
 								param.default = param.items.default;
 							}
@@ -136,7 +172,7 @@ angular
 						// parse operation's responses
 						if (operation.responses) {
 							for (var code in operation.responses) {
-								//TODO manage headers, examples ?
+								//TODO manage headers ?
 								var resp = operation.responses[code];
 								resp.description = $sce.trustAsHtml(resp.description);
 								if (resp.schema) {
@@ -170,7 +206,7 @@ angular
 							});
 						}
 						var res = resources[map[operation.tags[0]]];
-						operation.open = openPath === operation.operationId || openPath === res.name + '*';
+						operation.open = openPath && openPath === operation.operationId || openPath === res.name + '*';
 						res.operations = res.operations || [];
 						res.operations.push(operation);
 						if (operation.open) {
@@ -200,9 +236,15 @@ angular
 				});
 				// clear cache
 				swaggerModel.clearCache();
-				// display swagger
-				$scope.form = form;
-				$scope.resources = resources;
+				// execute modules
+				swaggerModules
+					.execute(swaggerModules.BEFORE_DISPLAY, resources, form)
+					.then(function() {
+						// display swagger UI
+						$scope.form = form;
+						$scope.resources = resources;
+					})
+					.catch(onError);
 			}
 
 			/**
@@ -225,7 +267,7 @@ angular
 			$scope.submitExplorer = function(operation) {
 				operation.loading = true;
 				swaggerClient
-					.send(swagger, operation, $scope.form[operation.id], $scope.apiExplorerTransform)
+					.send(swagger, operation, $scope.form[operation.id])
 					.then(function(result) {
 						operation.loading = false;
 						operation.explorerResult = result;

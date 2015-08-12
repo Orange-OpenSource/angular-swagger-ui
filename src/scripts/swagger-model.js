@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.1.5
+ * Orange angular-swagger-ui - v0.2
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -39,8 +39,15 @@ angular
 		/**
 		 * retrieves object class name based on definition
 		 */
-		function getClassName(schema) {
-			return schema.$ref.replace('#/definitions/', '');
+		function getClassName(item) {
+			return item.$ref.split('#/definitions/')[1];
+		}
+
+		/**
+		 * retrieves object definition name
+		 */
+		function getDefinitionName(item) {
+			return item.$ref.replace('#/definitions/', '');
 		}
 
 		/**
@@ -48,7 +55,7 @@ angular
 		 */
 		function getSampleObj(swagger, schema) {
 			var sample;
-			if (schema.default || schema.example){
+			if (schema.default || schema.example) {
 				sample = schema.default || schema.example;
 			} else if (schema.properties) {
 				sample = {};
@@ -57,7 +64,7 @@ angular
 				}
 			} else if (schema.$ref) {
 				// complex object
-				var def = swagger.definitions && swagger.definitions[getClassName(schema)];
+				var def = swagger.definitions && swagger.definitions[getDefinitionName(schema)];
 				if (def) {
 					if (!objCache[schema.$ref]) {
 						// object not in cache
@@ -71,6 +78,7 @@ angular
 				sample = {};
 			} else {
 				sample = getSampleValue(getType(schema));
+				sample = schema.defaultValue || schema.example || getSampleValue(getType(schema));
 			}
 			return sample;
 		}
@@ -185,7 +193,7 @@ angular
 				model = buffer.join('');
 			} else if (schema.$ref) {
 				var className = getClassName(schema),
-					def = swagger.definitions && swagger.definitions[className];
+					def = swagger.definitions && swagger.definitions[getDefinitionName(schema)];
 
 				if (def) {
 					if (!modelCache[schema.$ref]) {

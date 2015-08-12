@@ -13,6 +13,8 @@ module.exports = function(grunt) {
             'html2js:dist',
             'concat:dist',
             'uglify:dist',
+            'uglify:distexternals',
+            'uglify:distxml',
             'clean:postdist',
             'concat:copyright'
         ];

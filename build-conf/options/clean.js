@@ -17,7 +17,10 @@ module.exports = {
 			src: [
 				'dist/scripts/swagger-client.js',
 				'dist/scripts/swagger-model.js',
-				'dist/scripts/templates.js'
+				'dist/scripts/templates.js',
+				'dist/scripts/swagger-modules.js',
+				'dist/scripts/modules/swagger-external-references.js',
+				'dist/scripts/modules/swagger-xml-formatter.js'
 			]
 		}]
 	}
