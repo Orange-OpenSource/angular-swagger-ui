@@ -32,7 +32,7 @@ angular
 				url: externalUrl,
 				transformResponse: function(json) {
 					if (prefix) {
-						// rewrite referencess
+						// rewrite references
 						json = json.replace(/"\$ref": ?"#\/(.*)"/g, '"$ref": "#/definitions/' + prefix + '#/$1"');
 					}
 					var obj;
@@ -42,7 +42,7 @@ angular
 						onError({
 							code: '500',
 							message: 'failed to parse JSON'
-						})
+						});
 					}
 					return obj;
 				}

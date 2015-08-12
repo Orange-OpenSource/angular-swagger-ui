@@ -7,8 +7,9 @@ module.exports = {
 			'dist/scripts/swagger-ui.js',
 			'dist/scripts/swagger-client.js',
 			'dist/scripts/swagger-model.js',
-			'dist/scripts/templates.js',
-			'dist/scripts/swagger-modules.js'
+			'dist/scripts/swagger-modules.js',
+			'dist/scripts/modules/swagger-json-parser.js',
+			'dist/scripts/templates.js'
 		],
 		dest: 'dist/scripts/swagger-ui.js'
 	},

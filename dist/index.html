@@ -13,7 +13,8 @@
             <input type="url" placeholder="swagger URL" class="form-control" id="url" name="url" ng-model="url" required style="width:400px">
             <button type="submit" class="btn btn-primary">explore</button>
         </form>
-        <div swagger-ui url="swaggerUrl" api-explorer="true" error-handler="myErrorHandler"></div>
+        <h3 ng-show="isLoading">loading ...</h3>
+        <div swagger-ui url="swaggerUrl" loading="isLoading" api-explorer="true" error-handler="myErrorHandler"></div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.17/angular.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.17/angular-sanitize.min.js"></script>
@@ -23,6 +24,7 @@
             .module('myApp', ['ngSanitize', 'swaggerUi'])
             .controller('MyCtrl', function($scope){
                 // init form
+                $scope.isLoading = false;
                 $scope.url = $scope.swaggerUrl = 'http://petstore.swagger.io/v2/swagger.json';
                 // error management
                 $scope.myErrorHandler = function(data, status){

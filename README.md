@@ -37,16 +37,24 @@ See LICENSE file for copyright details.
 
 Include angular-swagger-ui as a dependency into your application
 
-If Swagger descriptors are loaded from untrusted sources, you **MUST** include "ngSanitize" as a dependency into your application (see dist/index.html as an example), else you **MUST** add trusted-sources="true" as directive parameter (see src/index.html as an example).
+As some properties of Swagger descriptors can be formatted as HTML:
+
+* You **SHOULD** include "ngSanitize" as a dependency into your application (avoids JS injection) if Swagger descriptors are loaded from **untrusted** sources (see dist/index.html as an example)
+* You **CAN** add trusted-sources="true" as directive parameter (avoids embedding "ngSanitize") if Swagger descriptors are loaded from **trusted** sources (see src/index.html as an example)
+* You **MUST** at least choose one of the two previous solutions
+
 ```
 <script type="text/javascript">
 	angular.module('yourApp', ['swaggerUi']);
+	...
+	// OR if you choosed to use "ngSanitize"
+	angular.module('yourApp', ['ngSanitize', 'swaggerUi']);
 	...
 </script>
 ```
 Create an HTML element in your angularJS application's template or in your HTML page
 ```
-<div swagger-ui url="URLToYourSwagger" api-explorer="true"></div>
+<div swagger-ui url="URLToYourSwaggerDescriptor" api-explorer="true"></div>
 ```
 Add swagger-ui.min.js and angular.min.js to the end of the body
 ```
@@ -54,6 +62,8 @@ Add swagger-ui.min.js and angular.min.js to the end of the body
  	...
  	<script src="yourPathToAngularJS/angular.min.js"></script>
  	<script src="yourPathToAngularSwaggerUI/dist/scripts/swagger-ui.min.js"></script>
+ 	<!-- if you choosed to use "ngSanitize" -->
+ 	<script src="yourPathToAngularSanitize/angular-sanitize.min.js"></script>
 </body>
 ```
 Add swagger-ui.min.css and bootstrap.min.css to the head of the HTML page.
@@ -70,12 +80,18 @@ Add swagger-ui.min.css and bootstrap.min.css to the head of the HTML page.
 
 #### Enable or disable API explorer
 ```
-<div swagger-ui url="URLToYourSwagger" api-explorer="true/false"></div>
+<div swagger-ui url="URLToYourSwaggerDescriptor" api-explorer="true/false"></div>
+```
+
+#### Swagger descriptor loading indicator
+```
+<div ng-show="yourScopeVariable">loading ...</div>
+<div swagger-ui url="URLToYourSwaggerDescriptor" loading="yourScopeVariable"></div>
 ```
 
 #### Define an error handler to catch Swagger descriptor loading errors
 ```
-<div swagger-ui url="URLToYourSwagger" error-handler="yourErrorHandler"></div>
+<div swagger-ui url="URLToYourSwaggerDescriptor" error-handler="yourErrorHandler"></div>
 ```
 ```
 $scope.yourErrorHandler = function(/*HTTP response*/ response, /*HTTP status*/ status){
@@ -84,7 +100,7 @@ $scope.yourErrorHandler = function(/*HTTP response*/ response, /*HTTP status*/ s
 ```
 
 #### Enable Swagger external references
-See [Swagger 2.0 spec](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md#reference-object)
+See [Swagger 2.0 spec](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md#relative-schema-file-example)
 Add swagger-external-references.min.js to the end of the body
 ```
 <body>
@@ -125,14 +141,15 @@ angular
 ```
 
 #### Writing your own modules
-Modifying angular-swagger-ui can be achieved wrting your own modules. As an example your can have a look at the ones in src/scripts/modules.
-A module is an object (can be a service) having a function "execute" and must return a promise.
+Modifying angular-swagger-ui can be achieved by writing your own modules. As an example your can have a look at the ones in src/scripts/modules.
+A module is an object (can be a service) having a function "execute" which must return a promise.
 
 You can make your module modifying behaviours at different phases:
 
-* BEFORE_LOAD: allows modifying swagger descriptor request before it is sent
-* BEFORE_PARSE: allows modifying swagger descriptor after it has been loaded
-* BEFORE_DISPLAY: allows modifying internal parsed swagger descriptor before it is displayed
+* BEFORE_LOAD: allows modifying Swagger descriptor request before it is sent
+* BEFORE_PARSE: allows modifying Swagger descriptor after it has been loaded
+* PARSE: allows adding a Swagger parser for content types other than JSON
+* BEFORE_DISPLAY: allows modifying internal parsed Swagger descriptor before it is displayed
 * BEFORE_EXPLORER_LOAD: allows modifying API explorer request before it is sent
 * AFTER_EXPLORER_LOAD: allows modifying API explorer response before it is displayed
 
