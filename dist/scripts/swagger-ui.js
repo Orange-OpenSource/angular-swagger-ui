@@ -34,7 +34,21 @@ angular
 			function get(url, callback) {
 				$scope.loading = true;
 				var notifyError = typeof $scope.errorHandler === 'function';
-				$http.get(url)
+				var headers = {};
+
+				var request = {
+					method: 'GET',
+					url: url,
+					headers: headers
+				};
+
+				// apply transform headers
+				if (typeof $scope.apiExplorerTransform === 'function') {
+					$scope.apiExplorerTransform(request);
+				}
+
+				// send request
+				$http(request)
 					.success(function(data /*, status, headers, config*/ ) {
 						$scope.loading = false;
 						callback(data);
@@ -317,6 +331,9 @@ angular
 							values.body.append(param.name, value);
 						}
 						break;
+                    case 'body':
+                        values.body = value;
+                        break;
 				}
 			}
 
