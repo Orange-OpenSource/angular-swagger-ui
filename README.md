@@ -36,6 +36,8 @@ See LICENSE file for copyright details.
 ## Getting Started
 
 Include angular-swagger-ui as a dependency into your application
+
+If Swagger descriptors are loaded from untrusted sources, you **MUST** include "ngSanitize" as a dependency into your application (see dist/index.html as an example), else you **MUST** add trusted-sources="true" as directive parameter (see src/index.html as an example).
 ```
 <script type="text/javascript">
 	angular.module('yourApp', ['swaggerUi']);

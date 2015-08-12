@@ -17,7 +17,8 @@ angular
 			scope: {
 				url: '=',
 				apiExplorer: '=',
-				errorHandler: '='
+				errorHandler: '=',
+				trustedSources: '='
 			}
 		};
 	})
@@ -90,6 +91,15 @@ angular
 				}
 			});
 
+			function trustHtml(text) {
+				var trusted = text;
+				if (typeof text === 'string' && $scope.trustedSources) {
+					trusted = $sce.trustAsHtml(text);
+				}
+				// else ngSanitize MUST be added to app
+				return trusted;
+			}
+
 			/**
 			 * parses swagger description to ease HTML generation
 			 */
@@ -103,7 +113,7 @@ angular
 				$scope.infos.scheme = swagger.schemes[0];
 				$scope.infos.basePath = swagger.basePath;
 				$scope.infos.host = swagger.host;
-				$scope.infos.description = $sce.trustAsHtml($scope.infos.description);
+				$scope.infos.description = trustHtml($scope.infos.description);
 
 				var operationId = 0,
 					paramId = 0,
@@ -132,6 +142,7 @@ angular
 						var operation = swagger.paths[path][httpMethod];
 						//TODO manage 'deprecated' operations ?
 						operation.id = operationId;
+						operation.description = trustHtml(operation.description);
 						operation.consumes = operation.consumes || swagger.consumes;
 						operation.produces = operation.produces || swagger.produces;
 						form[operationId] = {
@@ -152,6 +163,7 @@ angular
 							}
 							param.id = paramId;
 							param.type = swaggerModel.getType(param);
+							param.description = trustHtml(param.description);
 							if (param.items && param.items.enum) {
 								param.enum = param.items.enum;
 								param.default = param.items.default;
@@ -174,7 +186,7 @@ angular
 							for (var code in operation.responses) {
 								//TODO manage headers ?
 								var resp = operation.responses[code];
-								resp.description = $sce.trustAsHtml(resp.description);
+								resp.description = trustHtml(resp.description);
 								if (resp.schema) {
 									resp.schema.json = swaggerModel.generateSampleJson(swagger, resp.schema);
 									if (resp.schema.type === 'object' || resp.schema.type === 'array' || resp.schema.$ref) {
@@ -243,6 +255,7 @@ angular
 						// display swagger UI
 						$scope.form = form;
 						$scope.resources = resources;
+						console.log(resources)
 					})
 					.catch(onError);
 			}

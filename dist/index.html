@@ -16,16 +16,17 @@
         <div swagger-ui url="swaggerUrl" api-explorer="true" error-handler="myErrorHandler"></div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.17/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.17/angular-sanitize.min.js"></script>
     <script src="scripts/swagger-ui.min.js"></script>
     <script type="text/javascript">
         angular
-            .module('myApp', ['swaggerUi'])
+            .module('myApp', ['ngSanitize', 'swaggerUi'])
             .controller('MyCtrl', function($scope){
                 // init form
                 $scope.url = $scope.swaggerUrl = 'http://petstore.swagger.io/v2/swagger.json';
                 // error management
                 $scope.myErrorHandler = function(data, status){
-                    alert('failed to load swagger: '+status);
+                    alert('failed to load swagger: '+status+'   '+data);
                 };
             });
     </script>

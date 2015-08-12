@@ -3,10 +3,11 @@
 
  * Allow creating and using modules
  * Create module to support Swagger external references
- * Create module to support for application/xml response type with formatted response body
+ * Create module to support application/xml API explorer responses to display formatted response body
  * Use the global consumes/produces definition if an operation doesn't specify its own
  * Add support for $ref definition on operation parameters
  * Use bootstrap-less-only to remove dependency to jQuery
+ * Dsiplay HTML description for operations, parameters and responses. If untrusted sources, user MUST include ngSanitize to his app else he has to add trusted-sources parameter to swagger-ui directive
 
 ### 0.1.6 (2015-07-07)
 
@@ -38,7 +39,7 @@
  * Fix model generation
  * Fix display on small screens
 
- ### 0.1.1 (2015-03-03)
+### 0.1.1 (2015-03-03)
 
  * Responsive tables
  * Split JS in multiple files

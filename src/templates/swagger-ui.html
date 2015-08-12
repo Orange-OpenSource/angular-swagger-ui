@@ -51,7 +51,7 @@
 	                <div class="content collapse" ng-class="{in:op.open}">
 	                	<div ng-if="op.description">
 	                		<h5>implementation notes</h5>
-	                		<p ng-bind="op.description"></p>
+	                		<p ng-bind-html="op.description"></p>
 	                	</div>
 	                	<form role="form" name="explorerForm" ng-submit="explorerForm.$valid&&submitExplorer(op)">
 		                	<div ng-if="op.responseClass" class="response">
@@ -114,7 +114,7 @@
 		                							</div>
 		                						</div>
 		                					</td>
-		                					<td ng-class="{bold:param.required}" ng-bind="param.description"></td>
+		                					<td ng-class="{bold:param.required}" ng-bind-html="param.description"></td>
 		                					<td ng-bind="param.in"></td>
 		                					<td ng-if="param.type" ng-switch="param.type">
 		                						<span ng-switch-when="array" ng-bind="'Array['+param.items.type+']'"></span>
