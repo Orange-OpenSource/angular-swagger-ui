@@ -40,7 +40,8 @@ angular
 		 * retrieves object class name based on definition
 		 */
 		function getClassName(item) {
-			return item.$ref.split('#/definitions/')[1];
+			var parts = item.$ref.replace('#/definitions/', '').split('#/');
+			return parts[parts.length - 1];
 		}
 
 		/**
@@ -71,6 +72,8 @@ angular
 						objCache[schema.$ref] = getSampleObj(swagger, def);
 					}
 					sample = objCache[schema.$ref];
+				} else {
+					console.warn('schema not found', schema.$ref);
 				}
 			} else if (schema.type === 'array') {
 				sample = [getSampleObj(swagger, schema.items)];

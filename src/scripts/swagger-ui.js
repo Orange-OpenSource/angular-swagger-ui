@@ -255,7 +255,6 @@ angular
 						// display swagger UI
 						$scope.form = form;
 						$scope.resources = resources;
-						console.log(resources)
 					})
 					.catch(onError);
 			}

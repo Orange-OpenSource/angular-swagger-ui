@@ -26,10 +26,26 @@ angular
 			deferred.reject(error);
 		}
 
-		function get(externalUrl, callback) {
+		function get(externalUrl, callback, prefix) {
 			var options = {
 				method: 'GET',
-				url: externalUrl
+				url: externalUrl,
+				transformResponse: function(json) {
+					if (prefix) {
+						// rewrite referencess
+						json = json.replace(/"\$ref": ?"#\/(.*)"/g, '"$ref": "#/definitions/' + prefix + '#/$1"');
+					}
+					var obj;
+					try {
+						obj = angular.fromJson(json);
+					} catch (e) {
+						onError({
+							code: '500',
+							message: 'failed to parse JSON'
+						})
+					}
+					return obj;
+				}
 			};
 			swaggerModules
 				.execute(swaggerModules.BEFORE_LOAD, options)
@@ -105,41 +121,21 @@ angular
 				var parts = item.$ref.split('#/'),
 					externalUrl = getExternalUrl(item.$ref);
 
+				// rewrite reference
+				item.$ref = '#/definitions/' + item.$ref;
+				// load external if needed
 				if (!loadingUrls[externalUrl]) {
 					loading++;
 					loadingUrls[externalUrl] = true;
 					get(externalUrl, function(json) {
 						for (var key in json) {
 							swagger.definitions[parts[0] + '#/' + key] = json[key];
-							for (var attrName in json[key]) {
-								var attr = json[key][attrName];
-								if (attr.parameters || attr.responses) {
-									// this is an external operation definition
-									// check if external references
-									checkOperationDefinitions(attr);
-									// rewrite internal references
-									for (var j = 0, params = attr.parameters || [], k = params.length; j < k; j++) {
-										rewriteReference(params[j], parts[0]);
-									}
-									for (var code in (attr.responses || {})) {
-										rewriteReference(attr.responses[code], parts[0]);
-									}
-								}
-							}
 						}
 						loading--;
 						if (loading === 0) {
 							deferred.resolve();
 						}
-					});
-				}
-			}
-
-			function rewriteReference(item, prefix) {
-				// rewrite external references paths
-				var $ref = item.schema && item.schema.$ref;
-				if ($ref && $ref.indexOf('#/') === 0) {
-					item.schema.$ref = prefix + '#/' + $ref;
+					}, parts[0]);
 				}
 			}
 
