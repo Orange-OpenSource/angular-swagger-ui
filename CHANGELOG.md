@@ -1,4 +1,8 @@
 
+### 0.2.1 (2015-08-13)
+ * Fix model generation
+ * Fix JSON parser
+
 ### 0.2 (2015-08-12)
 
  * Allow creating and using modules

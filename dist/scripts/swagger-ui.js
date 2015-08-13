@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.2
+ * Orange angular-swagger-ui - v0.2.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -169,7 +169,7 @@ angular
 		};
 	});
 /*
- * Orange angular-swagger-ui - v0.2
+ * Orange angular-swagger-ui - v0.2.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -306,7 +306,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.2
+ * Orange angular-swagger-ui - v0.2.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -370,7 +370,7 @@ angular
 				sample = {};
 				for (var name in schema.properties) {
 					var obj = getSampleObj(swagger, schema.properties[name], currentGenerated);
-					if (obj) {
+					if (obj !== null) {
 						sample[name] = obj;
 					}
 				}
@@ -389,7 +389,7 @@ angular
 				}
 			} else if (schema.type === 'array') {
 				var obj = getSampleObj(swagger, schema.items, currentGenerated);
-				sample = obj ? [obj] : [];
+				sample = obj !== null ? [obj] : [];
 			} else if (schema.type === 'object') {
 				sample = {};
 			} else {
@@ -557,7 +557,7 @@ angular
 
 	});
 /*
- * Orange angular-swagger-ui - v0.2
+ * Orange angular-swagger-ui - v0.2.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -619,7 +619,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.2
+ * Orange angular-swagger-ui - v0.2.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
