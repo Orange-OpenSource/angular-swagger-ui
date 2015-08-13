@@ -7,7 +7,8 @@
  * Use the global consumes/produces definition if an operation doesn't specify its own
  * Add support for $ref definition on operation parameters
  * Use bootstrap-less-only to remove dependency to jQuery
- * Dsiplay HTML description for operations, parameters and responses. If untrusted sources, user MUST include ngSanitize to his app else he has to add trusted-sources parameter to swagger-ui directive
+ * Display HTML description for operations, parameters and responses. If untrusted sources, user MUST include ngSanitize to his app else he has to add trusted-sources parameter to swagger-ui directive
+ * Fix models defintions circular references
 
 ### 0.1.6 (2015-07-07)
 
