@@ -6,3 +6,5 @@ npm-debug.log
 .sass-cache
 bower_components
 src/css
+*.iml
+.idea/
