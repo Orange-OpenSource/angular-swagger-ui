@@ -63,7 +63,7 @@ angular
 				sample = {};
 				for (var name in schema.properties) {
 					var obj = getSampleObj(swagger, schema.properties[name], currentGenerated);
-					if (obj) {
+					if (obj !== null) {
 						sample[name] = obj;
 					}
 				}
@@ -82,7 +82,7 @@ angular
 				}
 			} else if (schema.type === 'array') {
 				var obj = getSampleObj(swagger, schema.items, currentGenerated);
-				sample = obj ? [obj] : [];
+				sample = obj !== null ? [obj] : [];
 			} else if (schema.type === 'object') {
 				sample = {};
 			} else {
