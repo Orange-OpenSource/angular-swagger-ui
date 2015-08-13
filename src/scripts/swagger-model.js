@@ -56,16 +56,13 @@ angular
 		 */
 		function getSampleObj(swagger, schema, currentGenerated) {
 			var sample;
-			currentGenerated = currentGenerated || {};
+			currentGenerated = currentGenerated || {}; // used to handle circular references
 			if (schema.default || schema.example) {
 				sample = schema.default || schema.example;
 			} else if (schema.properties) {
 				sample = {};
 				for (var name in schema.properties) {
-					var obj = getSampleObj(swagger, schema.properties[name], currentGenerated);
-					if (obj !== null) {
-						sample[name] = obj;
-					}
+					sample[name] = getSampleObj(swagger, schema.properties[name], currentGenerated);
 				}
 			} else if (schema.$ref) {
 				// complex object
@@ -76,13 +73,12 @@ angular
 						currentGenerated[schema.$ref] = true;
 						objCache[schema.$ref] = getSampleObj(swagger, def, currentGenerated);
 					}
-					sample = objCache[schema.$ref] || null;
+					sample = objCache[schema.$ref] || {};
 				} else {
 					console.warn('schema not found', schema.$ref);
 				}
 			} else if (schema.type === 'array') {
-				var obj = getSampleObj(swagger, schema.items, currentGenerated);
-				sample = obj !== null ? [obj] : [];
+				sample = [getSampleObj(swagger, schema.items, currentGenerated)];
 			} else if (schema.type === 'object') {
 				sample = {};
 			} else {
@@ -145,7 +141,7 @@ angular
 		 */
 		var generateModel = this.generateModel = function(swagger, schema, modelName, currentGenerated) {
 			var model = '';
-			currentGenerated = currentGenerated || {};
+			currentGenerated = currentGenerated || {}; // used to handle circular references
 
 			function isRequired(item, name) {
 				return item.required && item.required.indexOf(name) !== -1;
