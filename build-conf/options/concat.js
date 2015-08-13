@@ -19,5 +19,19 @@ module.exports = {
 			'dist/scripts/swagger-ui.min.js'
 		],
 		dest: 'dist/scripts/swagger-ui.min.js'
+	},
+	copyrightExternals: {
+		src: [
+			'copyright.txt',
+			'dist/scripts/modules/swagger-external-references.min.js'
+		],
+		dest: 'dist/scripts/modules/swagger-external-references.min.js'
+	},
+	copyrightXml: {
+		src: [
+			'copyright.txt',
+			'dist/scripts/modules/swagger-xml-formatter.min.js'
+		],
+		dest: 'dist/scripts/modules/swagger-xml-formatter.min.js'
 	}
 }
