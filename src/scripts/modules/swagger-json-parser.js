@@ -178,6 +178,9 @@ angular
 			deferred.resolve();
 		}
 
+		/**
+		 * Module entry point
+		 */
 		this.execute = function(contentType, data, isTrustedSources, parseResult) {
 			deferred = $q.defer();
 			if (contentType === 'application/json') {
@@ -185,10 +188,10 @@ angular
 				trustedSources = isTrustedSources;
 				try {
 					parseJsonSwagger2(parseResult);
-				} catch(e) {
+				} catch (e) {
 					deferred.reject({
 						code: '500',
-						message: 'failed to parse swagger: '+e.message
+						message: 'failed to parse swagger: ' + e.message
 					});
 				}
 			}

@@ -16,7 +16,7 @@ angular
 				pad = 0;
 
 			xml = xml.replace(reg, '$1\r\n$2$3');
-			angular.forEach(xml.split('\r\n'), function (node) {
+			angular.forEach(xml.split('\r\n'), function(node) {
 				var indent = 0,
 					padding = '';
 
@@ -43,6 +43,9 @@ angular
 			return formatted;
 		}
 
+		/**
+		 * Module entry point
+		 */
 		this.execute = function(response) {
 			var deferred = $q.defer();
 			if (response.headers && response.headers()['content-type'] === 'application/xml') {

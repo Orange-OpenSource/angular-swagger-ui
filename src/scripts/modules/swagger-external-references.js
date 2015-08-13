@@ -14,6 +14,9 @@ angular
 			deferred,
 			swagger;
 
+		/**
+		 * Module entry point
+		 */
 		this.execute = function(swaggerUrl, swaggerData) {
 			url = swaggerUrl;
 			swagger = swaggerData;
@@ -26,6 +29,9 @@ angular
 			deferred.reject(error);
 		}
 
+		/**
+		 * Load external definition
+		 */
 		function get(externalUrl, callback, prefix) {
 			var options = {
 				method: 'GET',
@@ -62,6 +68,9 @@ angular
 				.catch(onError);
 		}
 
+		/**
+		 * Generate external URL
+		 */
 		function getExternalUrl($ref) {
 			var parts = $ref.split('#/'),
 				externalUrl = parts[0];
@@ -79,6 +88,9 @@ angular
 			return externalUrl;
 		}
 
+		/**
+		 * Find and resolve external definitions
+		 */
 		function loadExternalReferences() {
 
 			var loading = 0;

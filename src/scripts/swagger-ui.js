@@ -34,6 +34,9 @@ angular
 			// add default Swagger parser (JSON)
 			swaggerModules.add(swaggerModules.PARSE, swaggerJsonParser);
 
+			/**
+			 * Load Swagger descriptor
+			 */
 			function loadSwagger(url, callback) {
 				$scope.loading = true;
 				var options = {
@@ -55,6 +58,9 @@ angular
 					.catch(onError);
 			}
 
+			/**
+			 * Swagger descriptor has been loaded, launch parsing
+			 */
 			function swaggerLoaded(swaggerType) {
 				$scope.loading = false;
 				if (swagger.swagger === '2.0') {
@@ -74,6 +80,9 @@ angular
 				}
 			}
 
+			/**
+			 * Swagger descriptor has parsed, launch display
+			 */
 			function swaggerParsed(parseResult) {
 				// execute modules
 				swaggerModules

@@ -12,6 +12,9 @@ angular
 
 		var baseUrl;
 
+		/**
+		 * format API explorer response before display
+		 */
 		function formatResult(deferred, response) {
 			var query = '',
 				data = response.data,
@@ -36,6 +39,9 @@ angular
 			});
 		}
 
+		/**
+		 * Send API explorer request
+		 */
 		this.send = function(swagger, operation, values) {
 			var deferred = $q.defer(),
 				query = {},
