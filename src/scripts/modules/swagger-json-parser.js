@@ -10,8 +10,7 @@ angular
 	.module('swaggerUi')
 	.service('swaggerJsonParser', ['$q', '$sce', '$location', 'swaggerModel', function($q, $sce, $location, swaggerModel) {
 
-		var deferred,
-			swagger,
+		var swagger,
 			trustedSources;
 
 		function trustHtml(text) {
@@ -26,7 +25,7 @@ angular
 		/**
 		 * parses swagger description to ease HTML generation
 		 */
-		function parseJsonSwagger2(parseResult) {
+		function parseJsonSwagger2(deferred, parseResult) {
 
 			var operationId = 0,
 				paramId = 0,
@@ -182,18 +181,20 @@ angular
 		 * Module entry point
 		 */
 		this.execute = function(contentType, data, isTrustedSources, parseResult) {
-			deferred = $q.defer();
+			var deferred = $q.defer();
 			if (contentType === 'application/json') {
 				swagger = data;
 				trustedSources = isTrustedSources;
 				try {
-					parseJsonSwagger2(parseResult);
+					parseJsonSwagger2(deferred, parseResult);
 				} catch (e) {
 					deferred.reject({
 						code: '500',
 						message: 'failed to parse swagger: ' + e.message
 					});
 				}
+			} else {
+				deferred.resolve();
 			}
 			return deferred.promise;
 		};
