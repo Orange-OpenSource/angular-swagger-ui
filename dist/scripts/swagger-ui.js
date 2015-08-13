@@ -34,6 +34,9 @@ angular
 			// add default Swagger parser (JSON)
 			swaggerModules.add(swaggerModules.PARSE, swaggerJsonParser);
 
+			/**
+			 * Load Swagger descriptor
+			 */
 			function loadSwagger(url, callback) {
 				$scope.loading = true;
 				var options = {
@@ -55,6 +58,9 @@ angular
 					.catch(onError);
 			}
 
+			/**
+			 * Swagger descriptor has been loaded, launch parsing
+			 */
 			function swaggerLoaded(swaggerType) {
 				$scope.loading = false;
 				if (swagger.swagger === '2.0') {
@@ -74,6 +80,9 @@ angular
 				}
 			}
 
+			/**
+			 * Swagger descriptor has parsed, launch display
+			 */
 			function swaggerParsed(parseResult) {
 				// execute modules
 				swaggerModules
@@ -173,6 +182,9 @@ angular
 
 		var baseUrl;
 
+		/**
+		 * format API explorer response before display
+		 */
 		function formatResult(deferred, response) {
 			var query = '',
 				data = response.data,
@@ -197,6 +209,9 @@ angular
 			});
 		}
 
+		/**
+		 * Send API explorer request
+		 */
 		this.send = function(swagger, operation, values) {
 			var deferred = $q.defer(),
 				query = {},
@@ -346,29 +361,35 @@ angular
 		/**
 		 * generates a sample object (request body or response body)
 		 */
-		function getSampleObj(swagger, schema) {
+		function getSampleObj(swagger, schema, currentGenerated) {
 			var sample;
+			currentGenerated = currentGenerated || {};
 			if (schema.default || schema.example) {
 				sample = schema.default || schema.example;
 			} else if (schema.properties) {
 				sample = {};
 				for (var name in schema.properties) {
-					sample[name] = getSampleObj(swagger, schema.properties[name]);
+					var obj = getSampleObj(swagger, schema.properties[name], currentGenerated);
+					if (obj) {
+						sample[name] = obj;
+					}
 				}
 			} else if (schema.$ref) {
 				// complex object
 				var def = swagger.definitions && swagger.definitions[getDefinitionName(schema)];
 				if (def) {
-					if (!objCache[schema.$ref]) {
+					if (!objCache[schema.$ref] && !currentGenerated[schema.$ref]) {
 						// object not in cache
-						objCache[schema.$ref] = getSampleObj(swagger, def);
+						currentGenerated[schema.$ref] = true;
+						objCache[schema.$ref] = getSampleObj(swagger, def, currentGenerated);
 					}
-					sample = objCache[schema.$ref];
+					sample = objCache[schema.$ref] || null;
 				} else {
 					console.warn('schema not found', schema.$ref);
 				}
 			} else if (schema.type === 'array') {
-				sample = [getSampleObj(swagger, schema.items)];
+				var obj = getSampleObj(swagger, schema.items, currentGenerated);
+				sample = obj ? [obj] : [];
 			} else if (schema.type === 'object') {
 				sample = {};
 			} else {
@@ -421,13 +442,17 @@ angular
 			return json;
 		};
 
+		/**
+		 * inline model counter
+		 */
 		var countInLine = 0;
 
 		/**
 		 * generates object's model
 		 */
-		var generateModel = this.generateModel = function(swagger, schema, modelName) {
+		var generateModel = this.generateModel = function(swagger, schema, modelName, currentGenerated) {
 			var model = '';
+			currentGenerated = currentGenerated || {};
 
 			function isRequired(item, name) {
 				return item.required && item.required.indexOf(name) !== -1;
@@ -435,6 +460,7 @@ angular
 
 			if (schema.properties) {
 				modelName = modelName || ('Inline Model' + countInLine++);
+				currentGenerated[modelName] = true;
 				var buffer = ['<div><strong>' + modelName + ' {</strong>'],
 					submodels = [];
 
@@ -445,19 +471,19 @@ angular
 					if (property.properties) {
 						var name = 'Inline Model' + countInLine++;
 						buffer.push(name);
-						submodels.push(generateModel(swagger, property, name));
+						submodels.push(generateModel(swagger, property, name, currentGenerated));
 					} else if (property.$ref) {
 						buffer.push(getClassName(property));
-						submodels.push(generateModel(swagger, property));
+						submodels.push(generateModel(swagger, property, null, currentGenerated));
 					} else if (property.type === 'array') {
 						buffer.push('Array[');
 						if (property.items.properties) {
 							var name = 'Inline Model' + countInLine++;
 							buffer.push(name);
-							submodels.push(generateModel(swagger, property, name));
+							submodels.push(generateModel(swagger, property, name, currentGenerated));
 						} else if (property.items.$ref) {
 							buffer.push(getClassName(property.items));
-							submodels.push(generateModel(swagger, property.items));
+							submodels.push(generateModel(swagger, property.items, null, currentGenerated));
 						} else {
 							buffer.push(getType(property.items));
 						}
@@ -490,10 +516,13 @@ angular
 				var className = getClassName(schema),
 					def = swagger.definitions && swagger.definitions[getDefinitionName(schema)];
 
+				if (currentGenerated[className]) {
+					return ''; // already generated
+				}
 				if (def) {
 					if (!modelCache[schema.$ref]) {
 						// cache generated object
-						modelCache[schema.$ref] = generateModel(swagger, def, className);
+						modelCache[schema.$ref] = generateModel(swagger, def, className, currentGenerated);
 					}
 					model = modelCache[schema.$ref];
 				}
@@ -503,10 +532,10 @@ angular
 				if (schema.items.properties) {
 					var name = 'Inline Model' + countInLine++;
 					buffer.push(name);
-					sub = generateModel(swagger, schema.items, name);
+					sub = generateModel(swagger, schema.items, name, currentGenerated);
 				} else if (schema.items.$ref) {
 					buffer.push(getClassName(schema.items));
-					sub = generateModel(swagger, schema.items);
+					sub = generateModel(swagger, schema.items, null, currentGenerated);
 				} else {
 					buffer.push(getType(schema.items));
 				}
@@ -769,6 +798,9 @@ angular
 			deferred.resolve();
 		}
 
+		/**
+		 * Module entry point
+		 */
 		this.execute = function(contentType, data, isTrustedSources, parseResult) {
 			deferred = $q.defer();
 			if (contentType === 'application/json') {
@@ -776,10 +808,10 @@ angular
 				trustedSources = isTrustedSources;
 				try {
 					parseJsonSwagger2(parseResult);
-				} catch(e) {
+				} catch (e) {
 					deferred.reject({
 						code: '500',
-						message: 'failed to parse swagger: '+e.message
+						message: 'failed to parse swagger: ' + e.message
 					});
 				}
 			}
