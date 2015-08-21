@@ -14,7 +14,7 @@
 		</div>
 	</div>
 	<ul class="list-unstyled endpoints">
-	    <li ng-repeat="api in resources" class="endpoint" ng-class="{active:api.open}">
+	    <li ng-repeat="api in resources track by $index" class="endpoint" ng-class="{active:api.open}">
 	        <div class="clearfix">
 		        <ul class="list-inline pull-left endpoint-heading">
 		            <li>
@@ -37,7 +37,7 @@
 		        </ul>
 	        </div>
 	        <ul class="list-unstyled collapse operations" ng-class="{in:api.open}">
-	            <li ng-repeat="op in api.operations" class="operation {{op.httpMethod}}">
+	            <li ng-repeat="op in api.operations track by $index" class="operation {{op.httpMethod}}">
 	                <div class="heading">
 	                    <a ng-click="op.open=!op.open;permalink(op.open?op.operationId:null)" href="javascript:;">
 	                        <div class="clearfix">
@@ -81,7 +81,7 @@
 		                				</tr>
 		                			</thead>
 		                			<tbody>
-		                				<tr ng-repeat="param in op.parameters">
+		                				<tr ng-repeat="param in op.parameters track by $index">
 		                					<td ng-class="{bold:param.required}">
 		                						<label for="param{{param.id}}" ng-bind="param.name"></label>
 		                					</td>
@@ -107,7 +107,7 @@
 		                							<div ng-if="param.in!=='body'">
 		                								<div ng-if="param.default"><span ng-bind="param.default"></span> (default)</div>
 		                								<div ng-if="param.enum">
-		                									<span ng-repeat="value in param.enum">{{value}}<span ng-if="!$last"> or </span></span>
+		                									<span ng-repeat="value in param.enum track by $index">{{value}}<span ng-if="!$last"> or </span></span>
 		                								</div>
 		                								<div ng-if="param.required"><strong>(required)</strong></div>
 		                							</div>
@@ -145,7 +145,7 @@
 		                				</tr>
 		                			</thead>
 		                			<tbody>
-		                				<tr ng-repeat="(code, resp) in op.responses">
+		                				<tr ng-repeat="(code, resp) in op.responses track by $index">
 		                					<td ng-bind="code"></td>
 		                					<td ng-bind-html="resp.description"></td>
 		                					<td>
@@ -180,7 +180,7 @@
 	        </ul>
 	    </li>
 	</ul>
-	<div class="api-version" ng-if="infos">
+	<div class="api-version clearfix" ng-if="infos">
 		[BASE URL: <span class="h4" ng-bind="infos.basePath"></span>, API VERSION: <span class="h4" ng-bind="infos.version"></span>, HOST: <span class="h4" ng-bind="infos.scheme"></span>://<span class="h4" ng-bind="infos.host"></span>]
 	</div>
 </div>
