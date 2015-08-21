@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.2.1
+ * Orange angular-swagger-ui - v0.2.2
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi')
-	.service('swaggerJsonParser', ['$q', '$sce', '$location', 'swaggerModel', function($q, $sce, $location, swaggerModel) {
+	.service('swagger2JsonParser', ['$q', '$sce', '$location', 'swaggerModel', function($q, $sce, $location, swaggerModel) {
 
 		var swagger,
 			trustedSources;
@@ -25,7 +25,7 @@ angular
 		/**
 		 * parses swagger description to ease HTML generation
 		 */
-		function parseJsonSwagger2(deferred, parseResult) {
+		function parseSwagger2Json(deferred, parseResult) {
 
 			var operationId = 0,
 				paramId = 0,
@@ -174,27 +174,27 @@ angular
 			parseResult.infos = infos;
 			parseResult.resources = resources;
 			parseResult.form = form;
-			deferred.resolve();
+			deferred.resolve(true);
 		}
 
 		/**
 		 * Module entry point
 		 */
-		this.execute = function(contentType, data, isTrustedSources, parseResult) {
+		this.execute = function(parserType, contentType, data, isTrustedSources, parseResult) {
 			var deferred = $q.defer();
-			if (contentType === 'application/json') {
+			if (data.swagger === '2.0' && (parserType === 'json' || (parserType === 'auto' && contentType === 'application/json'))) {
 				swagger = data;
 				trustedSources = isTrustedSources;
 				try {
-					parseJsonSwagger2(deferred, parseResult);
+					parseSwagger2Json(deferred, parseResult);
 				} catch (e) {
 					deferred.reject({
-						code: '500',
+						code: 500,
 						message: 'failed to parse swagger: ' + e.message
 					});
 				}
 			} else {
-				deferred.resolve();
+				deferred.resolve(false);
 			}
 			return deferred.promise;
 		};
