@@ -20,10 +20,12 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.17/angular-sanitize.min.js"></script>
     <script src="scripts/swagger-ui.min.js"></script>
 	<script src="scripts/modules/swagger-external-references.min.js"></script>
+    <script src="scripts/modules/swagger1-to-swagger2-converter.min.js"></script>
     <script type="text/javascript">
         angular
             .module('myApp', ['ngSanitize', 'swaggerUi'])
-            .run(function(swaggerModules, swaggerUiExternalReferences){
+            .run(function(swaggerModules, swaggerUiExternalReferences, swagger1ToSwagger2Converter){
+                swaggerModules.add(swaggerModules.BEFORE_PARSE, swagger1ToSwagger2Converter);
                 swaggerModules.add(swaggerModules.BEFORE_PARSE, swaggerUiExternalReferences);
             })
             .controller('MyCtrl', function($scope){
