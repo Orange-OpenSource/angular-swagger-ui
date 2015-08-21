@@ -3,35 +3,35 @@
 //
 module.exports = {
 	dist: {
-		src: [
-			'dist/scripts/swagger-ui.js',
-			'dist/scripts/swagger-client.js',
-			'dist/scripts/swagger-model.js',
-			'dist/scripts/swagger-modules.js',
-			'dist/scripts/modules/swagger-json-parser.js',
-			'dist/scripts/templates.js'
-		],
-		dest: 'dist/scripts/swagger-ui.js'
+		files: {
+			'dist/scripts/swagger-ui.js': [
+				'dist/scripts/swagger-ui.js',
+				'dist/scripts/swagger-client.js',
+				'dist/scripts/swagger-model.js',
+				'dist/scripts/swagger-modules.js',
+				'dist/scripts/modules/swagger2-json-parser.js',
+				'dist/scripts/templates.js'
+			]
+		}
 	},
 	copyright: {
-		src: [
-			'copyright.txt',
-			'dist/scripts/swagger-ui.min.js'
-		],
-		dest: 'dist/scripts/swagger-ui.min.js'
-	},
-	copyrightExternals: {
-		src: [
-			'copyright.txt',
-			'dist/scripts/modules/swagger-external-references.min.js'
-		],
-		dest: 'dist/scripts/modules/swagger-external-references.min.js'
-	},
-	copyrightXml: {
-		src: [
-			'copyright.txt',
-			'dist/scripts/modules/swagger-xml-formatter.min.js'
-		],
-		dest: 'dist/scripts/modules/swagger-xml-formatter.min.js'
+		files: {
+			'dist/scripts/swagger-ui.min.js': [
+				'copyright.txt',
+				'dist/scripts/swagger-ui.min.js'
+			],
+			'dist/scripts/modules/swagger-external-references.min.js': [
+				'copyright.txt',
+				'dist/scripts/modules/swagger-external-references.min.js'
+			],
+			'dist/scripts/modules/swagger-xml-formatter.min.js': [
+				'copyright.txt',
+				'dist/scripts/modules/swagger-xml-formatter.min.js'
+			],
+			'dist/scripts/modules/swagger1-to-swagger2-converter.min.js': [
+				'copyright.txt',
+				'dist/scripts/modules/swagger1-to-swagger2-converter.min.js'
+			]
+		}
 	}
 }

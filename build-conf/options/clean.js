@@ -19,9 +19,10 @@ module.exports = {
 				'dist/scripts/swagger-model.js',
 				'dist/scripts/templates.js',
 				'dist/scripts/swagger-modules.js',
-				'dist/scripts/modules/swagger-json-parser.js',
+				'dist/scripts/modules/swagger2-json-parser.js',
 				'dist/scripts/modules/swagger-external-references.js',
-				'dist/scripts/modules/swagger-xml-formatter.js'
+				'dist/scripts/modules/swagger-xml-formatter.js',
+				'dist/scripts/modules/swagger1-to-swagger2-converter.js'
 			]
 		}]
 	}
