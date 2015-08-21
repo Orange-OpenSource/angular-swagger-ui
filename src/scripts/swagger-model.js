@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.2.1
+ * Orange angular-swagger-ui - v0.2.2
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -213,6 +213,7 @@ angular
 						// cache generated object
 						modelCache[schema.$ref] = generateModel(swagger, def, className, currentGenerated);
 					}
+					currentGenerated[className] = true;
 					model = modelCache[schema.$ref];
 				}
 			} else if (schema.type === 'array') {

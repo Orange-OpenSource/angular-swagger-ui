@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.2.1
+ * Orange angular-swagger-ui - v0.2.2
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -47,11 +47,14 @@ angular
 		 * Module entry point
 		 */
 		this.execute = function(response) {
-			var deferred = $q.defer();
+			var executed = false,
+				deferred = $q.defer();
+
 			if (response.headers && response.headers()['content-type'] === 'application/xml') {
 				response.data = formatXml(response.data);
+				executed = true;
 			}
-			deferred.resolve();
+			deferred.resolve(executed);
 			return deferred.promise;
 		};
 

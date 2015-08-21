@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.2.1
+ * Orange angular-swagger-ui - v0.2.2
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -15,24 +15,36 @@ angular
 			controller: 'swaggerUiController',
 			templateUrl: 'templates/swagger-ui.html',
 			scope: {
-				url: '=', // Swagger descriptor URL (string)
-				loading: '=?', // Swagger descriptor loading indicator (boolean, optional)
-				apiExplorer: '=?', // Enable/Disable API explorer (boolean, optional)
-				errorHandler: '=?', // Error handler (function, optional)
-				trustedSources: '=?' // Are Swagger descriptors loaded from trusted source only ? (boolean, optional) ==> Avoid using ngSanitize
+				// Swagger descriptor URL (string, required)
+				url: '=',
+				// Swagger descriptor parser type (string, optional, default = "auto")
+				// Built-in allowed values:
+				// 		"auto": (default) parser is based on response Content-Type
+				//		"json": force using JSON parser
+				//
+				//	More types could be defined by external modules
+				parser: '@?',
+				// Swagger descriptor loading indicator (variables, optional)
+				loading: '=?',
+				// Display API explorer (boolean, optional, default = false)
+				apiExplorer: '=?',
+				// Error handler (function, optional)
+				errorHandler: '=?',
+				// Are Swagger descriptors loaded from trusted source only ? (boolean, optional, default = false)
+				// If true, it avoids using ngSanitize but consider HTML as trusted so won't be cleaned
+				trustedSources: '=?'
 			}
 		};
 	})
-	.controller('swaggerUiController', ['$scope', '$http', '$location', '$q', 'swaggerClient', 'swaggerModules', 'swaggerJsonParser',
-		function($scope, $http, $location, $q, swaggerClient, swaggerModules, swaggerJsonParser) {
+	.controller('swaggerUiController', ['$scope', '$http', '$location', '$q', 'swaggerClient', 'swaggerModules', 'swagger2JsonParser',
+		function($scope, $http, $location, $q, swaggerClient, swaggerModules, swagger2JsonParser) {
 
 			var swagger;
 
-			// WARNING only Swagger 2.0 is supported (@see https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md)
 			// WARNING authentication is not implemented, please use 'api-explorer-transform' directive's param to customize API calls
 
 			// add default Swagger parser (JSON)
-			swaggerModules.add(swaggerModules.PARSE, swaggerJsonParser);
+			swaggerModules.add(swaggerModules.PARSE, swagger2JsonParser);
 
 			/**
 			 * Load Swagger descriptor
@@ -63,21 +75,22 @@ angular
 			 */
 			function swaggerLoaded(swaggerType) {
 				$scope.loading = false;
-				if (swagger.swagger === '2.0') {
-					var parseResult = {};
-					// execute modules
-					swaggerModules
-						.execute(swaggerModules.PARSE, swaggerType, swagger, $scope.trustedSources, parseResult)
-						.then(function() {
+				var parseResult = {};
+				// execute modules
+				$scope.parser = $scope.parser || 'auto';
+				swaggerModules
+					.execute(swaggerModules.PARSE, $scope.parser, swaggerType, swagger, $scope.trustedSources, parseResult)
+					.then(function(executed) {
+						if (executed) {
 							swaggerParsed(parseResult);
-						})
-						.catch(onError);
-				} else {
-					onError({
-						code: '415',
-						message: 'unsupported swagger version'
-					});
-				}
+						} else {
+							onError({
+								code: 415,
+								message: 'no parser found for Swagger descriptor of type ' + swaggerType + ' and version ' + swagger.swagger
+							});
+						}
+					})
+					.catch(onError);
 			}
 
 			/**
@@ -100,6 +113,8 @@ angular
 				$scope.loading = false;
 				if (typeof $scope.errorHandler === 'function') {
 					$scope.errorHandler(error.message, error.code);
+				} else {
+					console.error(error.code, error.message);
 				}
 			}
 
@@ -109,6 +124,9 @@ angular
 				$scope.resources = [];
 				$scope.form = {};
 				if (url && url !== '') {
+					if ($scope.loading) {
+						//TODO cancel current loading swagger
+					}
 					// load Swagger descriptor
 					loadSwagger(url, function(data, status, headers) {
 						swagger = data;
@@ -116,7 +134,9 @@ angular
 						swaggerModules
 							.execute(swaggerModules.BEFORE_PARSE, url, swagger)
 							.then(function() {
-								var swaggerType = headers()['content-type'] || 'application/json';
+								var contentType = headers()['content-type'] || 'application/json',
+									swaggerType = contentType.split(';')[0];
+
 								swaggerLoaded(swaggerType);
 							})
 							.catch(onError);

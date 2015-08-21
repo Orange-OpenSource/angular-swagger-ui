@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.2.1
+ * Orange angular-swagger-ui - v0.2.2
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -46,7 +46,7 @@ angular
 						obj = angular.fromJson(json);
 					} catch (e) {
 						onError({
-							code: '500',
+							code: 500,
 							message: 'failed to parse JSON'
 						});
 					}
@@ -145,7 +145,7 @@ angular
 						}
 						loading--;
 						if (loading === 0) {
-							deferred.resolve();
+							deferred.resolve(true);
 						}
 					}, parts[0]);
 				}
@@ -181,7 +181,7 @@ angular
 			}
 			if (loading === 0) {
 				// may have no external definitions
-				deferred.resolve();
+				deferred.resolve(true);
 			}
 		}
 
