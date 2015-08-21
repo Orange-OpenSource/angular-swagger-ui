@@ -8,7 +8,7 @@ Swagger UI helps developers discovering your RESTful API by providing an online 
 
 ### Warning 
 > By default, only JSON Swagger 2.0 is supported. 
-To handle Swagger 1.2 please add module `swagger1-to-swagger-converter` (beta) see [enable Swagger 1.2](#enable-swagger-12)
+To handle Swagger 1.2 please add module `swagger1-to-swagger2-converter` (beta) see [enable Swagger 1.2](#enable-swagger-12)
 
 > Authentication is not implemented, please use modules to customize API calls
 
