@@ -1,4 +1,4 @@
-### 0.2.2 (2015-08-)
+### 0.2.2 (2015-08-21)
  * Allow forcing parser to JSON
  * Throw error if no parser found
  * Include Swagger validator
