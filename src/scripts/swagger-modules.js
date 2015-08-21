@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.2.1
+ * Orange angular-swagger-ui - v0.2.2
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -32,17 +32,18 @@ angular
 		/**
 		 * Runs modules' "execute" function one by one
 		 */
-		function executeAll(deferred, phaseModules, args) {
+		function executeAll(deferred, phaseModules, args, phaseExecuted) {
 			var module = phaseModules.shift();
 			if (module) {
 				module
 					.execute.apply(module, args)
-					.then(function() {
-						executeAll(deferred, phaseModules, args);
+					.then(function(executed) {
+						phaseExecuted = phaseExecuted || executed;
+						executeAll(deferred, phaseModules, args, phaseExecuted);
 					})
 					.catch(deferred.reject);
 			} else {
-				deferred.resolve();
+				deferred.resolve(phaseExecuted);
 			}
 		}
 

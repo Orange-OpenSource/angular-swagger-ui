@@ -1,3 +1,9 @@
+### 0.2.2 (2015-08-)
+ * Allow forcing parser to JSON
+ * Throw error if no parser found
+ * Include Swagger validator
+ * Create module Swagger 1.2 to Swagger 2.0 converter (beta)
+ * Fix duplicated elements in UI
 
 ### 0.2.1 (2015-08-13)
  * Fix model generation
