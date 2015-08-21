@@ -2,6 +2,7 @@
 <html class="no-js" ng-app="myApp">
   <head>
     <meta charset="utf-8">
+    <title>angular-swagger-ui sample</title>
     <meta name="viewport" content="width=device-width">
     
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
@@ -12,7 +13,7 @@
   <body>
       
     <div ng-controller="MyCtrl" class="container" style="margin-bottom:100px">
-        <h1>angular-swagger-ui example</h1>
+        <h1>angular-swagger-ui sample</h1>
         <form name="urlForm" ng-submit="swaggerUrl=url" class="form-inline">
             <input type="text" placeholder="swagger URL" class="form-control" id="url" name="url" ng-model="url" required style="width:400px">
             <button type="submit" class="btn btn-primary">explore</button>
@@ -28,13 +29,15 @@
     <script src="scripts/swagger-model.js"></script>
     <script src="scripts/swagger-client.js"></script>
     <script src="scripts/swagger-modules.js"></script>
-    <script src="scripts/modules/swagger-json-parser.js"></script>
+    <script src="scripts/modules/swagger2-json-parser.js"></script>
     <script src="scripts/modules/swagger-external-references.js"></script>
+    <script src="scripts/modules/swagger1-to-swagger2-converter.js"></script>
 
     <script type="text/javascript">
         angular
             .module('myApp', ['swaggerUi'])
-            .run(function(swaggerModules, swaggerUiExternalReferences){
+            .run(function(swaggerModules, swaggerUiExternalReferences, swagger1ToSwagger2Converter){
+                swaggerModules.add(swaggerModules.BEFORE_PARSE, swagger1ToSwagger2Converter);
                 swaggerModules.add(swaggerModules.BEFORE_PARSE, swaggerUiExternalReferences);
             })
             .controller('MyCtrl', function($scope) {
