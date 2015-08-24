@@ -98,7 +98,6 @@ angular
 			}
 
 			// build request
-			//FIXME should use server hosting the documentation if scheme or host are not defined
 			var options = {
 					method: operation.httpMethod,
 					url: baseUrl + path,
