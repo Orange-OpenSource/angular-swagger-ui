@@ -26,7 +26,9 @@ angular
 			if (!modules[phase]) {
 				modules[phase] = [];
 			}
-			modules[phase].push(module);
+			if (modules[phase].indexOf(module) < 0) {
+				modules[phase].push(module);
+			}
 		};
 
 		/**
