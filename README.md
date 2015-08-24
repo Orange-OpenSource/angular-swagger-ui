@@ -104,6 +104,12 @@ $scope.yourErrorHandler = function(/*String or Object*/ message, /*Integer*/ cod
 }
 ```
 
+#### Permalinks
+Allows having a URL direct access to a group of operations or to an operation and making it unfolded at startup
+```
+<div swagger-ui url="URLToYourSwaggerDescriptor" permalinks="true/false"></div>
+```
+
 #### Parser type
 Swagger descriptor parser is chosen depending on the `Content-Type` of the descriptor response. If host serving your Swagger descriptor does not send `Content-Type: application/json` then you can force the parser to JSON:
 ```
