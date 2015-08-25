@@ -1,10 +1,12 @@
 
 ### 0.2.3 (2015-08-25)
+
  * Do not allow adding module multiple times (fix #17)
  * Set permalinks optional as it can cause UI being reloaded when using ngRoute if 'reloadOnSearch' not set to false
  * Check parameters at startup to give advices
 
 ### 0.2.2 (2015-08-21)
+
  * Allow forcing parser to JSON
  * Throw error if no parser found
  * Include Swagger validator
@@ -12,6 +14,7 @@
  * Fix duplicated elements in UI
 
 ### 0.2.1 (2015-08-13)
+
  * Fix model generation
  * Fix JSON parser
 
