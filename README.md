@@ -12,6 +12,12 @@ To handle Swagger 1.2 please add module `swagger1-to-swagger2-converter` (beta) 
 
 > Authentication is not implemented, please use modules to customize API calls
 
+## Demo
+
+A sample app using `angular-swagger-ui` is available here:
+
+http://orange-opensource.github.io/angular-swagger-ui
+
 ## Quick Start
 
 ### Install
@@ -22,12 +28,6 @@ To handle Swagger 1.2 please add module `swagger1-to-swagger2-converter` (beta) 
 
 1. [angularJS](https://angularjs.org)
 2. [bootstrap CSS](http://getbootstrap.com)
-
-## Demo
-
-A sample app using `angular-swagger-ui` is available here:
-
-http://orange-opensource.github.io/angular-swagger-ui
 
 ## License
 
