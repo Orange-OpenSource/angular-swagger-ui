@@ -33,7 +33,7 @@ angular
 				form = {},
 				resources = [],
 				infos = swagger.info,
-				openPath = $location.search().open;
+				openPath = $location.search().swagger;
 
 			// build URL params
 			swagger.schemes = [swagger.schemes && swagger.schemes[0] ? swagger.schemes[0] : $location.protocol()];

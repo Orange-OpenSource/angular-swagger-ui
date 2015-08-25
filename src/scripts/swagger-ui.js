@@ -155,7 +155,7 @@ angular
 			};
 
 			$scope.permalink = function(name) {
-				$location.search('open', name);
+				$location.search('swagger', name);
 			};
 
 			/**
