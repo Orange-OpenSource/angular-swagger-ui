@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.2.2
+ * Orange angular-swagger-ui - v0.2.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi', ['ng', 'swaggerUiTemplates'])
-	.directive('swaggerUi', function() {
+	.directive('swaggerUi', ['$injector', function($injector) {
 
 		return {
 			restrict: 'A',
@@ -26,6 +26,10 @@ angular
 				parser: '@?',
 				// Swagger descriptor loading indicator (variables, optional)
 				loading: '=?',
+				// Use permalinks? (boolean, optional, default = false)
+				// If true and if using $routeProvider, should set 'reloadOnSearch: false' in route
+				// configuration to avoid UI being rendered multiple times
+				permalinks: '=?',
 				// Display API explorer (boolean, optional, default = false)
 				apiExplorer: '=?',
 				// Error handler (function, optional)
@@ -33,9 +37,21 @@ angular
 				// Are Swagger descriptors loaded from trusted source only ? (boolean, optional, default = false)
 				// If true, it avoids using ngSanitize but consider HTML as trusted so won't be cleaned
 				trustedSources: '=?'
+			},
+			link: function(scope) {
+				// check parameters
+				if (scope.permalinks && $injector.has('$route')) {
+					var $route = $injector.get('$route','swaggerUi');
+					if ($route.current && $route.current.$$route && $route.current.$$route.reloadOnSearch) {
+						console.warn('AngularSwaggerUI: when using permalinks you should set reloadOnSearch=false in your route config to avoid UI being rebuilt multiple times');
+					}
+				}
+				if (!scope.trustedSources && !$injector.has('$sanitize')) {
+					console.warn('AngularSwaggerUI: you must use ngSanitize OR set trusted-sources=true as directive param if swagger descriptor are loaded from trusted sources');
+				}
 			}
 		};
-	})
+	}])
 	.controller('swaggerUiController', ['$scope', '$http', '$location', '$q', 'swaggerClient', 'swaggerModules', 'swagger2JsonParser',
 		function($scope, $http, $location, $q, swaggerClient, swaggerModules, swagger2JsonParser) {
 
@@ -114,7 +130,7 @@ angular
 				if (typeof $scope.errorHandler === 'function') {
 					$scope.errorHandler(error.message, error.code);
 				} else {
-					console.error(error.code, error.message);
+					console.error(error.code, 'AngularSwaggerUI: ' + error.message);
 				}
 			}
 
@@ -155,7 +171,9 @@ angular
 			};
 
 			$scope.permalink = function(name) {
-				$location.search('open', name);
+				if ($scope.permalinks) {
+					$location.search('swagger', name);
+				}
 			};
 
 			/**
@@ -189,7 +207,7 @@ angular
 		};
 	});
 /*
- * Orange angular-swagger-ui - v0.2.2
+ * Orange angular-swagger-ui - v0.2.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -288,7 +306,6 @@ angular
 			}
 
 			// build request
-			//FIXME should use server hosting the documentation if scheme or host are not defined
 			var options = {
 					method: operation.httpMethod,
 					url: baseUrl + path,
@@ -326,7 +343,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.2.2
+ * Orange angular-swagger-ui - v0.2.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -574,7 +591,7 @@ angular
 
 	});
 /*
- * Orange angular-swagger-ui - v0.2.2
+ * Orange angular-swagger-ui - v0.2.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -601,7 +618,9 @@ angular
 			if (!modules[phase]) {
 				modules[phase] = [];
 			}
-			modules[phase].push(module);
+			if (modules[phase].indexOf(module) < 0) {
+				modules[phase].push(module);
+			}
 		};
 
 		/**
@@ -637,7 +656,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.2.2
+ * Orange angular-swagger-ui - v0.2.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -671,7 +690,7 @@ angular
 				form = {},
 				resources = [],
 				infos = swagger.info,
-				openPath = $location.search().open;
+				openPath = $location.search().swagger;
 
 			// build URL params
 			swagger.schemes = [swagger.schemes && swagger.schemes[0] ? swagger.schemes[0] : $location.protocol()];
