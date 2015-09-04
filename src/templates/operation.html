@@ -1,0 +1,78 @@
+<div class="heading">
+    <a ng-click="op.open=!op.open;permalink(op.open?op.operationId:null)" href="javascript:;">
+        <div class="clearfix">
+            <span class="http-method text-uppercase" ng-bind="op.httpMethod"></span>
+            <span class="path" ng-bind="op.path"></span>
+            <span class="description pull-right" ng-bind="op.summary"></span>
+        </div>
+    </a>
+</div>
+<div class="content collapse" ng-class="{in:op.open}">
+	<div ng-if="op.description">
+		<h5>implementation notes</h5>
+		<p ng-bind-html="op.description"></p>
+	</div>
+	<form role="form" name="explorerForm" ng-submit="explorerForm.$valid&&submitExplorer(op)">
+    	<div ng-if="op.responseClass" class="response">
+    		<h5>response class (status {{op.responseClass.status}})</h5>
+    		<div ng-if="op.responseClass.display!==-1">
+        		<ul class="list-inline schema">
+        			<li><a href="javascript:;" ng-click="op.responseClass.display=0" ng-class="{active:op.responseClass.display===0}">model</a></li>
+        			<li><a href="javascript:;" ng-click="op.responseClass.display=1" ng-class="{active:op.responseClass.display===1}">model schema</a></li>
+        		</ul>
+        		<pre class="model" ng-if="op.responseClass.display===0" ng-bind-html="op.responseClass.schema.model"></pre>
+        		<pre class="model-schema" ng-if="op.responseClass.display===1" ng-bind="op.responseClass.schema.json"></pre>
+    		</div>
+    		<div ng-if="op.produces" class="content-type">
+    			<label for="responseContentType{{op.id}}">response content type</label>
+    			<select ng-model="form[op.id].responseType" ng-options="item for item in op.produces track by item" id="responseContentType{{op.id}}" name="responseContentType{{op.id}}" required></select>
+    		</div>
+    	</div>
+    	<div ng-if="op.parameters&&op.parameters.length>0" class="table-responsive">
+    		<h5>parameters</h5>
+    		<table class="table table-condensed parameters">
+    			<thead>
+    				<tr>
+    					<th class="name">parameter</th>
+    					<th class="value">value</th>
+    					<th class="desc">description</th>
+    					<th class="type">parameter type</th>
+    					<th class="data">data type</th>
+    				</tr>
+    			</thead>
+    			<tbody>
+    				<tr ng-repeat="param in op.parameters track by $index" ng-include="'templates/parameter.html'"></tr>
+    			</tbody>
+    		</table>
+		</div>
+    	<div class="table-responsive" ng-if="op.hasResponses">
+    		<h5>response messages</h5>
+    		<table class="table responses">
+    			<thead>
+    				<tr>
+    					<th class="code">HTTP status code</th>
+    					<th>reason</th>
+    					<th>response model</th>
+    				</tr>
+    			</thead>
+    			<tbody>
+    				<tr ng-repeat="(code, resp) in op.responses track by $index" ng-include="'templates/response.html'"></tr>
+    			</tbody>
+    		</table>
+    	</div>
+    	<div ng-if="apiExplorer">
+    		<button class="btn btn-default" ng-click="op.explorerResult=false;op.hideExplorerResult=false" type="submit" ng-disabled="op.loading" ng-bind="op.loading?'loading...':'try it out!'"></button>
+        	<a class="hide-try-it" ng-if="op.explorerResult&&!op.hideExplorerResult" ng-click="op.hideExplorerResult=true" href="javascript:;">hide response</a>
+    	</div>
+	</form>
+	<div ng-if="op.explorerResult" ng-show="!op.hideExplorerResult">
+		<h5>request URL</h5>
+		<pre ng-bind="op.explorerResult.url"></pre>
+		<h5>response body</h5>
+		<pre ng-bind="op.explorerResult.response.body"></pre>
+		<h5>response code</h5>
+		<pre ng-bind="op.explorerResult.response.status"></pre>
+		<h5>response headers</h5>
+		<pre ng-bind="op.explorerResult.response.headers"></pre>
+	</div>
+</div>

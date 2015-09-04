@@ -1,0 +1,10 @@
+<td ng-bind="code"></td>
+<td ng-bind-html="resp.description"></td>
+<td>
+	<ul ng-if="resp.schema&&resp.schema.model&&resp.schema.json" class="list-inline schema">
+		<li><a href="javascript:;" ng-click="resp.display=0" ng-class="{active:resp.display===0}">model</a></li>
+		<li><a href="javascript:;" ng-click="resp.display=1" ng-class="{active:resp.display===1}">model schema</a></li>
+	</ul>
+	<pre class="model" ng-if="resp.display===0&&resp.schema&&resp.schema.model" ng-bind-html="resp.schema.model"></pre>
+	<pre class="model-schema" ng-if="resp.display===1&&resp.schema&&resp.schema.json" ng-bind="resp.schema.json"></pre>
+</td>

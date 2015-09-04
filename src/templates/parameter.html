@@ -1,0 +1,48 @@
+<td ng-class="{bold:param.required}">
+	<label for="param{{param.id}}" ng-bind="param.name"></label>
+</td>
+<td ng-class="{bold:param.required}">
+	<div ng-if="apiExplorer">
+		<div ng-if="param.in!=='body'" ng-switch="param.subtype">
+			<input ng-switch-when="file" type="file" file-input ng-model="form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?'(required)':''}}" ng-required="param.required">
+			<select ng-switch-when="enum" ng-model="form[op.id][param.name]" id="param{{param.id}}">
+				<option ng-repeat="value in param.enum" value="{{value}}" ng-bind="value+(param.default===value?' (default)':'')" ng-selected="param.default===value"></option>
+			</select>
+			<input ng-switch-default type="text" ng-model="form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?'(required)':''}}" ng-required="param.required">
+		</div>
+		<div ng-if="param.in==='body'">
+			<textarea id="param{{param.id}}" ng-model="form[op.id][param.name]" ng-required="param.required"></textarea>
+			<br>
+			<div ng-if="op.consumes" class="content-type">
+    			<label for="bodyContentType{{op.id}}">parameter content type</label>
+    			<select ng-model="form[op.id].contentType" id="bodyContentType{{op.id}}" name="bodyContentType{{op.id}}" ng-options="item for item in op.consumes track by item"></select>
+    		</div>
+		</div>
+	</div>
+	<div ng-if="!apiExplorer">
+		<div ng-if="param.in!=='body'">
+			<div ng-if="param.default"><span ng-bind="param.default"></span> (default)</div>
+			<div ng-if="param.enum">
+				<span ng-repeat="value in param.enum track by $index">{{value}}<span ng-if="!$last"> or </span></span>
+			</div>
+			<div ng-if="param.required"><strong>(required)</strong></div>
+		</div>
+	</div>
+</td>
+<td ng-class="{bold:param.required}" ng-bind-html="param.description"></td>
+<td ng-bind="param.in"></td>
+<td ng-if="param.type" ng-switch="param.type">
+	<span ng-switch-when="array" ng-bind="'Array['+param.items.type+']'"></span>
+	<span ng-switch-default ng-bind="param.type"></span>
+</td>
+<td ng-if="param.schema">
+	<ul class="list-inline schema">
+		<li><a href="javascript:;" ng-click="param.schema.display=0" ng-class="{active:param.schema.display===0}">model</a></li>
+		<li><a href="javascript:;" ng-click="param.schema.display=1" ng-class="{active:param.schema.display===1}">model schema</a></li>
+	</ul>
+	<pre class="model" ng-if="param.schema.display===0&&param.schema.model" ng-bind-html="param.schema.model"></pre>
+	<div class="model-schema" ng-if="param.schema.display===1&&param.schema.json">
+		<pre ng-bind="param.schema.json" ng-click="form[op.id][param.name]=param.schema.json" aria-described-by="help-{{param.id}}"></pre>
+		<div id="help-{{param.id}}">click to set as parameter value</div>
+	</div>
+</td>

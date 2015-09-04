@@ -1,0 +1,24 @@
+<div class="clearfix">
+    <ul class="list-inline pull-left endpoint-heading">
+        <li>
+            <h4>
+                <a href="javascript:;" ng-click="api.open=!api.open;permalink(api.open?api.name:null)" ng-bind="api.name"></a>
+                <span ng-if="api.description"> : <span ng-bind="api.description"></span></span>
+            </h4>
+        </li>
+    </ul>
+    <ul class="list-inline pull-right endpoint-actions">
+        <li>
+            <a href="javascript:;" ng-click="api.open=!api.open;permalink(api.open?api.name:null)">open/hide</a>
+        </li>
+        <li>
+            <a href="javascript:;" ng-click="expand(api);permalink(api.name)">list operations</a>
+        </li>
+        <li>
+            <a href="javascript:;" ng-click="expand(api,true);permalink(api.name+'*')">expand operations</a>
+        </li>
+    </ul>
+</div>
+<ul class="list-unstyled collapse operations" ng-class="{in:api.open}">
+    <li ng-repeat="op in api.operations track by $index" class="operation {{op.httpMethod}}" ng-include="'templates/operation.html'"></li>
+</ul>
