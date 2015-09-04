@@ -36,7 +36,12 @@ angular
 				errorHandler: '=?',
 				// Are Swagger descriptors loaded from trusted source only ? (boolean, optional, default = false)
 				// If true, it avoids using ngSanitize but consider HTML as trusted so won't be cleaned
-				trustedSources: '=?'
+				trustedSources: '=?',
+				// Allows defining a custom Swagger validator or disabling Swagger validation
+				// If false, Swagger validation will be disabled
+				// If URL, will be used as Swagger validator
+				// If not defined, validator will be 'http://online.swagger.io/validator'
+				validatorUrl: '@?'
 			},
 			link: function(scope) {
 				// check parameters
@@ -48,6 +53,9 @@ angular
 				}
 				if (!scope.trustedSources && !$injector.has('$sanitize')) {
 					console.warn('AngularSwaggerUI: you must use ngSanitize OR set trusted-sources=true as directive param if swagger descriptor are loaded from trusted sources');
+				}
+				if (scope.validatorUrl === undefined) {
+					scope.validatorUrl = 'http://online.swagger.io/validator';
 				}
 			}
 		};

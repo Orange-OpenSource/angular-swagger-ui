@@ -110,6 +110,13 @@ Allows having a URL direct access to a group of operations or to an operation an
 <div swagger-ui url="URLToYourSwaggerDescriptor" permalinks="true/false"></div>
 ```
 
+#### Swagger validator
+Disable Swagger validator or define a custom Swagger validator.
+If parameter not defined, the validator will be 'http://online.swagger.io/validator'
+```
+<div swagger-ui url="URLToYourSwaggerDescriptor" validator-url="false or URL"></div>
+```
+
 #### Parser type
 Swagger descriptor parser is chosen depending on the `Content-Type` of the descriptor response. If host serving your Swagger descriptor does not send `Content-Type: application/json` then you can force the parser to JSON:
 ```

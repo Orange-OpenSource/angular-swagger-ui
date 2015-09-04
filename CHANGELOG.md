@@ -1,4 +1,8 @@
 
+### 0.2.4 (2015-?-?)
+
+ * Allow disabling or defining a custom Swagger validator (#19)
+
 ### 0.2.3 (2015-08-25)
 
  * Do not allow adding module multiple times (fix #17)
