@@ -30,7 +30,7 @@ angular
 				}
 			}
 			deferred.resolve({
-				url: config.url + query,
+				url: (config.originalUrl || config.url) + query,
 				response: {
 					body: data ? (angular.isString(data) ? data : angular.toJson(data, true)) : 'no content',
 					status: response.status,
