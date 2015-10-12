@@ -75,6 +75,12 @@ angular
 					angular.forEach(results, function(result) {
 						swaggerData.info.version = swaggerData.info.version || result.apiVersion;
 						swaggerData.basePath = swaggerData.basePath || result.basePath;
+						if (swaggerData.basePath.indexOf('http') === 0) {
+							var a = angular.element('<a href="' + swaggerData.basePath + '"></a>')[0];
+							swaggerData.schemes = [a.protocol.replace(':','')];
+							swaggerData.host = a.hostname;
+							swaggerData.basePath = a.pathname;
+						}
 						swaggerData.tags.push({
 							name: result.resourcePath
 						});
