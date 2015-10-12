@@ -75,8 +75,11 @@ angular
 					angular.forEach(results, function(result) {
 						swaggerData.info.version = swaggerData.info.version || result.apiVersion;
                         var baseUrl = result.basePath;
-                        var a = $('<a>', { href:baseUrl } )[0];
-						swaggerData.basePath = swaggerData.basePath || a.pathname;
+                        var a = document.createElement('a');
+                        var att = document.createAttribute("href");
+                        att.value = baseUrl;
+                        a.setAttributeNode(att);
+                        swaggerData.basePath = swaggerData.basePath || a.pathname;
                         swaggerData.host = a.hostname;
                         swaggerData.schemes = [];
                         swaggerData.schemes[0] = a.protocol && a.protocol.replace(':','');
