@@ -1,7 +1,9 @@
 
-### 0.2.4 (2015-?-?)
+### 0.2.4 (2015-10-12)
 
  * Allow disabling or defining a custom Swagger validator (#19)
+ * Fix Swagger 1.2 host and baseURL (#21)
+ * Upgrade AngularJS (#23)
 
 ### 0.2.3 (2015-08-25)
 
