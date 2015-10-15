@@ -19,6 +19,8 @@ angular
 				url: '=',
 				// Use parsed swagger descriptor URL as swagger.host
 				urlAsHost: '=',
+				// Custom header to send requests
+				customHeaders: '=',
 				// Swagger descriptor parser type (string, optional, default = "auto")
 				// Built-in allowed values:
 				// 		"auto": (default) parser is based on response Content-Type
@@ -195,7 +197,7 @@ angular
 			$scope.submitExplorer = function(operation) {
 				operation.loading = true;
 				swaggerClient
-					.send(swagger, operation, $scope.form[operation.id])
+					.send(swagger, operation, $scope.form[operation.id], $scope.customHeaders)
 					.then(function(result) {
 						operation.loading = false;
 						operation.explorerResult = result;
@@ -263,7 +265,7 @@ angular
 		/**
 		 * Send API explorer request
 		 */
-		this.send = function(swagger, operation, values) {
+		this.send = function(swagger, operation, values, customHeaders) {
 			var deferred = $q.defer(),
 				query = {},
 				headers = {},
@@ -307,8 +309,10 @@ angular
 			// add headers
 			headers.Accept = values.responseType;
 			headers['Content-Type'] = values.body ? values.contentType : 'text/plain';
+			headers.Authorization = 'token ' + customHeaders.Authorization;
+			headers['X-Customer-Id'] = customHeaders.customerId;
 
-				// build base URL
+			// build base URL
 				baseUrl = [
 					swagger.schemes[0],
 					'://',
