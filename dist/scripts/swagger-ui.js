@@ -17,6 +17,8 @@ angular
 			scope: {
 				// Swagger descriptor URL (string, required)
 				url: '=',
+				// Use parsed swagger descriptor URL as swagger.host
+				urlAsHost: '=',
 				// Swagger descriptor parser type (string, optional, default = "auto")
 				// Built-in allowed values:
 				// 		"auto": (default) parser is based on response Content-Type
@@ -154,6 +156,9 @@ angular
 					// load Swagger descriptor
 					loadSwagger(url, function(data, status, headers) {
 						swagger = data;
+						if ($scope.urlAsHost) {
+							swagger.host = $scope.urlAsHost;
+						}
 						// execute modules
 						swaggerModules
 							.execute(swaggerModules.BEFORE_PARSE, url, swagger)
@@ -303,7 +308,6 @@ angular
 			headers.Accept = values.responseType;
 			headers['Content-Type'] = values.body ? values.contentType : 'text/plain';
 
-			if (!baseUrl) {
 				// build base URL
 				baseUrl = [
 					swagger.schemes[0],
@@ -311,7 +315,6 @@ angular
 					swagger.host,
 					swagger.basePath || ''
 				].join('');
-			}
 
 			// build request
 			var options = {
