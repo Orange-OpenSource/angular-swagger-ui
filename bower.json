@@ -15,9 +15,6 @@
     "authors": [
         "Mathieu Alès"
     ],
-    "ignore": [
-        "**/.*"
-    ],
     "main": [
         "dist/scripts/swagger-ui.min.js",
         "dist/css/swagger-ui.min.css"
