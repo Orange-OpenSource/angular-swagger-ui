@@ -39,7 +39,7 @@ angular
 				transformResponse: function(json) {
 					if (prefix) {
 						// rewrite references
-						json = json.replace(/"\$ref": ?"#\/(.*)"/g, '"$ref": "#/definitions/' + prefix + '#/$1"');
+						json = json.replace(/"\$ref": ?"#\/(.*)\/(.*)"/g, '"$ref": "#/$1/' + prefix + '/$2"');
 					}
 					var obj;
 					try {
@@ -130,24 +130,27 @@ angular
 				loadingUrls = {};
 
 			function loadDefinitions(item) {
-				var parts = item.$ref.split('#/'),
+				var matches = item.$ref.match(/(.*)#\/(.*)\/(.*)/),
+					prefix = matches[1],
+					section = matches[2],
+					className = matches[3],
 					externalUrl = getExternalUrl(item.$ref);
 
 				// rewrite reference
-				item.$ref = '#/definitions/' + item.$ref;
+				item.$ref = item.$ref.replace(/(.*)#\/(.*)\/(.*)/, '#/$2/$1/$3');
 				// load external if needed
 				if (!loadingUrls[externalUrl]) {
 					loading++;
 					loadingUrls[externalUrl] = true;
 					get(externalUrl, function(json) {
 						for (var key in json) {
-							swagger.definitions[parts[0] + '#/' + key] = json[key];
+							swagger[section][prefix] = json[key];
 						}
 						loading--;
 						if (loading === 0) {
 							deferred.resolve(true);
 						}
-					}, parts[0]);
+					}, prefix);
 				}
 			}
 
@@ -173,8 +176,10 @@ angular
 					}
 				}
 			}
+
 			for (var path in swagger.paths) {
 				var operations = swagger.paths[path];
+				//TODO manage path parameters
 				for (var httpMethod in operations) {
 					checkOperationDefinitions(operations[httpMethod]);
 				}

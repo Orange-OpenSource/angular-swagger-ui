@@ -21,6 +21,20 @@ angular
 		var modelCache = {};
 
 		/**
+		 * retrieves object definition
+		 */
+		var resolveReference = this.resolveReference = function(swagger, object) {
+			if (object.$ref) {
+				var parts = object.$ref.replace('#/', '').split('/');
+				object = swagger;
+				for (var i = 0, j = parts.length; i < j; i++) {
+					object = object[parts[i]];
+				}
+			}
+			return object;
+		}
+
+		/**
 		 * determines a property type
 		 */
 		var getType = this.getType = function(item) {
@@ -37,18 +51,11 @@ angular
 		};
 
 		/**
-		 * retrieves object class name based on definition
+		 * retrieves object class name based on $ref
 		 */
 		function getClassName(item) {
-			var parts = item.$ref.replace('#/definitions/', '').split('#/');
+			var parts = item.$ref.split('/');
 			return parts[parts.length - 1];
-		}
-
-		/**
-		 * retrieves object definition name
-		 */
-		function getDefinitionName(item) {
-			return item.$ref.replace('#/definitions/', '');
 		}
 
 		/**
@@ -66,7 +73,7 @@ angular
 				}
 			} else if (schema.$ref) {
 				// complex object
-				var def = swagger.definitions && swagger.definitions[getDefinitionName(schema)];
+				var def = resolveReference(swagger, schema);
 				if (def) {
 					if (!objCache[schema.$ref] && !currentGenerated[schema.$ref]) {
 						// object not in cache
@@ -203,7 +210,7 @@ angular
 				model = buffer.join('');
 			} else if (schema.$ref) {
 				var className = getClassName(schema),
-					def = swagger.definitions && swagger.definitions[getDefinitionName(schema)];
+					def = resolveReference(swagger, schema);
 
 				if (currentGenerated[className]) {
 					return ''; // already generated

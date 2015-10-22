@@ -46,13 +46,13 @@ angular
 			link: function(scope) {
 				// check parameters
 				if (scope.permalinks && $injector.has('$route')) {
-					var $route = $injector.get('$route','swaggerUi');
+					var $route = $injector.get('$route');
 					if ($route.current && $route.current.$$route && $route.current.$$route.reloadOnSearch) {
 						console.warn('AngularSwaggerUI: when using permalinks you should set reloadOnSearch=false in your route config to avoid UI being rebuilt multiple times');
 					}
 				}
 				if (!scope.trustedSources && !$injector.has('$sanitize')) {
-					console.warn('AngularSwaggerUI: you must use ngSanitize OR set trusted-sources=true as directive param if swagger descriptor are loaded from trusted sources');
+					console.warn('AngularSwaggerUI: you must use ngSanitize OR set trusted-sources=true as directive param if swagger descriptors are loaded from trusted sources');
 				}
 				if (scope.validatorUrl === undefined) {
 					scope.validatorUrl = 'http://online.swagger.io/validator';
@@ -97,13 +97,13 @@ angular
 			/**
 			 * Swagger descriptor has been loaded, launch parsing
 			 */
-			function swaggerLoaded(swaggerType) {
+			function swaggerLoaded(swaggerUrl, swaggerType) {
 				$scope.loading = false;
 				var parseResult = {};
 				// execute modules
 				$scope.parser = $scope.parser || 'auto';
 				swaggerModules
-					.execute(swaggerModules.PARSE, $scope.parser, swaggerType, swagger, $scope.trustedSources, parseResult)
+					.execute(swaggerModules.PARSE, $scope.parser, swaggerUrl, swaggerType, swagger, $scope.trustedSources, parseResult)
 					.then(function(executed) {
 						if (executed) {
 							swaggerParsed(parseResult);
@@ -161,7 +161,7 @@ angular
 								var contentType = headers()['content-type'] || 'application/json',
 									swaggerType = contentType.split(';')[0];
 
-								swaggerLoaded(swaggerType);
+								swaggerLoaded(url, swaggerType);
 							})
 							.catch(onError);
 					});
