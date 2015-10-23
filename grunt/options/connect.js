@@ -18,8 +18,10 @@ module.exports = {
             base: 'src',
             middleware: function(connect, options, middlewares) {
                 // configure & add middlewares:
+                var cors = require('cors');
                 middlewares.unshift(
                     connect().use('/bower_components', connect.static('./bower_components')),
+                    connect().use(cors()),
                     connect.static('src')
                 );
                 return middlewares;

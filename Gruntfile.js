@@ -44,7 +44,7 @@ module.exports = function(grunt) {
     }
 
     // Extend config with task options definitions
-    grunt.util._.extend(config, loadTaskOptions('./build-conf/options/'));
+    grunt.util._.extend(config, loadTaskOptions('./grunt/options/'));
 
     grunt.initConfig(config);
 
@@ -52,5 +52,5 @@ module.exports = function(grunt) {
     matchdep.filterDev('grunt-*').forEach(grunt.loadNpmTasks);
 
     // Load custom tasks from ./grunt/*.js
-    grunt.loadTasks('build-conf/');
+    grunt.loadTasks('grunt/');
 };

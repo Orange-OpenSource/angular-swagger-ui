@@ -3,7 +3,7 @@
 //
 module.exports = {
 	options: {
-		jshintrc: 'build-conf/.jshintrc',
+		jshintrc: 'grunt/.jshintrc',
 		reporter: require('jshint-stylish'),
 		force: true
 	},
