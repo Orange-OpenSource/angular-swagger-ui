@@ -51,7 +51,10 @@ angular
 		 */
 		function convert(deferred, swaggerUrl, swaggerData) {
 			// prepare swagger2 objects
-			var info = swaggerData.info;
+			var swagger2 = swaggerData,
+				info = swagger2.info,
+				promises = [];
+
 			info.contact = {
 				email: info.contact
 			};
@@ -60,112 +63,134 @@ angular
 				url: info.licenseUrl
 			};
 			info.termsOfService = info.termsOfServiceUrl;
-			swaggerData.paths = {};
-			swaggerData.definitions = {};
-			swaggerData.tags = [];
+			swagger2.paths = {};
+			swagger2.definitions = {};
+			swagger2.tags = [];
 
 			// load files
-			var promises = [];
-			angular.forEach(swaggerData.apis, function(api) {
+			angular.forEach(swagger2.apis, function(api) {
 				promises.push(get(swaggerUrl + api.path));
 			});
 
 			$q.all(promises)
 				.then(function(results) {
-					angular.forEach(results, function(result) {
-						swaggerData.info.version = swaggerData.info.version || result.apiVersion;
-						swaggerData.basePath = swaggerData.basePath || result.basePath;
-						if (swaggerData.basePath.indexOf('http') === 0) {
-							var a = angular.element('<a href="' + swaggerData.basePath + '"></a>')[0];
-							swaggerData.schemes = [a.protocol.replace(':', '')];
-							swaggerData.host = a.host;
-							swaggerData.basePath = a.pathname;
-						}
-						swaggerData.tags.push({
-							name: result.resourcePath
-						});
-						angular.forEach(result.apis, function(subPath) {
-							var path = swaggerData.paths[subPath.path] = swaggerData.paths[subPath.path] || {};
-							angular.forEach(subPath.operations, function(op) {
-								var responses = {};
-								path[op.method.toLowerCase()] = {
-									deprecated: op.deprecated,
-									description: op.notes,
-									summary: op.summary,
-									operationId: op.nickname,
-									produces: op.produces || result.produces,
-									consumes: op.consumes || result.consumes,
-									parameters: op.parameters,
-									responses: responses,
-									tags: [result.resourcePath]
-								};
-								// convert parameters
-								angular.forEach(op.parameters, function(param) {
-									param.in = param.paramType;
-									if (result.models && result.models[param.type]) {
-										param.schema = {
-											$ref: '#/definitions/' + param.type
-										};
-										delete param.type;
-									}
-								});
-								// convert responses
-								angular.forEach(op.responseMessages, function(resp) {
-									var response = responses[resp.code] = {
-										description: resp.message
-									};
-									if (resp.responseModel) {
-										if (result.models && result.models[resp.responseModel]) {
-											response.schema = {
-												$ref: '#/definitions/' + resp.responseModel
-											};
-										} else {
-											response.type = resp.responseModel;
-										}
-									} else if (resp.code === 200 && op.type !== 'void') {
-										response.schema = {
-											type: op.type
-										};
-										if (op.type === 'array') {
-											response.schema.items = {
-												$ref: result.models && result.models[op.items.type] ? '#/definitions/' + op.items.type : op.items.type
-											};
-										}
-									}
-								});
-							});
-						});
-						// convert models
-						angular.forEach(result.models, function(model, name) {
-							swaggerData.definitions[name] = model;
-							if (model.subTypes) {
-								angular.forEach(model.subTypes, function(subType) {
-									var subModel = result.models && result.models[subType];
-									if (subModel) {
-										model.required = (model.required || []).concat(subModel.required || []);
-										angular.forEach(subModel.properties, function(property, name) {
-											model.properties[name] = property;
-										});
-									}
-								});
-								delete model.subTypes;
-							}
-							angular.forEach(model.properties, function(prop) {
-								if (result.models && result.models[prop.type]) {
-									prop.$ref = '#/definitions/' + prop.type;
-									delete prop.type;
-								}
-								if (prop.items && result.models && result.models[prop.items.type]) {
-									prop.items.$ref = '#/definitions/' + prop.items.type;
-									delete prop.items.type;
-								}
-							});
-						});
+					angular.forEach(results, function(swagger1) {
+						convertInfos(swagger1, swagger2);
+						convertOperations(swagger1, swagger2);
+						convertModels(swagger1, swagger2);
 					});
-					swaggerData.swagger = '2.0';
-					deferred.resolve(true);
+					swagger2.swagger = '2.0';
+					deferred.resolve(true); // success
 				})
 				.catch(deferred.reject);
+		}
+
+		/**
+		 * convert main infos and tags
+		 */
+		function convertInfos(swagger1, swagger2) {
+			swagger2.info.version = swagger2.info.version || swagger1.apiVersion;
+			swagger2.basePath = swagger2.basePath || swagger1.basePath;
+			if (swagger2.basePath.indexOf('http') === 0) {
+				var a = angular.element('<a href="' + swagger2.basePath + '"></a>')[0];
+				swagger2.schemes = [a.protocol.replace(':', '')];
+				swagger2.host = a.host;
+				swagger2.basePath = a.pathname;
+			}
+			swagger2.tags.push({
+				name: swagger1.resourcePath
+			});
+		}
+
+		function convertOperations(swagger1, swagger2) {
+			var path, responses;
+			angular.forEach(swagger1.apis, function(subPath) {
+				path = swagger2.paths[subPath.path] = swagger2.paths[subPath.path] || {};
+				angular.forEach(subPath.operations, function(operation) {
+					responses = {};
+					path[operation.method.toLowerCase()] = {
+						deprecated: operation.deprecated,
+						description: operation.notes,
+						summary: operation.summary,
+						operationId: operation.nickname,
+						produces: operation.produces || swagger1.produces,
+						consumes: operation.consumes || swagger1.consumes,
+						parameters: operation.parameters,
+						responses: responses,
+						tags: [swagger1.resourcePath]
+					};
+					convertParameters(swagger1, operation);
+					convertResponses(swagger1, operation, responses);
+				});
+			});
+		}
+
+		function convertParameters(swagger1, operation) {
+			angular.forEach(operation.parameters, function(param) {
+				param.in = param.paramType;
+				if (swagger1.models && swagger1.models[param.type]) {
+					param.schema = {
+						$ref: '#/definitions/' + param.type
+					};
+					delete param.type;
+				}
+			});
+		}
+
+		function convertResponses(swagger1, operation, responses) {
+			var response;
+			angular.forEach(operation.responseMessages, function(resp) {
+				response = responses[resp.code] = {
+					description: resp.message
+				};
+				if (resp.responseModel) {
+					if (swagger1.models && swagger1.models[resp.responseModel]) {
+						response.schema = {
+							$ref: '#/definitions/' + resp.responseModel
+						};
+					} else {
+						response.type = resp.responseModel;
+					}
+				} else if (resp.code === 200 && operation.type !== 'void') {
+					response.schema = {
+						type: operation.type
+					};
+					if (operation.type === 'array') {
+						response.schema.items = {
+							$ref: swagger1.models && swagger1.models[operation.items.type] ? '#/definitions/' + operation.items.type : operation.items.type
+						};
+					}
+				}
+			});
+		}
+
+		function convertModels(swagger1, swagger2) {
+			var subModel;
+			angular.forEach(swagger1.models, function(model, name) {
+				swagger2.definitions[name] = model;
+				if (model.subTypes) {
+					angular.forEach(model.subTypes, function(subType) {
+						subModel = swagger1.models && swagger1.models[subType];
+						if (subModel) {
+							model.required = (model.required || []).concat(subModel.required || []);
+							angular.forEach(subModel.properties, function(property, name) {
+								model.properties[name] = property;
+							});
+						}
+					});
+					delete model.subTypes;
+				}
+				angular.forEach(model.properties, function(prop) {
+					if (swagger1.models && swagger1.models[prop.type]) {
+						prop.$ref = '#/definitions/' + prop.type;
+						delete prop.type;
+					}
+					if (prop.items && swagger1.models && swagger1.models[prop.items.type]) {
+						prop.items.$ref = '#/definitions/' + prop.items.type;
+						delete prop.items.type;
+					}
+				});
+			});
 		}
 
 	}]);

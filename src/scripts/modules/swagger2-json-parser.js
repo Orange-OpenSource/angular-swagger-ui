@@ -10,27 +10,123 @@ angular
 	.module('swaggerUi')
 	.service('swagger2JsonParser', ['$q', '$sce', '$location', 'swaggerModel', function($q, $sce, $location, swaggerModel) {
 
-		var swagger,
-			trustedSources;
+		var trustedSources;
 
-		function trustHtml(text) {
-			var trusted = text;
-			if (typeof text === 'string' && trustedSources) {
-				trusted = $sce.trustAsHtml(escapeChars(text));
+		/**
+		 * parse swagger description to ease HTML generation
+		 */
+		function parseSwagger2Json(swagger, url, deferred, parseResult) {
+			var map = {},
+				form = {},
+				resources = [],
+				infos = swagger.info,
+				openPath = $location.search().swagger,
+				defaultContentType = 'application/json';
+
+			parseInfos(swagger, url, infos, defaultContentType);
+			parseTags(swagger, resources, map);
+			parseOperations(swagger, resources, form, map, openPath);
+			cleanUp(resources, openPath);
+			// prepare result
+			parseResult.infos = infos;
+			parseResult.resources = resources;
+			parseResult.form = form;
+			deferred.resolve(true);
+		}
+
+		/**
+		 * parse main infos
+		 */
+		function parseInfos(swagger, url, infos, defaultContentType) {
+			// build URL params
+			var a = angular.element('<a href="' + url + '"></a>')[0];
+			swagger.schemes = [swagger.schemes && swagger.schemes[0] || a.protocol.replace(':', '')];
+			swagger.host = swagger.host || a.host;
+			swagger.consumes = swagger.consumes || [defaultContentType];
+			swagger.produces = swagger.produces || [defaultContentType];
+			// build main infos
+			infos.scheme = swagger.schemes[0];
+			infos.basePath = swagger.basePath;
+			infos.host = swagger.host;
+			infos.description = trustHtml(infos.description);
+		}
+
+		/**
+		 * parse tags
+		 */
+		function parseTags(swagger, resources, map) {
+			var i, l, tag;
+			if (!swagger.tags) {
+				resources.push({
+					name: 'default',
+					open: true
+				});
+				map['default'] = 0;
+			} else {
+				for (i = 0, l = swagger.tags.length; i < l; i++) {
+					tag = swagger.tags[i];
+					resources.push(tag);
+					map[tag.name] = i;
+				}
 			}
-			// else ngSanitize MUST be added to app
-			return trusted;
 		}
 
-		function escapeChars(text) {
-			return text && text
-				.replace(/&/g, '&amp;')
-				.replace(/<([^\/a-zA-Z])/g, '&lt;$1')
-				.replace(/"/g, '&quot;')
-				.replace(/'/g, '&#039;');
+		/**
+		 * parse operations
+		 */
+		function parseOperations(swagger, resources, form, map, defaultContentType, openPath) {
+			var path,
+				pathObject,
+				pathParameters,
+				httpMethod,
+				operation,
+				tag,
+				resource,
+				operationId = 0,
+				paramId = 0;
+
+			for (path in swagger.paths) {
+				pathObject = swagger.paths[path];
+				pathParameters = pathObject.parameters || [];
+				delete pathObject.parameters;
+				for (httpMethod in pathObject) {
+					operation = pathObject[httpMethod];
+					//TODO manage 'deprecated' operations ?
+					operation.id = operationId;
+					operation.description = trustHtml(operation.description);
+					operation.produces = operation.produces || swagger.produces;
+					form[operationId] = {
+						responseType: defaultContentType
+					};
+					operation.httpMethod = httpMethod;
+					operation.path = path;
+					parseParameters(swagger, operation, pathParameters, form, defaultContentType, operationId, paramId);
+					parseResponses(swagger, operation);
+					operation.tags = operation.tags || ['default'];
+					// map operation to resource
+					tag = operation.tags[0];
+					if (typeof map[tag] === 'undefined') {
+						map[tag] = resources.length;
+						resources.push({
+							name: tag
+						});
+					}
+					resource = resources[map[operation.tags[0]]];
+					operation.open = openPath && openPath === operation.operationId || openPath === resource.name + '*';
+					resource.operations = resource.operations || [];
+					resource.operations.push(operation);
+					if (operation.open) {
+						resource.open = true;
+					}
+					operationId++;
+				}
+			}
 		}
 
-		function computeParameters(pathParameters, operation) {
+		/**
+		 * compute path and operation parameters
+		 */
+		function computeParameters(swagger, pathParameters, operation) {
 			var i, j, k, l,
 				operationParameters = operation.parameters || [],
 				parameters = [].concat(operationParameters),
@@ -59,143 +155,84 @@ angular
 		}
 
 		/**
-		 * parses swagger description to ease HTML generation
+		 * parse operation parameters
 		 */
-		function parseSwagger2Json(url, deferred, parseResult) {
-
+		function parseParameters(swagger, operation, pathParameters, form, defaultContentType, operationId, paramId) {
 			var i, l,
-				operationId = 0,
-				paramId = 0,
-				map = {},
-				form = {},
-				resources = [],
-				infos = swagger.info,
-				openPath = $location.search().swagger,
-				defaultContentType = 'application/json',
-				a = angular.element('<a href="' + url + '"></a>')[0];
+				param,
+				parameters = operation.parameters = computeParameters(swagger, pathParameters, operation);
 
-			// build URL params
-			swagger.schemes = [swagger.schemes && swagger.schemes[0] || a.protocol.replace(':','')];
-			swagger.host = swagger.host || a.host;
-			swagger.consumes = swagger.consumes || [defaultContentType];
-			swagger.produces = swagger.produces || [defaultContentType];
+			for (i = 0, l = parameters.length; i < l; i++) {
+				//TODO manage 'collectionFormat' (csv, multi etc.) ?
+				//TODO manage constraints (pattern, min, max etc.) ?
+				param = parameters[i] = swaggerModel.resolveReference(swagger, parameters[i]);
+				param.id = paramId;
+				param.type = swaggerModel.getType(param);
+				param.description = trustHtml(param.description);
+				if (param.items && param.items.enum) {
+					param.enum = param.items.enum;
+					param.default = param.items.default;
+				}
+				param.subtype = param.enum ? 'enum' : param.type;
+				// put param into form scope
+				form[operationId][param.name] = param.default || '';
+				if (param.schema) {
+					param.schema.display = 1; // display schema
+					param.schema.json = swaggerModel.generateSampleJson(swagger, param.schema);
+					param.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, param.schema));
+				}
+				if (param.in === 'body') {
+					operation.consumes = operation.consumes || swagger.consumes;
+					form[operationId].contentType = operation.consumes.length === 1 ? operation.consumes[0] : defaultContentType;
+				}
+				paramId++;
+			}
+		}
 
-			// build main infos
-			infos.scheme = swagger.schemes[0];
-			infos.basePath = swagger.basePath;
-			infos.host = swagger.host;
-			infos.description = trustHtml(infos.description);
+		/**
+		 * parse operatiopn responses
+		 */
+		function parseResponses(swagger, operation) {
+			var code,
+				response;
 
-			// parse resources
-			if (!swagger.tags) {
-				resources.push({
-					name: 'default',
-					open: true
-				});
-				map['default'] = 0;
-			} else {
-				for (i = 0, l = swagger.tags.length; i < l; i++) {
-					var tag = swagger.tags[i];
-					resources.push(tag);
-					map[tag.name] = i;
+			if (operation.responses) {
+				for (code in operation.responses) {
+					//TODO manage response headers
+					response = operation.responses[code];
+					response.description = trustHtml(response.description);
+					if (response.schema) {
+						response.schema.json = response.examples && response.examples[operation.produces[0]] || swaggerModel.generateSampleJson(swagger, response.schema);
+						if (response.schema.type === 'object' || response.schema.type === 'array' || response.schema.$ref) {
+							response.display = 1; // display schema
+							response.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, response.schema));
+						} else if (response.schema.type === 'string') {
+							delete response.schema;
+						}
+						if (code === '200' || code === '201') {
+							operation.responseClass = response;
+							operation.responseClass.display = 1;
+							operation.responseClass.status = code;
+							delete operation.responses[code];
+						} else {
+							operation.hasResponses = true;
+						}
+					} else {
+						operation.hasResponses = true;
+					}
 				}
 			}
-			// parse operations
-			for (var path in swagger.paths) {
-				var pathObject = swagger.paths[path],
-					pathParameters = pathObject.parameters || [];
+		}
 
-				delete pathObject.parameters;
-				for (var httpMethod in pathObject) {
-					var operation = pathObject[httpMethod];
-					//TODO manage 'deprecated' operations ?
-					operation.id = operationId;
-					operation.description = trustHtml(operation.description);
-					operation.produces = operation.produces || swagger.produces;
-					form[operationId] = {
-						responseType: defaultContentType
-					};
-					operation.httpMethod = httpMethod;
-					operation.path = path;
-					// parse operation's parameters
-					var parameters = operation.parameters = computeParameters(pathParameters, operation);
-					for (i = 0, l = parameters.length; i < l; i++) {
-						//TODO manage 'collectionFormat' (csv, multi etc.) ?
-						//TODO manage constraints (pattern, min, max etc.) ?
-						var param = parameters[i] = swaggerModel.resolveReference(swagger, parameters[i]);
-						param.id = paramId;
-						param.type = swaggerModel.getType(param);
-						param.description = trustHtml(param.description);
-						if (param.items && param.items.enum) {
-							param.enum = param.items.enum;
-							param.default = param.items.default;
-						}
-						param.subtype = param.enum ? 'enum' : param.type;
-						// put param into form scope
-						form[operationId][param.name] = param.default || '';
-						if (param.schema) {
-							param.schema.display = 1; // display schema
-							param.schema.json = swaggerModel.generateSampleJson(swagger, param.schema);
-							param.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, param.schema));
-						}
-						if (param.in === 'body') {
-							operation.consumes = operation.consumes || swagger.consumes;
-							form[operationId].contentType = operation.consumes.length === 1 ? operation.consumes[0] : defaultContentType;
-						}
-						paramId++;
-					}
-					// parse operation's responses
-					if (operation.responses) {
-						for (var code in operation.responses) {
-							//TODO manage response headers
-							var resp = operation.responses[code];
-							resp.description = trustHtml(resp.description);
-							if (resp.schema) {
-								resp.schema.json = resp.examples && resp.examples[operation.produces[0]] || swaggerModel.generateSampleJson(swagger, resp.schema);
-								if (resp.schema.type === 'object' || resp.schema.type === 'array' || resp.schema.$ref) {
-									resp.display = 1; // display schema
-									resp.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, resp.schema));
-								} else if (resp.schema.type === 'string') {
-									delete resp.schema;
-								}
-								if (code === '200' || code === '201') {
-									operation.responseClass = resp;
-									operation.responseClass.display = 1;
-									operation.responseClass.status = code;
-									delete operation.responses[code];
-								} else {
-									operation.hasResponses = true;
-								}
-							} else {
-								operation.hasResponses = true;
-							}
-						}
-					}
-					operation.tags = operation.tags || ['default'];
-					// map operation to resource
-					var tag = operation.tags[0];
-					if (typeof map[tag] === 'undefined') {
-						map[tag] = resources.length;
-						resources.push({
-							name: tag
-						});
-					}
-					var res = resources[map[operation.tags[0]]];
-					operation.open = openPath && openPath === operation.operationId || openPath === res.name + '*';
-					res.operations = res.operations || [];
-					res.operations.push(operation);
-					if (operation.open) {
-						res.open = true;
-					}
-					operationId++;
-				}
-			}
-			// cleanup resources
+		function cleanUp(resources, openPath) {
+			var i,
+				resource,
+				operations;
+
 			for (i = 0; i < resources.length; i++) {
-				var res = resources[i],
-					operations = resources[i].operations;
-
-				res.open = res.open || openPath === res.name || openPath === res.name + '*';
+				resource = resources[i];
+				operations = resources[i].operations;
+				resource.open = resource.open || openPath === resource.name || openPath === resource.name + '*';
 				if (!operations || (operations && operations.length === 0)) {
 					resources.splice(i--, 1);
 				}
@@ -209,12 +246,24 @@ angular
 				}
 				return 0;
 			});
-			// clear cache
 			swaggerModel.clearCache();
-			parseResult.infos = infos;
-			parseResult.resources = resources;
-			parseResult.form = form;
-			deferred.resolve(true);
+		}
+
+		function trustHtml(text) {
+			var trusted = text;
+			if (typeof text === 'string' && trustedSources) {
+				trusted = $sce.trustAsHtml(escapeChars(text));
+			}
+			// else ngSanitize MUST be added to app
+			return trusted;
+		}
+
+		function escapeChars(text) {
+			return text && text
+				.replace(/&/g, '&amp;')
+				.replace(/<([^\/a-zA-Z])/g, '&lt;$1')
+				.replace(/"/g, '&quot;')
+				.replace(/'/g, '&#039;');
 		}
 
 		/**
@@ -223,16 +272,15 @@ angular
 		this.execute = function(parserType, url, contentType, data, isTrustedSources, parseResult) {
 			var deferred = $q.defer();
 			if (data.swagger === '2.0' && (parserType === 'json' || (parserType === 'auto' && contentType === 'application/json'))) {
-				swagger = data;
 				trustedSources = isTrustedSources;
-				// try {
-				parseSwagger2Json(url, deferred, parseResult);
-				// } catch (e) {
-				// 	deferred.reject({
-				// 		code: 500,
-				// 		message: 'failed to parse swagger: ' + e.message
-				// 	});
-				// }
+				try {
+					parseSwagger2Json(data, url, deferred, parseResult);
+				} catch (e) {
+					deferred.reject({
+						code: 500,
+						message: 'failed to parse swagger: ' + e.message
+					});
+				}
 			} else {
 				deferred.resolve(false);
 			}
