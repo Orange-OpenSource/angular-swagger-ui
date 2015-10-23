@@ -71,11 +71,12 @@ angular
 				resources = [],
 				infos = swagger.info,
 				openPath = $location.search().swagger,
-				defaultContentType = 'application/json';
+				defaultContentType = 'application/json',
+				a = angular.element('<a href="' + url + '"></a>')[0];
 
 			// build URL params
-			swagger.schemes = [swagger.schemes && swagger.schemes[0] || $location.protocol()];
-			swagger.host = swagger.host || $location.host();
+			swagger.schemes = [swagger.schemes && swagger.schemes[0] || a.protocol.replace(':','')];
+			swagger.host = swagger.host || a.host;
 			swagger.consumes = swagger.consumes || [defaultContentType];
 			swagger.produces = swagger.produces || [defaultContentType];
 
