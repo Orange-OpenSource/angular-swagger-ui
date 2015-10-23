@@ -10,8 +10,6 @@ angular
 	.module('swaggerUi')
 	.service('swaggerClient', ['$q', '$http', 'swaggerModules', function($q, $http, swaggerModules) {
 
-		var baseUrl;
-
 		/**
 		 * format API explorer response before display
 		 */
@@ -87,18 +85,14 @@ angular
 			headers.Accept = values.responseType;
 			headers['Content-Type'] = values.body ? values.contentType : 'text/plain';
 
-			if (!baseUrl) {
-				// build base URL
-				baseUrl = [
+			// build request
+			var baseUrl = [
 					swagger.schemes[0],
 					'://',
 					swagger.host,
 					swagger.basePath || ''
-				].join('');
-			}
-
-			// build request
-			var options = {
+				].join(''),
+				options = {
 					method: operation.httpMethod,
 					url: baseUrl + path,
 					headers: headers,
