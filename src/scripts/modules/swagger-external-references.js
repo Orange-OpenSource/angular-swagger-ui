@@ -109,8 +109,8 @@ angular
 				});
 			}
 
-			for (var path in swagger.paths) {
-				var path = swagger.paths[path];
+			for (var pathName in swagger.paths) {
+				var path = swagger.paths[pathName];
 				if (isExternal(path)) {
 					loadOperations(path);
 				}
@@ -133,7 +133,6 @@ angular
 				var matches = item.$ref.match(/(.*)#\/(.*)\/(.*)/),
 					prefix = matches[1],
 					section = matches[2],
-					className = matches[3],
 					externalUrl = getExternalUrl(item.$ref);
 
 				// rewrite reference

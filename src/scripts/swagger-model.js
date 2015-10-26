@@ -32,7 +32,7 @@ angular
 				}
 			}
 			return object;
-		}
+		};
 
 		/**
 		 * determines a property type
