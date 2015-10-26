@@ -1,4 +1,12 @@
 
+### 0.2.5 (2015-10-27)
+
+ * Support path parameters (#26)
+ * Fix default host and baseURL (#25)
+ * Remove useless files when using bower (#24)
+ * Fix "Try it out" request URL if swagger descriptor changed
+ * Fix Swagger 1.2 host if not defined
+
 ### 0.2.4 (2015-10-12)
 
  * Allow disabling or defining a custom Swagger validator (#19)
