@@ -16,6 +16,14 @@ module.exports = {
 	},
 	copyright: {
 		files: {
+			'dist/css/swagger-ui.min.css': [
+				'copyright.txt',
+				'dist/css/swagger-ui.min.css'
+			],
+			'dist/less/swagger-ui.less': [
+				'copyright.txt',
+				'dist/less/swagger-ui.less'
+			],
 			'dist/scripts/swagger-ui.min.js': [
 				'copyright.txt',
 				'dist/scripts/swagger-ui.min.js'
