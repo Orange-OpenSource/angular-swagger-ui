@@ -10,10 +10,19 @@
         "swagger",
         "swagger-ui",
         "api",
+        "rest",
         "documentation"
     ],
     "authors": [
         "Mathieu Alès"
+    ],
+    "ignore": [
+        "**/.*",
+        "src",
+        "grunt",
+        "Gruntfile.js",
+        "copyright.txt",
+        "package.json"
     ],
     "main": [
         "dist/scripts/swagger-ui.min.js",
