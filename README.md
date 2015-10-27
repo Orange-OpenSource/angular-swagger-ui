@@ -44,7 +44,7 @@ As some properties of Swagger descriptors can be formatted as HTML:
 * You **CAN** add `trusted-sources="true"` as directive parameter (avoids embedding `ngSanitize`) if Swagger descriptors are loaded from **trusted** sources (see `src/index.html` as an example)
 * You **MUST** at least choose one of the two previous solutions
 
-```
+```html
 <script type="text/javascript">
 	// If directive has parameter trusted-sources="true"
 	angular.module('yourApp', ['swaggerUi']);
@@ -55,11 +55,11 @@ As some properties of Swagger descriptors can be formatted as HTML:
 </script>
 ```
 Create an HTML element in your angularJS application's template or in your HTML page
-```
+```html
 <div swagger-ui url="URLToYourSwaggerDescriptor" api-explorer="true"></div>
 ```
 Add swagger-ui.min.js and angular.min.js to the end of the body
-```
+```html
 <body>
  	...
  	<script src="yourPathToAngularJS/angular.min.js"></script>
@@ -69,7 +69,7 @@ Add swagger-ui.min.js and angular.min.js to the end of the body
 </body>
 ```
 Add swagger-ui.min.css and bootstrap.min.css to the head of the HTML page.
-```
+```html
 <body>
 	<head>
 		...
@@ -82,23 +82,23 @@ Add swagger-ui.min.css and bootstrap.min.css to the head of the HTML page.
 
 #### API explorer
 Display or not API explorer, default is `false`
-```
+```html
 <div swagger-ui url="URLToYourSwaggerDescriptor" api-explorer="true/false"></div>
 ```
 
 #### Swagger descriptor loading indicator
 `yourScopeVariable` will be assigned to `true` or `false` depending on Swagger descriptor loading status
-```
+```html
 <div ng-show="yourScopeVariable">loading ...</div>
 <div swagger-ui url="URLToYourSwaggerDescriptor" loading="yourScopeVariable"></div>
 ```
 
 #### Error handler
 Define an error handler to catch errors, if none defined `console.error` is used
-```
+```html
 <div swagger-ui url="URLToYourSwaggerDescriptor" error-handler="yourErrorHandler"></div>
 ```
-```
+```js
 $scope.yourErrorHandler = function(/*String or Object*/ message, /*Integer*/ code){
 	
 }
@@ -106,20 +106,20 @@ $scope.yourErrorHandler = function(/*String or Object*/ message, /*Integer*/ cod
 
 #### Permalinks
 Allows having a URL direct access to a group of operations or to an operation and making it unfolded at startup
-```
+```html
 <div swagger-ui url="URLToYourSwaggerDescriptor" permalinks="true/false"></div>
 ```
 
 #### Swagger validator
 Disable Swagger validator or define a custom Swagger validator.
 If parameter not defined, the validator will be 'http://online.swagger.io/validator'
-```
+```html
 <div swagger-ui url="URLToYourSwaggerDescriptor" validator-url="false or URL"></div>
 ```
 
 #### Parser type
 Swagger descriptor parser is chosen depending on the `Content-Type` of the descriptor response. If host serving your Swagger descriptor does not send `Content-Type: application/json` then you can force the parser to JSON:
-```
+```html
 <div swagger-ui url="URLToYourSwaggerDescriptor" parser="json"></div>
 ```
 
@@ -127,7 +127,7 @@ Swagger descriptor parser is chosen depending on the `Content-Type` of the descr
 
 #### Enable Swagger 1.2
 Add swagger1-to-swagger2-converter.min.js to the end of the body
-```
+```html
 <body>
  	...
  	<script src="yourPathToAngularJS/angular.min.js"></script>
@@ -136,7 +136,7 @@ Add swagger1-to-swagger2-converter.min.js to the end of the body
 </body>
 ```
 Add module to angular-swagger-ui
-```
+```js
 angular
     .module('myApp', ['swaggerUi'])
     .run(function(swaggerModules, swagger1ToSwagger2Converter){
@@ -148,7 +148,7 @@ angular
 #### Enable Swagger external references
 See [Swagger 2.0 spec](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md#relative-schema-file-example)
 Add swagger-external-references.min.js to the end of the body
-```
+```html
 <body>
  	...
  	<script src="yourPathToAngularJS/angular.min.js"></script>
@@ -157,7 +157,7 @@ Add swagger-external-references.min.js to the end of the body
 </body>
 ```
 Add module to angular-swagger-ui
-```
+```js
 angular
     .module('myApp', ['swaggerUi'])
     .run(function(swaggerModules, swaggerUiExternalReferences){
@@ -168,7 +168,7 @@ angular
 
 #### Enable XML formatter on API explorer responses
 Add swagger-xml-formatter.min.js to the end of the body
-```
+```html
 <body>
  	...
  	<script src="yourPathToAngularJS/angular.min.js"></script>
@@ -177,7 +177,7 @@ Add swagger-xml-formatter.min.js to the end of the body
 </body>
 ```
 Add module to angular-swagger-ui
-```
+```js
 angular
     .module('myApp', ['swaggerUi'])
     .run(function(swaggerModules, swaggerUiXmlFormatter){
@@ -199,7 +199,7 @@ You can make your module modifying behaviours at different phases:
 * `BEFORE_EXPLORER_LOAD`: allows modifying API explorer request before it is sent
 * `AFTER_EXPLORER_LOAD`: allows modifying API explorer response before it is displayed
 
-```
+```js
 angular
 	.module('myApp', ['swaggerUi'])
 	.run(function(swaggerModules, myModule){
