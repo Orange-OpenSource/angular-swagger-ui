@@ -25,7 +25,7 @@ angular
 
 			parseInfos(swagger, url, infos, defaultContentType);
 			parseTags(swagger, resources, map);
-			parseOperations(swagger, resources, form, map, openPath);
+			parseOperations(swagger, resources, form, map, defaultContentType, openPath);
 			cleanUp(resources, openPath);
 			// prepare result
 			parseResult.infos = infos;
