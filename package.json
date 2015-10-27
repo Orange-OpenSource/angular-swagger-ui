@@ -16,6 +16,7 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-html2js": "^0.3.0",
     "grunt-newer": "^1.1.0",
+    "grunt-ng-annotate": "^1.0.1",
     "jshint-stylish": "^1.0.0",
     "load-grunt-tasks": "^3.0.0",
     "matchdep": "^0.3.0",

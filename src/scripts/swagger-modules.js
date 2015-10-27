@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi')
-	.service('swaggerModules', ['$q', function($q) {
+	.service('swaggerModules', function($q) {
 
 		var modules = {};
 
@@ -62,4 +62,4 @@ angular
 			return deferred.promise;
 		};
 
-	}]);
+	});

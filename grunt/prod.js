@@ -12,6 +12,7 @@ module.exports = function(grunt) {
             'copy:dist',
             'html2js:dist',
             'concat:dist',
+            'ngAnnotate:dist',
             'uglify:dist',
             'clean:postdist',
             'concat:copyright'

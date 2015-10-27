@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi', ['ng'])
-	.directive('swaggerUi', ['$injector', function($injector) {
+	.directive('swaggerUi', function($injector) {
 
 		return {
 			restrict: 'A',
@@ -64,9 +64,8 @@ angular
 				}
 			}
 		};
-	}])
-	.controller('swaggerUiController', ['$scope', '$http', '$location', '$q', 'swaggerClient', 'swaggerModules', 'swagger2JsonParser',
-		function($scope, $http, $location, $q, swaggerClient, swaggerModules, swagger2JsonParser) {
+	})
+	.controller('swaggerUiController', function($scope, $http, $location, $q, swaggerClient, swaggerModules, swagger2JsonParser) {
 
 			var swagger;
 
@@ -203,7 +202,7 @@ angular
 			};
 
 		}
-	])
+	)
 	.directive('fileInput', function() {
 		// helper to be able to retrieve HTML5 File in ngModel from input
 		return {

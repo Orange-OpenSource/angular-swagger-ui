@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi')
-	.service('swagger1ToSwagger2Converter', ['$q', '$http', 'swaggerModules', function($q, $http, swaggerModules) {
+	.service('swagger1ToSwagger2Converter', function($q, $http, swaggerModules) {
 
 		/**
 		 * Module entry point
@@ -193,4 +193,4 @@ angular
 			});
 		}
 
-	}]);
+	});

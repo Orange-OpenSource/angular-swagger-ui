@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi')
-	.service('swaggerUiExternalReferences', ['$http', '$q', 'swaggerModules', function($http, $q, swaggerModules) {
+	.service('swaggerUiExternalReferences', function($http, $q, swaggerModules) {
 
 		var url,
 			deferred,
@@ -189,4 +189,4 @@ angular
 			}
 		}
 
-	}]);
+	});

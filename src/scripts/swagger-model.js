@@ -147,7 +147,16 @@ angular
 		 * generates object's model
 		 */
 		var generateModel = this.generateModel = function(swagger, schema, modelName, currentGenerated) {
-			var model = '';
+			var model = '',
+				buffer,
+				submodels,
+				propertyName,
+				property,
+				name,
+				className,
+				def,
+				sub;
+
 			currentGenerated = currentGenerated || {}; // used to handle circular references
 
 			function isRequired(item, name) {
@@ -157,15 +166,14 @@ angular
 			if (schema.properties) {
 				modelName = modelName || ('Inline Model' + countInLine++);
 				currentGenerated[modelName] = true;
-				var buffer = ['<div><strong>' + modelName + ' {</strong>'],
-					submodels = [];
-
-				for (var propertyName in schema.properties) {
-					var property = schema.properties[propertyName];
+				buffer = ['<div><strong>' + modelName + ' {</strong>'];
+				submodels = [];
+				for (propertyName in schema.properties) {
+					property = schema.properties[propertyName];
 					buffer.push('<div class="pad"><strong>', propertyName, '</strong> (<span class="type">');
 					// build type
 					if (property.properties) {
-						var name = 'Inline Model' + countInLine++;
+						name = 'Inline Model' + countInLine++;
 						buffer.push(name);
 						submodels.push(generateModel(swagger, property, name, currentGenerated));
 					} else if (property.$ref) {
@@ -174,7 +182,7 @@ angular
 					} else if (property.type === 'array') {
 						buffer.push('Array[');
 						if (property.items.properties) {
-							var name = 'Inline Model' + countInLine++;
+							name = 'Inline Model' + countInLine++;
 							buffer.push(name);
 							submodels.push(generateModel(swagger, property, name, currentGenerated));
 						} else if (property.items.$ref) {
@@ -209,9 +217,8 @@ angular
 				buffer.push(submodels.join(''), '</div>');
 				model = buffer.join('');
 			} else if (schema.$ref) {
-				var className = getClassName(schema),
-					def = resolveReference(swagger, schema);
-
+				className = getClassName(schema);
+				def = resolveReference(swagger, schema);
 				if (currentGenerated[className]) {
 					return ''; // already generated
 				}
@@ -224,10 +231,10 @@ angular
 					model = modelCache[schema.$ref];
 				}
 			} else if (schema.type === 'array') {
-				var buffer = ['<strong>Array ['];
-				var sub = '';
+				buffer = ['<strong>Array ['];
+				sub = '';
 				if (schema.items.properties) {
-					var name = 'Inline Model' + countInLine++;
+					name = 'Inline Model' + countInLine++;
 					buffer.push(name);
 					sub = generateModel(swagger, schema.items, name, currentGenerated);
 				} else if (schema.items.$ref) {

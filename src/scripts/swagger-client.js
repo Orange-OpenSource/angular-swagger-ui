@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi')
-	.service('swaggerClient', ['$q', '$http', 'swaggerModules', function($q, $http, swaggerModules) {
+	.service('swaggerClient', function($q, $http, swaggerModules) {
 
 		/**
 		 * format API explorer response before display
@@ -127,4 +127,4 @@ angular
 			return deferred.promise;
 		};
 
-	}]);
+	});

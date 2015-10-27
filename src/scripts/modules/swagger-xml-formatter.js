@@ -8,7 +8,22 @@
 
 angular
 	.module('swaggerUi')
-	.service('swaggerUiXmlFormatter', ['$q', function($q) {
+	.service('swaggerUiXmlFormatter', function($q) {
+
+		/**
+		 * Module entry point
+		 */
+		this.execute = function(response) {
+			var executed = false,
+				deferred = $q.defer();
+
+			if (response.headers && response.headers()['content-type'] === 'application/xml') {
+				response.data = formatXml(response.data);
+				executed = true;
+			}
+			deferred.resolve(executed);
+			return deferred.promise;
+		};
 
 		function formatXml(xml) {
 			var formatted = '',
@@ -43,19 +58,4 @@ angular
 			return formatted;
 		}
 
-		/**
-		 * Module entry point
-		 */
-		this.execute = function(response) {
-			var executed = false,
-				deferred = $q.defer();
-
-			if (response.headers && response.headers()['content-type'] === 'application/xml') {
-				response.data = formatXml(response.data);
-				executed = true;
-			}
-			deferred.resolve(executed);
-			return deferred.promise;
-		};
-
-	}]);
+	});

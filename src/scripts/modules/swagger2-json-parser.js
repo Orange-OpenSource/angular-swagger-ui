@@ -8,9 +8,30 @@
 
 angular
 	.module('swaggerUi')
-	.service('swagger2JsonParser', ['$q', '$sce', '$location', 'swaggerModel', function($q, $sce, $location, swaggerModel) {
+	.service('swagger2JsonParser', function($q, $sce, $location, swaggerModel) {
 
 		var trustedSources;
+
+		/**
+		 * Module entry point
+		 */
+		this.execute = function(parserType, url, contentType, data, isTrustedSources, parseResult) {
+			var deferred = $q.defer();
+			if (data.swagger === '2.0' && (parserType === 'json' || (parserType === 'auto' && contentType === 'application/json'))) {
+				trustedSources = isTrustedSources;
+				try {
+					parseSwagger2Json(data, url, deferred, parseResult);
+				} catch (e) {
+					deferred.reject({
+						code: 500,
+						message: 'failed to parse swagger: ' + e.message
+					});
+				}
+			} else {
+				deferred.resolve(false);
+			}
+			return deferred.promise;
+		};
 
 		/**
 		 * parse swagger description to ease HTML generation
@@ -266,25 +287,4 @@ angular
 				.replace(/'/g, '&#039;');
 		}
 
-		/**
-		 * Module entry point
-		 */
-		this.execute = function(parserType, url, contentType, data, isTrustedSources, parseResult) {
-			var deferred = $q.defer();
-			if (data.swagger === '2.0' && (parserType === 'json' || (parserType === 'auto' && contentType === 'application/json'))) {
-				trustedSources = isTrustedSources;
-				try {
-					parseSwagger2Json(data, url, deferred, parseResult);
-				} catch (e) {
-					deferred.reject({
-						code: 500,
-						message: 'failed to parse swagger: ' + e.message
-					});
-				}
-			} else {
-				deferred.resolve(false);
-			}
-			return deferred.promise;
-		};
-
-	}]);
+	});
