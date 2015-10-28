@@ -11,7 +11,8 @@ module.exports = {
 			src: [
 				'scripts/{,*/}*.js',
 				'!scripts/swagger-ui-templates.js',
-				'less/swagger-ui.less'
+				'less/swagger-ui.less',
+				'less/variables.less'
 			]
 		}]
 	}
