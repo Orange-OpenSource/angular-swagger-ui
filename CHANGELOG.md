@@ -1,9 +1,15 @@
+### 0.2.6 (2015-10-28)
+
+ * Lost default responses content-type (#27)
+ * Remove useless files when using bower (#25)
+ * Remove useless package in dev (#28)
+ * Fix dev sample swagger URL at startup (#29)
 
 ### 0.2.5 (2015-10-27)
 
  * Support path parameters (#26)
- * Fix default host and baseURL (#25)
- * Remove useless files when using bower (#24)
+ * Remove useless files when using bower (#25)
+ * Fix default host and baseURL (#24)
  * Fix "Try it out" request URL if swagger descriptor changed
  * Fix Swagger 1.2 host if not defined
 

@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.2.5
+ * Orange angular-swagger-ui - v0.2.6
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -215,7 +215,7 @@ angular
 		};
 	});
 /*
- * Orange angular-swagger-ui - v0.2.5
+ * Orange angular-swagger-ui - v0.2.6
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -345,7 +345,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.2.5
+ * Orange angular-swagger-ui - v0.2.6
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -600,7 +600,7 @@ angular
 
 	});
 /*
- * Orange angular-swagger-ui - v0.2.5
+ * Orange angular-swagger-ui - v0.2.6
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -665,7 +665,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.2.5
+ * Orange angular-swagger-ui - v0.2.6
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -691,7 +691,7 @@ angular
 
 			parseInfos(swagger, url, infos, defaultContentType);
 			parseTags(swagger, resources, map);
-			parseOperations(swagger, resources, form, map, openPath);
+			parseOperations(swagger, resources, form, map, defaultContentType, openPath);
 			cleanUp(resources, openPath);
 			// prepare result
 			parseResult.infos = infos;
@@ -954,6 +954,7 @@ angular
 		};
 
 	}]);
+
 angular.module('swaggerUiTemplates', ['templates/endpoint.html', 'templates/operation.html', 'templates/parameter.html', 'templates/response.html', 'templates/swagger-ui.html']);
 
 angular.module('templates/endpoint.html', []).run(['$templateCache', function($templateCache) {
