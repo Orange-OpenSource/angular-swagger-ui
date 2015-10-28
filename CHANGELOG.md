@@ -1,3 +1,7 @@
+### 0.2.7 (2015-10-28)
+
+ * Something went wrong with bower, new release to force update
+
 ### 0.2.6 (2015-10-28)
 
  * Lost default responses content-type (#27)

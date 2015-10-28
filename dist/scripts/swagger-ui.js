@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.2.6
+ * Orange angular-swagger-ui - v0.2.7
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -215,7 +215,7 @@ angular
 		};
 	});
 /*
- * Orange angular-swagger-ui - v0.2.6
+ * Orange angular-swagger-ui - v0.2.7
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -345,7 +345,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.2.6
+ * Orange angular-swagger-ui - v0.2.7
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -600,7 +600,7 @@ angular
 
 	});
 /*
- * Orange angular-swagger-ui - v0.2.6
+ * Orange angular-swagger-ui - v0.2.7
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -665,7 +665,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.2.6
+ * Orange angular-swagger-ui - v0.2.7
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
