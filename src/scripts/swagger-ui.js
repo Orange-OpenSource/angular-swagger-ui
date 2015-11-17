@@ -7,7 +7,7 @@
 'use strict';
 
 angular
-	.module('swaggerUi', ['ng', 'swaggerUiTemplates'])
+	.module('swaggerUi', ['ng'])
 	.directive('swaggerUi', ['$injector', function($injector) {
 
 		return {

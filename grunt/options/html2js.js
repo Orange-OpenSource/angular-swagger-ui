@@ -4,7 +4,9 @@
 module.exports = {
 	dist: {
 		options: {
-			module: 'swaggerUiTemplates', // no bundle module for all the html2js templates
+			module: 'swaggerUi',
+			singleModule: true,
+			existingModule: true,
 			quoteChar: '\'',
 			htmlmin: {
 				collapseWhitespace: true,
