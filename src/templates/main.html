@@ -1,0 +1,23 @@
+<div class="swagger-ui" aria-live="polite" aria-relevant="additions removals">
+	<div class="api-name">
+		<h3 ng-bind="infos.title"></h3>
+	</div>
+	<div class="api-description" ng-bind-html="infos.description"></div>
+	<div class="api-infos">
+		<div class="api-infos-contact" ng-if="infos.contact">
+			<div ng-if="infos.contact.name" class="api-infos-contact-name">created by <span ng-bind="infos.contact.name"></span></div>
+			<div ng-if="infos.contact.url" class="api-infos-contact-url">see more at <a href="{{infos.contact.url}}" ng-bind="infos.contact.url"></a></div>
+			<a ng-if="infos.contact.email" class="api-infos-contact-url" href="mailto:{{infos.contact.email}}?subject={{infos.title}}">contact the developer</a>
+		</div>
+		<div class="api-infos-license" ng-if="infos.license">
+			<span>license: </span><a href="{{infos.license.url}}" ng-bind="infos.license.name"></a>
+		</div>
+	</div>
+	<ul class="list-unstyled endpoints">
+	    <li ng-repeat="api in resources track by $index" class="endpoint" ng-class="{active:api.open}" ng-include="'templates/endpoint.html'"></li>
+	</ul>
+	<div class="api-version clearfix" ng-if="infos">
+		[BASE URL: <span class="h4" ng-bind="infos.basePath"></span>, API VERSION: <span class="h4" ng-bind="infos.version"></span>, HOST: <span class="h4" ng-bind="infos.scheme"></span>://<span class="h4" ng-bind="infos.host"></span>]
+		<a ng-if="validatorUrl!='false'" target="_blank" href="{{validatorUrl}}/debug?url={{url}}"><img class="pull-right swagger-validator" ng-src="{{validatorUrl}}?url={{url}}"/></a>
+	</div>
+</div>

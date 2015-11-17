@@ -41,7 +41,9 @@ angular
 				// If false, Swagger validation will be disabled
 				// If URL, will be used as Swagger validator
 				// If not defined, validator will be 'http://online.swagger.io/validator'
-				validatorUrl: '@?'
+				validatorUrl: '@?',
+				// Allows defining a custom Swagger UI template (string, optional)
+				templateUrl: '@?'
 			},
 			link: function(scope) {
 				// check parameters
@@ -56,6 +58,9 @@ angular
 				}
 				if (scope.validatorUrl === undefined) {
 					scope.validatorUrl = 'http://online.swagger.io/validator';
+				}
+				if (scope.templateUrl === undefined) {
+					scope.templateUrl = 'templates/main.html';
 				}
 			}
 		};

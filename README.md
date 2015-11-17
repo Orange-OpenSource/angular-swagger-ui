@@ -123,6 +123,12 @@ Swagger descriptor parser is chosen depending on the `Content-Type` of the descr
 <div swagger-ui url="URLToYourSwaggerDescriptor" parser="json"></div>
 ```
 
+#### Template URL
+Define a custom template to be used by SwaggerUI
+```html
+<div swagger-ui url="URLToYourSwaggerDescriptor" template-url="yourTemplatePath"></div>
+```
+
 ## Customization
 
 #### Enable Swagger 1.2
