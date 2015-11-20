@@ -193,4 +193,7 @@ angular
 			});
 		}
 
+	})
+	.run(function(swaggerModules, swagger1ToSwagger2Converter) {
+		swaggerModules.add(swaggerModules.BEFORE_PARSE, swagger1ToSwagger2Converter);
 	});

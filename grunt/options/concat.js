@@ -9,7 +9,7 @@ module.exports = {
 				'dist/scripts/swagger-client.js',
 				'dist/scripts/swagger-model.js',
 				'dist/scripts/swagger-modules.js',
-				'dist/scripts/modules/swagger2-json-parser.js',
+				'dist/scripts/swagger-parser.js',
 				'dist/scripts/templates.js'
 			]
 		}

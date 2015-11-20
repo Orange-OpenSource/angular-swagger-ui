@@ -25,10 +25,6 @@
     <script type="text/javascript">
         angular
             .module('myApp', ['ngSanitize', 'swaggerUi'])
-            .run(function(swaggerModules, swaggerUiExternalReferences, swagger1ToSwagger2Converter){
-                swaggerModules.add(swaggerModules.BEFORE_PARSE, swagger1ToSwagger2Converter);
-                swaggerModules.add(swaggerModules.BEFORE_PARSE, swaggerUiExternalReferences);
-            })
             .controller('MyCtrl', function($scope){
                 // init form
                 $scope.isLoading = false;

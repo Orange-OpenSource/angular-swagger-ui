@@ -189,4 +189,7 @@ angular
 			}
 		}
 
+	})
+	.run(function(swaggerModules, swaggerUiExternalReferences) {
+		swaggerModules.add(swaggerModules.BEFORE_PARSE, swaggerUiExternalReferences);
 	});

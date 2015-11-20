@@ -58,4 +58,7 @@ angular
 			return formatted;
 		}
 
+	})
+	.run(function(swaggerModules, swaggerUiXmlFormatter) {
+		swaggerModules.add(swaggerModules.AFTER_EXPLORER_LOAD, swaggerUiXmlFormatter);
 	});

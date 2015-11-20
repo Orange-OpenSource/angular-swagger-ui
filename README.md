@@ -141,15 +141,6 @@ Add swagger1-to-swagger2-converter.min.js to the end of the body
  	<script src="yourPathToAngularSwaggerUI/dist/scripts/modules/swagger1-to-swagger2-converter.min.js"></script>
 </body>
 ```
-Add module to angular-swagger-ui
-```js
-angular
-    .module('myApp', ['swaggerUi'])
-    .run(function(swaggerModules, swagger1ToSwagger2Converter){
-        swaggerModules.add(swaggerModules.BEFORE_PARSE, swagger1ToSwagger2Converter);
-    })
-    ...
-```
 
 #### Enable Swagger external references
 See [Swagger 2.0 spec](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md#relative-schema-file-example)
@@ -162,15 +153,6 @@ Add swagger-external-references.min.js to the end of the body
  	<script src="yourPathToAngularSwaggerUI/dist/scripts/modules/swagger-external-references.min.js"></script>
 </body>
 ```
-Add module to angular-swagger-ui
-```js
-angular
-    .module('myApp', ['swaggerUi'])
-    .run(function(swaggerModules, swaggerUiExternalReferences){
-        swaggerModules.add(swaggerModules.BEFORE_PARSE, swaggerUiExternalReferences);
-    })
-    ...
-```
 
 #### Enable XML formatter on API explorer responses
 Add swagger-xml-formatter.min.js to the end of the body
@@ -181,15 +163,6 @@ Add swagger-xml-formatter.min.js to the end of the body
  	<script src="yourPathToAngularSwaggerUI/dist/scripts/swagger-ui.min.js"></script>
  	<script src="yourPathToAngularSwaggerUI/dist/scripts/modules/swagger-xml-formatter.min.js"></script>
 </body>
-```
-Add module to angular-swagger-ui
-```js
-angular
-    .module('myApp', ['swaggerUi'])
-    .run(function(swaggerModules, swaggerUiXmlFormatter){
-        swaggerModules.add(swaggerModules.AFTER_EXPLORER_LOAD, swaggerUiXmlFormatter);
-    })
-    ...
 ```
 
 #### Writing your own modules
@@ -208,9 +181,6 @@ You can make your module modifying behaviours at different phases:
 ```js
 angular
 	.module('myApp', ['swaggerUi'])
-	.run(function(swaggerModules, myModule){
-		swaggerModules.add(swaggerModules.BEFORE_LOAD, myModule);
-	})
 	.service('myModule', function($q) {
 
 		this.execute = function() {
@@ -221,6 +191,9 @@ angular
 			return deferred.promise;
 		}
 
+	})
+	.run(function(swaggerModules, myModule){
+		swaggerModules.add(swaggerModules.BEFORE_LOAD, myModule);
 	})
 	...
 

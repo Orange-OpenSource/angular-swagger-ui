@@ -10,7 +10,6 @@ module.exports = {
 			dest: 'dist',
 			src: [
 				'scripts/{,*/}*.js',
-				'!scripts/swagger-ui-templates.js',
 				'less/swagger-ui.less',
 				'less/variables.less'
 			]

@@ -65,14 +65,11 @@ angular
 			}
 		};
 	})
-	.controller('swaggerUiController', function($scope, $http, $location, $q, swaggerClient, swaggerModules, swagger2JsonParser) {
+	.controller('swaggerUiController', function($scope, $http, $location, $q, swaggerClient, swaggerModules) {
 
 			var swagger;
 
 			// WARNING authentication is not implemented, please use 'api-explorer-transform' directive's param to customize API calls
-
-			// add default Swagger parser (JSON)
-			swaggerModules.add(swaggerModules.PARSE, swagger2JsonParser);
 
 			/**
 			 * Load Swagger descriptor

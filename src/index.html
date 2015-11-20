@@ -28,17 +28,13 @@
     <script src="scripts/swagger-model.js"></script>
     <script src="scripts/swagger-client.js"></script>
     <script src="scripts/swagger-modules.js"></script>
-    <script src="scripts/modules/swagger2-json-parser.js"></script>
+    <script src="scripts/swagger-parser.js"></script>
     <script src="scripts/modules/swagger-external-references.js"></script>
     <script src="scripts/modules/swagger1-to-swagger2-converter.js"></script>
 
     <script type="text/javascript">
         angular
             .module('myApp', ['swaggerUi'])
-            .run(function(swaggerModules, swaggerUiExternalReferences, swagger1ToSwagger2Converter){
-                swaggerModules.add(swaggerModules.BEFORE_PARSE, swagger1ToSwagger2Converter);
-                swaggerModules.add(swaggerModules.BEFORE_PARSE, swaggerUiExternalReferences);
-            })
             .controller('MyCtrl', function($scope) {
                 // init form
                 $scope.isLoading = false;

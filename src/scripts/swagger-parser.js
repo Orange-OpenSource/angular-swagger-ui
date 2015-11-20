@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi')
-	.service('swagger2JsonParser', function($q, $sce, $location, swaggerModel) {
+	.service('swaggerParser', function($q, $sce, $location, swaggerModel) {
 
 		var trustedSources;
 
@@ -287,4 +287,7 @@ angular
 				.replace(/'/g, '&#039;');
 		}
 
+	})
+	.run(function(swaggerModules, swaggerParser) {
+		swaggerModules.add(swaggerModules.PARSE, swaggerParser);
 	});
