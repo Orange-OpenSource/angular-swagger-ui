@@ -1,3 +1,10 @@
+### 0.3.0 (2015-??-??)
+
+ * Allow defining a custom template to be used by SwaggerUi
+ * Use ngAnnotate
+ * Insert templates in swaggerUi module
+ * Auto add modules at startup to avoid executing `app.run(...)`
+
 ### 0.2.7 (2015-10-28)
 
  * Something went wrong with bower, new release to force update
