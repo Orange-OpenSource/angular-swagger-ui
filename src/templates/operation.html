@@ -15,13 +15,13 @@
 	<form role="form" name="explorerForm" ng-submit="explorerForm.$valid&&submitExplorer(op)">
     	<div ng-if="op.responseClass" class="response">
     		<h5>response class (status {{op.responseClass.status}})</h5>
-    		<div ng-if="op.responseClass.display!==-1">
+    		<div ng-if="op.responseClass.display!=-1">
         		<ul class="list-inline schema">
-        			<li><a href="javascript:;" ng-click="op.responseClass.display=0" ng-class="{active:op.responseClass.display===0}">model</a></li>
-        			<li><a href="javascript:;" ng-click="op.responseClass.display=1" ng-class="{active:op.responseClass.display===1}">model schema</a></li>
+        			<li><a href="javascript:;" ng-click="op.responseClass.display=0" ng-class="{active:op.responseClass.display==0}">model</a></li>
+        			<li><a href="javascript:;" ng-click="op.responseClass.display=1" ng-class="{active:op.responseClass.display==1}">model schema</a></li>
         		</ul>
-        		<pre class="model" ng-if="op.responseClass.display===0" ng-bind-html="op.responseClass.schema.model"></pre>
-        		<pre class="model-schema" ng-if="op.responseClass.display===1" ng-bind="op.responseClass.schema.json"></pre>
+        		<pre class="model" ng-if="op.responseClass.display==0" ng-bind-html="op.responseClass.schema.model"></pre>
+        		<pre class="model-schema" ng-if="op.responseClass.display==1" ng-bind="op.responseClass.schema.json"></pre>
     		</div>
     		<div ng-if="op.produces" class="content-type">
     			<label for="responseContentType{{op.id}}">response content type</label>
@@ -56,7 +56,7 @@
     				</tr>
     			</thead>
     			<tbody>
-    				<tr ng-repeat="(code, resp) in op.responses track by $index" ng-include="'templates/response.html'"></tr>
+    				<tr ng-repeat="(code,resp) in op.responses track by $index" ng-include="'templates/response.html'"></tr>
     			</tbody>
     		</table>
     	</div>

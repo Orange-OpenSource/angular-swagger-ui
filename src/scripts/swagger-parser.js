@@ -10,7 +10,9 @@ angular
 	.module('swaggerUi')
 	.service('swaggerParser', function($q, $sce, $location, swaggerModel) {
 
-		var trustedSources;
+		var trustedSources,
+			operationId,
+			paramId;
 
 		/**
 		 * Module entry point
@@ -44,6 +46,8 @@ angular
 				openPath = $location.search().swagger,
 				defaultContentType = 'application/json';
 
+			operationId = 0;
+			paramId = 0;
 			parseInfos(swagger, url, infos, defaultContentType);
 			parseTags(swagger, resources, map);
 			parseOperations(swagger, resources, form, map, defaultContentType, openPath);
@@ -102,9 +106,7 @@ angular
 				httpMethod,
 				operation,
 				tag,
-				resource,
-				operationId = 0,
-				paramId = 0;
+				resource;
 
 			for (path in swagger.paths) {
 				pathObject = swagger.paths[path];
@@ -121,7 +123,7 @@ angular
 					};
 					operation.httpMethod = httpMethod;
 					operation.path = path;
-					parseParameters(swagger, operation, pathParameters, form, defaultContentType, operationId, paramId);
+					parseParameters(swagger, operation, pathParameters, form, defaultContentType);
 					parseResponses(swagger, operation);
 					operation.tags = operation.tags || ['default'];
 					// map operation to resource
@@ -178,7 +180,7 @@ angular
 		/**
 		 * parse operation parameters
 		 */
-		function parseParameters(swagger, operation, pathParameters, form, defaultContentType, operationId, paramId) {
+		function parseParameters(swagger, operation, pathParameters, form, defaultContentType) {
 			var i, l,
 				param,
 				parameters = operation.parameters = computeParameters(swagger, pathParameters, operation);
