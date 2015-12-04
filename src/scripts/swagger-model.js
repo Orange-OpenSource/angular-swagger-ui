@@ -11,6 +11,11 @@ angular
 	.service('swaggerModel', function() {
 
 		/**
+		 * allow display of referred object as links
+		 */
+        var refLinkBaseUrl = false;
+
+        /**
 		 * sample object cache to avoid generating the same one multiple times
 		 */
 		var objCache = {};
@@ -53,9 +58,14 @@ angular
 		/**
 		 * retrieves object class name based on $ref
 		 */
-		function getClassName(item) {
+		function getClassName(item,property) {
 			var parts = item.$ref.split('/');
-			return parts[parts.length - 1];
+			var className = parts[parts.length - 1];
+			if (property && refLinkBaseUrl) {
+				return '<a href="' + refLinkBaseUrl + '#' + className + '">' + className + '</a>';
+			} else {
+				return '<span id="' + className + '">' + className + '</span>';
+			}
 		}
 
 		/**
@@ -169,7 +179,7 @@ angular
 						buffer.push(name);
 						submodels.push(generateModel(swagger, property, name, currentGenerated));
 					} else if (property.$ref) {
-						buffer.push(getClassName(property));
+						buffer.push(getClassName(property,true));
 						submodels.push(generateModel(swagger, property, null, currentGenerated));
 					} else if (property.type === 'array') {
 						buffer.push('Array[');
@@ -178,7 +188,7 @@ angular
 							buffer.push(name);
 							submodels.push(generateModel(swagger, property, name, currentGenerated));
 						} else if (property.items.$ref) {
-							buffer.push(getClassName(property.items));
+							buffer.push(getClassName(property.items,true));
 							submodels.push(generateModel(swagger, property.items, null, currentGenerated));
 						} else {
 							buffer.push(getType(property.items));
@@ -209,7 +219,7 @@ angular
 				buffer.push(submodels.join(''), '</div>');
 				model = buffer.join('');
 			} else if (schema.$ref) {
-				var className = getClassName(schema),
+				var className = getClassName(schema,false),
 					def = resolveReference(swagger, schema);
 
 				if (currentGenerated[className]) {
@@ -231,7 +241,7 @@ angular
 					buffer.push(name);
 					sub = generateModel(swagger, schema.items, name, currentGenerated);
 				} else if (schema.items.$ref) {
-					buffer.push(getClassName(schema.items));
+					buffer.push(getClassName(schema.items,true));
 					sub = generateModel(swagger, schema.items, null, currentGenerated);
 				} else {
 					buffer.push(getType(schema.items));
@@ -250,6 +260,13 @@ angular
 		this.clearCache = function() {
 			objCache = {};
 			modelCache = {};
+		};
+
+		/**
+		 * set the refLinkBaseUrl parameter from the outtside of the service
+		 */
+		 this.setRefLinkBaseUrl = function( newRefLinkBaseUrl ) {
+			refLinkBaseUrl = newRefLinkBaseUrl === null ? false : newRefLinkBaseUrl;
 		};
 
 	});

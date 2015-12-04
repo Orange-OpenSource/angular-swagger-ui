@@ -41,7 +41,9 @@ angular
 				// If false, Swagger validation will be disabled
 				// If URL, will be used as Swagger validator
 				// If not defined, validator will be 'http://online.swagger.io/validator'
-				validatorUrl: '@?'
+				validatorUrl: '@?',
+				refLinkBaseUrl: '=?'
+				// Allows display of ref as links within the page
 			},
 			link: function(scope) {
 				// check parameters
@@ -60,8 +62,8 @@ angular
 			}
 		};
 	}])
-	.controller('swaggerUiController', ['$scope', '$http', '$location', '$q', 'swaggerClient', 'swaggerModules', 'swagger2JsonParser',
-		function($scope, $http, $location, $q, swaggerClient, swaggerModules, swagger2JsonParser) {
+	.controller('swaggerUiController', ['$scope', '$http', '$location', '$q', 'swaggerClient', 'swaggerModules', 'swagger2JsonParser', 'swaggerModel',
+		function($scope, $http, $location, $q, swaggerClient, swaggerModules, swagger2JsonParser, swaggerModel) {
 
 			var swagger;
 
@@ -69,6 +71,8 @@ angular
 
 			// add default Swagger parser (JSON)
 			swaggerModules.add(swaggerModules.PARSE, swagger2JsonParser);
+			// set refLinkBaseUrl to allow display of referred object as link
+			swaggerModel.setRefLinkBaseUrl( $scope.refLinkBaseUrl );
 
 			/**
 			 * Load Swagger descriptor
