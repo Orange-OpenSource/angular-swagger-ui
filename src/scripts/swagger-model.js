@@ -152,6 +152,7 @@ angular
 				submodels,
 				propertyName,
 				property,
+				hasProperties = false,
 				name,
 				className,
 				def,
@@ -169,6 +170,7 @@ angular
 				buffer = ['<div><strong>' + modelName + ' {</strong>'];
 				submodels = [];
 				for (propertyName in schema.properties) {
+					hasProperties = true;
 					property = schema.properties[propertyName];
 					buffer.push('<div class="pad"><strong>', propertyName, '</strong> (<span class="type">');
 					// build type
@@ -211,9 +213,11 @@ angular
 					}
 					buffer.push(',</div>');
 				}
-				buffer.pop();
-				buffer.push('</div>');
-				buffer.push('<strong>}</strong>');
+				if (hasProperties) {
+					buffer.pop();
+					buffer.push('</div>');
+				}
+				buffer.push('<div><strong>}</strong></div>');
 				buffer.push(submodels.join(''), '</div>');
 				model = buffer.join('');
 			} else if (schema.$ref) {
