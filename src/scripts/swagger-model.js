@@ -15,6 +15,11 @@ angular
 		 */
         var refLinkBaseUrl = false;
 
+		/**
+		 * allow generation of links anchors per operation
+		 */
+		var currentOperation = '';
+
         /**
 		 * sample object cache to avoid generating the same one multiple times
 		 */
@@ -62,9 +67,9 @@ angular
 			var parts = item.$ref.split('/');
 			var className = parts[parts.length - 1];
 			if (property && refLinkBaseUrl) {
-				return '<a href="' + refLinkBaseUrl + '#' + className + '">' + className + '</a>';
+				return '<a href="' + refLinkBaseUrl + '#' + currentOperation + '_' + className + '">' + className + '</a>';
 			} else {
-				return '<span id="' + className + '">' + className + '</span>';
+				return '<span id="' + currentOperation + '_' + className + '">' + className + '</span>';
 			}
 		}
 
@@ -265,8 +270,15 @@ angular
 		/**
 		 * set the refLinkBaseUrl parameter from the outtside of the service
 		 */
-		 this.setRefLinkBaseUrl = function( newRefLinkBaseUrl ) {
+		this.setRefLinkBaseUrl = function( newRefLinkBaseUrl ) {
 			refLinkBaseUrl = newRefLinkBaseUrl === null ? false : newRefLinkBaseUrl;
+		};
+
+		/**
+		 * set the currentOperation parameter to distinguish model anhcors reference per operation
+		 */
+		this.setCurrentOperation = function( newCurrentOperation ) {
+			currentOperation = newCurrentOperation;
 		};
 
 	});

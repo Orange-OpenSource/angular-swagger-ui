@@ -179,6 +179,7 @@ angular
 				if (param.schema) {
 					param.schema.display = 1; // display schema
 					param.schema.json = swaggerModel.generateSampleJson(swagger, param.schema);
+					swaggerModel.setCurrentOperation( operation.path );
 					param.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, param.schema));
 				}
 				if (param.in === 'body') {
@@ -205,6 +206,7 @@ angular
 						response.schema.json = response.examples && response.examples[operation.produces[0]] || swaggerModel.generateSampleJson(swagger, response.schema);
 						if (response.schema.type === 'object' || response.schema.type === 'array' || response.schema.$ref) {
 							response.display = 1; // display schema
+							swaggerModel.setCurrentOperation( operation.path );
 							response.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, response.schema));
 						} else if (response.schema.type === 'string') {
 							delete response.schema;
