@@ -22,7 +22,7 @@ angular
 				// 		"auto": (default) parser is based on response Content-Type
 				//		"json": force using JSON parser
 				//
-				//	More types could be defined by external modules
+				// More types could be defined by external modules
 				parser: '@?',
 				// Swagger descriptor loading indicator (variables, optional)
 				loading: '=?',
