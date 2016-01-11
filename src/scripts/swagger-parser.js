@@ -57,6 +57,7 @@ angular
 			parseResult.resources = resources;
 			parseResult.form = form;
 			deferred.resolve(true);
+			console.log(resources)
 		}
 
 		/**
@@ -204,7 +205,7 @@ angular
 					param.schema.json = swaggerModel.generateSampleJson(swagger, param.schema);
 					param.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, param.schema));
 				}
-				if (param.in === 'body') {
+				if (param.in === 'body' || param.in === 'formData') {
 					operation.consumes = operation.consumes || swagger.consumes;
 					form[operationId].contentType = operation.consumes.length === 1 ? operation.consumes[0] : defaultContentType;
 				}
