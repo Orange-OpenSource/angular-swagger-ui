@@ -128,9 +128,10 @@ angular
 		function convertParameters(swagger1, operation) {
 			angular.forEach(operation.parameters, function(param) {
 				param.in = param.paramType;
-				if (swagger1.models && swagger1.models[param.type]) {
+				var ref = param.type || param.$ref;
+				if (swagger1.models && ref && swagger1.models[ref]) {
 					param.schema = {
-						$ref: '#/definitions/' + param.type
+						$ref: '#/definitions/' + ref
 					};
 					delete param.type;
 				}
@@ -156,9 +157,14 @@ angular
 						type: operation.type
 					};
 					if (operation.type === 'array') {
-						response.schema.items = {
-							$ref: swagger1.models && swagger1.models[operation.items.type] ? '#/definitions/' + operation.items.type : operation.items.type
-						};
+						var ref = operation.items.type || operation.items.$ref,
+							items = response.schema.items = {};
+							
+						if (swagger1.models && swagger1.models[ref]) {
+							items.$ref = '#/definitions/' + ref;
+						} else {
+							items.type = ref;
+						}
 					}
 				}
 			});
@@ -181,12 +187,16 @@ angular
 					delete model.subTypes;
 				}
 				angular.forEach(model.properties, function(prop) {
-					if (swagger1.models && swagger1.models[prop.type]) {
-						prop.$ref = '#/definitions/' + prop.type;
+					var ref = prop.type || prop.$ref;
+					if (swagger1.models && ref && swagger1.models[ref]) {
+						prop.$ref = '#/definitions/' + ref;
 						delete prop.type;
 					}
-					if (prop.items && swagger1.models && swagger1.models[prop.items.type]) {
-						prop.items.$ref = '#/definitions/' + prop.items.type;
+					if (prop.items) {
+						ref = prop.items.type || prop.items.$ref;
+						if (swagger1.models && ref && swagger1.models[ref]) {
+							prop.items.$ref = '#/definitions/' + ref;
+						}
 						delete prop.items.type;
 					}
 				});
