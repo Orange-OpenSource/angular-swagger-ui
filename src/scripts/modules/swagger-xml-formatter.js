@@ -15,9 +15,10 @@ angular
 		 */
 		this.execute = function(response) {
 			var executed = false,
-				deferred = $q.defer();
+				deferred = $q.defer(),
+				contentType = response.headers && response.headers()['content-type'];
 
-			if (response.headers && response.headers()['content-type'] === 'application/xml') {
+			if (contentType && contentType.toLowerCase().indexOf('/xml') > 0) {
 				response.data = formatXml(response.data);
 				executed = true;
 			}
