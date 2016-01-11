@@ -27,8 +27,6 @@ angular
 				// Swagger descriptor loading indicator (variables, optional)
 				loading: '=?',
 				// Use permalinks? (boolean, optional, default = false)
-				// If true and if using $routeProvider, should set 'reloadOnSearch: false' in route
-				// configuration to avoid UI being rendered multiple times
 				permalinks: '=?',
 				// Display API explorer (boolean, optional, default = false)
 				apiExplorer: '=?',
@@ -47,12 +45,6 @@ angular
 			},
 			link: function(scope) {
 				// check parameters
-				if (scope.permalinks && $injector.has('$route')) {
-					var $route = $injector.get('$route');
-					if ($route.current && $route.current.$$route && $route.current.$$route.reloadOnSearch) {
-						console.warn('AngularSwaggerUI: when using permalinks you should set reloadOnSearch=false in your route config to avoid UI being rebuilt multiple times');
-					}
-				}
 				if (!scope.trustedSources && !$injector.has('$sanitize')) {
 					console.warn('AngularSwaggerUI: you must use ngSanitize OR set trusted-sources=true as directive param if swagger descriptors are loaded from trusted sources');
 				}
@@ -65,141 +57,148 @@ angular
 			}
 		};
 	})
-	.controller('swaggerUiController', function($scope, $http, $location, $q, swaggerClient, swaggerModules) {
+	.controller('swaggerUiController', function($scope, $http, $location, $q, $anchorScroll, $timeout, swaggerClient, swaggerModules) {
 
-			var swagger;
+		var swagger;
 
-			// WARNING authentication is not implemented, please use 'api-explorer-transform' directive's param to customize API calls
+		// WARNING authentication is not implemented, please use 'api-explorer-transform' directive's param to customize API calls
 
-			/**
-			 * Load Swagger descriptor
-			 */
-			function loadSwagger(url, callback) {
-				$scope.loading = true;
-				var options = {
-					method: 'GET',
-					url: url
-				};
-				swaggerModules
-					.execute(swaggerModules.BEFORE_LOAD, options)
-					.then(function() {
-						$http(options)
-							.success(callback)
-							.error(function(data, status) {
-								onError({
-									code: status,
-									message: data
-								});
-							});
-					})
-					.catch(onError);
-			}
-
-			/**
-			 * Swagger descriptor has been loaded, launch parsing
-			 */
-			function swaggerLoaded(swaggerUrl, swaggerType) {
-				$scope.loading = false;
-				var parseResult = {};
-				// execute modules
-				$scope.parser = $scope.parser || 'auto';
-				swaggerModules
-					.execute(swaggerModules.PARSE, $scope.parser, swaggerUrl, swaggerType, swagger, $scope.trustedSources, parseResult)
-					.then(function(executed) {
-						if (executed) {
-							swaggerParsed(parseResult);
-						} else {
+		/**
+		 * Load Swagger descriptor
+		 */
+		function loadSwagger(url, callback) {
+			$scope.loading = true;
+			var options = {
+				method: 'GET',
+				url: url
+			};
+			swaggerModules
+				.execute(swaggerModules.BEFORE_LOAD, options)
+				.then(function() {
+					$http(options)
+						.success(callback)
+						.error(function(data, status) {
 							onError({
-								code: 415,
-								message: 'no parser found for Swagger descriptor of type ' + swaggerType + ' and version ' + swagger.swagger
+								code: status,
+								message: data
 							});
-						}
-					})
-					.catch(onError);
-			}
-
-			/**
-			 * Swagger descriptor has parsed, launch display
-			 */
-			function swaggerParsed(parseResult) {
-				// execute modules
-				swaggerModules
-					.execute(swaggerModules.BEFORE_DISPLAY, parseResult)
-					.then(function() {
-						// display swagger UI
-						$scope.infos = parseResult.infos;
-						$scope.form = parseResult.form;
-						$scope.resources = parseResult.resources;
-					})
-					.catch(onError);
-			}
-
-			function onError(error) {
-				$scope.loading = false;
-				if (typeof $scope.errorHandler === 'function') {
-					$scope.errorHandler(error.message, error.code);
-				} else {
-					console.error(error.code, 'AngularSwaggerUI: ' + error.message);
-				}
-			}
-
-			$scope.$watch('url', function(url) {
-				//reset
-				$scope.infos = {};
-				$scope.resources = [];
-				$scope.form = {};
-				if (url && url !== '') {
-					if ($scope.loading) {
-						//TODO cancel current loading swagger
-					}
-					// load Swagger descriptor
-					loadSwagger(url, function(data, status, headers) {
-						swagger = data;
-						// execute modules
-						swaggerModules
-							.execute(swaggerModules.BEFORE_PARSE, url, swagger)
-							.then(function() {
-								var contentType = headers()['content-type'] || 'application/json',
-									swaggerType = contentType.split(';')[0];
-
-								swaggerLoaded(url, swaggerType);
-							})
-							.catch(onError);
-					});
-				}
-			});
-
-			/**
-			 * show all resource's operations as list or as expanded list
-			 */
-			$scope.expand = function(resource, expandOperations) {
-				resource.open = true;
-				for (var i = 0, op = resource.operations, l = op.length; i < l; i++) {
-					op[i].open = expandOperations;
-				}
-			};
-
-			$scope.permalink = function(name) {
-				if ($scope.permalinks) {
-					$location.search('swagger', name);
-				}
-			};
-
-			/**
-			 * sends a sample API request
-			 */
-			$scope.submitExplorer = function(operation) {
-				operation.loading = true;
-				swaggerClient
-					.send(swagger, operation, $scope.form[operation.id])
-					.then(function(result) {
-						operation.loading = false;
-						operation.explorerResult = result;
-					});
-			};
-
+						});
+				})
+				.catch(onError);
 		}
-	)
+
+		/**
+		 * Swagger descriptor has been loaded, launch parsing
+		 */
+		function swaggerLoaded(swaggerUrl, swaggerType) {
+			$scope.loading = false;
+			var parseResult = {};
+			// execute modules
+			$scope.parser = $scope.parser || 'auto';
+			swaggerModules
+				.execute(swaggerModules.PARSE, $scope.parser, swaggerUrl, swaggerType, swagger, $scope.trustedSources, parseResult)
+				.then(function(executed) {
+					if (executed) {
+						swaggerParsed(parseResult);
+					} else {
+						onError({
+							code: 415,
+							message: 'no parser found for Swagger descriptor of type ' + swaggerType + ' and version ' + swagger.swagger
+						});
+					}
+				})
+				.catch(onError);
+		}
+
+		/**
+		 * Swagger descriptor has parsed, launch display
+		 */
+		function swaggerParsed(parseResult) {
+			// execute modules
+			swaggerModules
+				.execute(swaggerModules.BEFORE_DISPLAY, parseResult)
+				.then(function() {
+					// display swagger UI
+					$scope.infos = parseResult.infos;
+					$scope.form = parseResult.form;
+					$scope.resources = parseResult.resources;
+					if ($scope.permalinks) {
+						$timeout(function() {
+							$anchorScroll();
+						}, 100);
+					}
+				})
+				.catch(onError);
+		}
+
+		function onError(error) {
+			$scope.loading = false;
+			if (typeof $scope.errorHandler === 'function') {
+				$scope.errorHandler(error.message, error.code);
+			} else {
+				console.error(error.code, 'AngularSwaggerUI: ' + error.message);
+			}
+		}
+
+		$scope.$watch('url', function(url) {
+			//reset
+			$scope.infos = {};
+			$scope.resources = [];
+			$scope.form = {};
+			if (url && url !== '') {
+				if ($scope.loading) {
+					//TODO cancel current loading swagger
+				}
+				// load Swagger descriptor
+				loadSwagger(url, function(data, status, headers) {
+					swagger = data;
+					// execute modules
+					swaggerModules
+						.execute(swaggerModules.BEFORE_PARSE, url, swagger)
+						.then(function() {
+							var contentType = headers()['content-type'] || 'application/json',
+								swaggerType = contentType.split(';')[0];
+
+							swaggerLoaded(url, swaggerType);
+						})
+						.catch(onError);
+				});
+			}
+		});
+
+		/**
+		 * show all resource's operations as list or as expanded list
+		 */
+		$scope.expand = function(resource, expandOperations) {
+			resource.open = true;
+			for (var i = 0, op = resource.operations, l = op.length; i < l; i++) {
+				op[i].open = expandOperations;
+			}
+		};
+
+		$scope.permalink = function(name) {
+			if ($scope.permalinks) {
+				$location.hash(name);
+				$timeout(function() {
+					$anchorScroll();
+				}, 50);
+			}
+		};
+
+		/**
+		 * sends a sample API request
+		 */
+		$scope.submitExplorer = function(operation) {
+			operation.loading = true;
+			swaggerClient
+				.send(swagger, operation, $scope.form[operation.id])
+				.then(function(result) {
+					operation.loading = false;
+					operation.explorerResult = result;
+				});
+		};
+
+	})
 	.directive('fileInput', function() {
 		// helper to be able to retrieve HTML5 File in ngModel from input
 		return {

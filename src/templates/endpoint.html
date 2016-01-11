@@ -1,15 +1,15 @@
-<div class="clearfix">
-    <ul class="list-inline pull-left endpoint-heading">
+<div id="{{api.name}}" class="clearfix">
+    <ul id="{{api.name}}*" class="list-inline pull-left endpoint-heading">
         <li>
             <h4>
-                <a href="javascript:;" ng-click="api.open=!api.open;permalink(api.open?api.name:null)" ng-bind="api.name"></a>
+                <a href="javascript:;" ng-click="api.open=!api.open;permalink(api.name)" ng-bind="api.name"></a>
                 <span ng-if="api.description"> : <span ng-bind="api.description"></span></span>
             </h4>
         </li>
     </ul>
     <ul class="list-inline pull-right endpoint-actions">
         <li>
-            <a href="javascript:;" ng-click="api.open=!api.open;permalink(api.open?api.name:null)">open/hide</a>
+            <a href="javascript:;" ng-click="api.open=!api.open;permalink(api.name)">open/hide</a>
         </li>
         <li>
             <a href="javascript:;" ng-click="expand(api);permalink(api.name)">list operations</a>

@@ -1,5 +1,5 @@
-<div class="heading">
-    <a ng-click="op.open=!op.open;permalink(op.open?op.operationId:null)" href="javascript:;">
+<div id="{{op.operationId}}" class="heading">
+    <a ng-click="op.open=!op.open;permalink(op.operationId)" href="javascript:;">
         <div class="clearfix">
             <span class="http-method text-uppercase" ng-bind="op.httpMethod"></span>
             <span class="path" ng-bind="op.path"></span>

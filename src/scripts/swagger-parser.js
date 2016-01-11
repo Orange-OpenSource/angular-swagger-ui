@@ -43,7 +43,7 @@ angular
 				form = {},
 				resources = [],
 				infos = swagger.info,
-				openPath = $location.search().swagger,
+				openPath = $location.hash(),
 				defaultContentType = 'application/json';
 
 			operationId = 0;
@@ -57,7 +57,6 @@ angular
 			parseResult.resources = resources;
 			parseResult.form = form;
 			deferred.resolve(true);
-			console.log(resources)
 		}
 
 		/**
