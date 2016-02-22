@@ -1,9 +1,13 @@
-### 0.3.0 (2015-??-??)
+### 0.3.0 (2016-02-22)
 
- * Allow defining a custom template to be used by SwaggerUi
+ * Allow defining a custom template to be used by SwaggerUi (#3)
  * Use ngAnnotate
  * Insert templates in swaggerUi module
  * Auto add modules at startup to avoid executing `app.run(...)`
+ * Fix model generation of objects having no properties
+ * Fix Swagger 1.2 references (#35)
+ * Fix API explorer when using formData (#36)
+ * Fix sample JSON of operations having examples
 
 ### 0.2.7 (2015-10-28)
 
