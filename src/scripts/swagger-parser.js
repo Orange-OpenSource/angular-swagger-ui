@@ -217,7 +217,8 @@ angular
 		 */
 		function parseResponses(swagger, operation) {
 			var code,
-				response;
+				response,
+				sampleJson;
 
 			if (operation.responses) {
 				for (code in operation.responses) {
@@ -225,7 +226,12 @@ angular
 					response = operation.responses[code];
 					response.description = trustHtml(response.description);
 					if (response.schema) {
-						response.schema.json = response.examples && response.examples[operation.produces[0]] || swaggerModel.generateSampleJson(swagger, response.schema);
+						if (response.examples && response.examples[operation.produces[0]]) {
+							sampleJson = angular.toJson(response.examples[operation.produces[0]], true);
+						} else {
+							sampleJson = swaggerModel.generateSampleJson(swagger, response.schema);
+						}
+						response.schema.json = sampleJson;
 						if (response.schema.type === 'object' || response.schema.type === 'array' || response.schema.$ref) {
 							response.display = 1; // display schema
 							response.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, response.schema));
@@ -282,7 +288,7 @@ angular
 		}
 
 		function escapeChars(text) {
-			return text && text
+			return text
 				.replace(/&/g, '&amp;')
 				.replace(/<([^\/a-zA-Z])/g, '&lt;$1')
 				.replace(/"/g, '&quot;')
