@@ -59,17 +59,33 @@ angular
 		}
 
 		/**
+		 * handles allOf property of a schema
+		 */
+		function resolveAllOf(swagger, schema) {
+			if (schema.allOf) {
+				var newSchema = {};
+				angular.forEach(schema.allOf, function(def) {
+					angular.merge(newSchema, resolveReference(swagger, def));
+				});
+				schema = newSchema;
+			}
+			return schema;
+		}
+
+		/**
 		 * generates a sample object (request body or response body)
 		 */
 		function getSampleObj(swagger, schema, currentGenerated) {
 			var sample;
 			currentGenerated = currentGenerated || {}; // used to handle circular references
+			schema = resolveAllOf(swagger, schema);
 			if (schema.default || schema.example) {
 				sample = schema.default || schema.example;
 			} else if (schema.properties) {
 				sample = {};
 				for (var name in schema.properties) {
-					sample[name] = getSampleObj(swagger, schema.properties[name], currentGenerated);
+					var prop = schema.properties[name];
+					sample[name] = getSampleObj(swagger, prop.schema || prop, currentGenerated);
 				}
 			} else if (schema.$ref) {
 				// complex object
@@ -89,8 +105,7 @@ angular
 			} else if (schema.type === 'object') {
 				sample = {};
 			} else {
-				sample = getSampleValue(getType(schema));
-				sample = schema.defaultValue || schema.example || getSampleValue(getType(schema));
+				sample = schema.defaultValue || schema.example || getSampleValue(schema);
 			}
 			return sample;
 		}
@@ -98,8 +113,10 @@ angular
 		/**
 		 * generates a sample value for a basic type
 		 */
-		function getSampleValue(type) {
-			var result;
+		function getSampleValue(schema) {
+			var result,
+				type = getType(schema);
+
 			switch (type) {
 				case 'long':
 				case 'integer':
@@ -114,6 +131,9 @@ angular
 					break;
 				case 'string':
 					result = 'string';
+					if (schema.enum && schema.enum.length > 0) {
+						result = schema.enum[0];
+					}
 					break;
 				case 'date':
 					result = (new Date()).toISOString().split('T')[0];
@@ -164,8 +184,18 @@ angular
 				return item.required && item.required.indexOf(name) !== -1;
 			}
 
+			function getInlineModelName() {
+				var n = 'Inline Model';
+				if (countInLine > 0) {
+					n += countInLine;
+				}
+				countInLine++
+				return n;
+			}
+
+			schema = resolveAllOf(swagger, schema);
 			if (schema.properties) {
-				modelName = modelName || ('Inline Model' + countInLine++);
+				modelName = modelName || getInlineModelName();
 				currentGenerated[modelName] = true;
 				buffer = ['<div><strong>' + modelName + ' {</strong>'];
 				submodels = [];
@@ -175,16 +205,16 @@ angular
 					buffer.push('<div class="pad"><strong>', propertyName, '</strong> (<span class="type">');
 					// build type
 					if (property.properties) {
-						name = 'Inline Model' + countInLine++;
+						name = getInlineModelName();
 						buffer.push(name);
 						submodels.push(generateModel(swagger, property, name, currentGenerated));
-					} else if (property.$ref) {
-						buffer.push(getClassName(property));
-						submodels.push(generateModel(swagger, property, null, currentGenerated));
+					} else if (property.schema || property.$ref) {
+						buffer.push(getClassName(property.schema || property));
+						submodels.push(generateModel(swagger, property.schema || property, null, currentGenerated));
 					} else if (property.type === 'array') {
 						buffer.push('Array[');
 						if (property.items.properties) {
-							name = 'Inline Model' + countInLine++;
+							name = getInlineModelName();
 							buffer.push(name);
 							submodels.push(generateModel(swagger, property, name, currentGenerated));
 						} else if (property.items.$ref) {
@@ -238,7 +268,7 @@ angular
 				buffer = ['<strong>Array ['];
 				sub = '';
 				if (schema.items.properties) {
-					name = 'Inline Model' + countInLine++;
+					name = getInlineModelName();
 					buffer.push(name);
 					sub = generateModel(swagger, schema.items, name, currentGenerated);
 				} else if (schema.items.$ref) {
@@ -250,7 +280,8 @@ angular
 				buffer.push(']</strong><br><br>', sub);
 				model = buffer.join('');
 			} else if (schema.type === 'object') {
-				model = '<strong>Inline Model {<br>}</strong>';
+				name = modelName || getInlineModelName();
+				model = '<strong>' + name + ' {<br>}</strong>';
 			}
 			return model;
 		};
