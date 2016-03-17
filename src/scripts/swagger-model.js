@@ -189,7 +189,7 @@ angular
 				if (countInLine > 0) {
 					n += countInLine;
 				}
-				countInLine++
+				countInLine++;
 				return n;
 			}
 
