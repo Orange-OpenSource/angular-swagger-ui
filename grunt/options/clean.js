@@ -7,7 +7,8 @@ module.exports = {
 			dot: true,
 			src: [
 				'dist/{,*/}*',
-				'!dist/index.html'
+				'!dist/index.html',
+				'!dist/favicon.ico'
 			]
 		}]
 	},
