@@ -18,8 +18,8 @@
         <div swagger-ui url="swaggerUrl" loading="isLoading" api-explorer="true" error-handler="myErrorHandler"></div>
     </div>
     <!-- dependencies -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.7/angular-sanitize.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.1/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.1/angular-sanitize.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.5.4/js-yaml.min.js"></script>
     <!-- angular-swagger-ui -->
     <script src="scripts/swagger-ui.min.js"></script>
@@ -29,16 +29,16 @@
     <script src="scripts/modules/swagger-yaml-parser.min.js"></script>
     <script type="text/javascript">
         angular
-        .module('myApp', ['ngSanitize', 'swaggerUi'])
-        .controller('MyCtrl', function($scope){
-            // init form
-            $scope.isLoading = false;
-            $scope.url = $scope.swaggerUrl = 'http://petstore.swagger.io/v2/swagger.json';
-            // error management
-            $scope.myErrorHandler = function(data, status){
-                alert('failed to load swagger: '+status+'   '+data);
-            };
-        });
+            .module('myApp', ['ngSanitize', 'swaggerUi'])
+            .controller('MyCtrl', function($scope){
+                // init form
+                $scope.isLoading = false;
+                $scope.url = $scope.swaggerUrl = 'http://petstore.swagger.io/v2/swagger.json';
+                // error management
+                $scope.myErrorHandler = function(data, status){
+                    alert('failed to load swagger: '+status+'   '+data);
+                };
+            });
     </script>
 </body>
 </html>
