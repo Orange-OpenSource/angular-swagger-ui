@@ -22,7 +22,9 @@ module.exports = {
 				'dist/scripts/swagger-parser.js',
 				'dist/scripts/modules/swagger-external-references.js',
 				'dist/scripts/modules/swagger-xml-formatter.js',
-				'dist/scripts/modules/swagger1-to-swagger2-converter.js'
+				'dist/scripts/modules/swagger1-to-swagger2-converter.js',
+				'dist/scripts/modules/swagger-yaml-parser.js',
+				'dist/scripts/i18n/en.js',
 			]
 		}]
 	}

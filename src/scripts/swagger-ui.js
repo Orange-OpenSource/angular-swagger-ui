@@ -99,6 +99,10 @@ angular
 				.execute(swaggerModules.PARSE, $scope.parser, swaggerUrl, swaggerType, swagger, $scope.trustedSources, parseResult)
 				.then(function(executed) {
 					if (executed) {
+						if (parseResult.transformSwagger) {
+							swagger = parseResult.transformSwagger;
+							delete parseResult.transformSwagger;
+						}
 						swaggerParsed(parseResult);
 					} else {
 						onError({

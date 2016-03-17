@@ -131,6 +131,19 @@ Define a custom template to be used by SwaggerUI
 
 ## Customization
 
+#### Enable YAML
+Add [js-yaml library](https://cdnjs.com/libraries/js-yaml)
+Add swagger-yaml-parser.min.js to the end of the body
+```html
+<body>
+ 	...
+ 	<script src="yourPathToAngularJS/angular.min.js"></script>
+ 	<script src="yourPathToJsYaml/js-yaml.min.js"></script>
+ 	<script src="yourPathToAngularSwaggerUI/dist/scripts/swagger-ui.min.js"></script>
+ 	<script src="yourPathToAngularSwaggerUI/dist/scripts/modules/swagger-yaml-parser.min.js"></script>
+</body>
+```
+
 #### Enable Swagger 1.2
 Add swagger1-to-swagger2-converter.min.js to the end of the body
 ```html

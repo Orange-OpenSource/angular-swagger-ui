@@ -1,16 +1,13 @@
 <!doctype html>
 <html class="no-js" ng-app="myApp">
-  <head>
+<head>
     <meta charset="utf-8">
     <title>angular-swagger-ui sample</title>
     <meta name="viewport" content="width=device-width">
-    
     <link rel="stylesheet" href="css/bootstrap.css">
     <link rel="stylesheet" href="css/swagger-ui.css">
-
-  </head>
-  <body>
-      
+</head>
+<body>
     <div ng-controller="MyCtrl" class="container" style="margin-bottom:100px">
         <h1>angular-swagger-ui sample</h1>
         <form name="urlForm" ng-submit="swaggerUrl=url" class="form-inline">
@@ -21,9 +18,12 @@
         <div swagger-ui url="swaggerUrl" loading="isLoading" api-explorer="true" trusted-sources="true" error-handler="myErrorHandler" permalinks="true"></div>
     </div>
 
+    <!-- dependencies -->
     <script src="bower_components/angular/angular.min.js"></script>
     <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.5.4/js-yaml.min.js"></script>
 
+    <!-- angular-swagger-ui -->
     <script src="scripts/swagger-ui.js"></script>
     <script src="scripts/swagger-model.js"></script>
     <script src="scripts/swagger-client.js"></script>
@@ -31,19 +31,20 @@
     <script src="scripts/swagger-parser.js"></script>
     <script src="scripts/modules/swagger-external-references.js"></script>
     <script src="scripts/modules/swagger1-to-swagger2-converter.js"></script>
+    <script src="scripts/modules/swagger-yaml-parser.js"></script>
 
     <script type="text/javascript">
         angular
-            .module('myApp', ['swaggerUi'])
-            .controller('MyCtrl', function($scope) {
-                // init form
-                $scope.isLoading = false;
-                $scope.url = $scope.swaggerUrl = 'http://petstore.swagger.io/v2/swagger.json';
-                // error management
-                $scope.myErrorHandler = function(data, status){
-                    alert('failed to load swagger: '+status+'   '+data);
-                };
-            });
+        .module('myApp', ['swaggerUi'])
+        .controller('MyCtrl', function($scope) {
+            // init form
+            $scope.isLoading = false;
+            $scope.url = $scope.swaggerUrl = 'http://petstore.swagger.io/v2/swagger.json';
+            // error management
+            $scope.myErrorHandler = function(data, status){
+                alert('failed to load swagger: '+status+'   '+data);
+            };
+        });
     </script>
 
 </body>
