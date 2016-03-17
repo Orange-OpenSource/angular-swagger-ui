@@ -38,10 +38,10 @@ See LICENSE file for copyright details.
 
 Include angular-swagger-ui as a dependency into your application
 
-As some properties of Swagger descriptors can be formatted as HTML:
+As some properties of Swagger specifications can be formatted as HTML:
 
-* You **SHOULD** include `ngSanitize` as a dependency into your application (avoids JS injection) if Swagger descriptors are loaded from **untrusted** sources (see `dist/index.html` as an example)
-* You **CAN** add `trusted-sources="true"` as directive parameter (avoids embedding `ngSanitize`) if Swagger descriptors are loaded from **trusted** sources (see `src/index.html` as an example)
+* You **SHOULD** include `ngSanitize` as a dependency into your application (avoids JS injection) if Swagger specifications are loaded from **untrusted** sources (see `dist/index.html` as an example)
+* You **CAN** add `trusted-sources="true"` as directive parameter (avoids embedding `ngSanitize`) if Swagger specifications are loaded from **trusted** sources (see `src/index.html` as an example)
 * You **MUST** at least choose one of the two previous solutions
 
 ```html
@@ -56,7 +56,7 @@ As some properties of Swagger descriptors can be formatted as HTML:
 ```
 Create an HTML element in your angularJS application's template or in your HTML page
 ```html
-<div swagger-ui url="URLToYourSwaggerDescriptor" api-explorer="true"></div>
+<div swagger-ui url="URLToYourSwaggerSpecification" api-explorer="true"></div>
 ```
 Add swagger-ui.min.js and angular.min.js to the end of the body
 ```html
@@ -83,20 +83,20 @@ Add swagger-ui.min.css and bootstrap.min.css to the head of the HTML page.
 #### API explorer
 Display or not API explorer, default is `false`
 ```html
-<div swagger-ui url="URLToYourSwaggerDescriptor" api-explorer="true/false"></div>
+<div swagger-ui url="URLToYourSwaggerSpecification" api-explorer="true/false"></div>
 ```
 
-#### Swagger descriptor loading indicator
-`yourScopeVariable` will be assigned to `true` or `false` depending on Swagger descriptor loading status
+#### Swagger specification loading indicator
+`yourScopeVariable` will be assigned to `true` or `false` depending on Swagger specification loading status
 ```html
 <div ng-show="yourScopeVariable">loading ...</div>
-<div swagger-ui url="URLToYourSwaggerDescriptor" loading="yourScopeVariable"></div>
+<div swagger-ui url="URLToYourSwaggerSpecification" loading="yourScopeVariable"></div>
 ```
 
 #### Error handler
 Define an error handler to catch errors, if none defined `console.error` is used
 ```html
-<div swagger-ui url="URLToYourSwaggerDescriptor" error-handler="yourErrorHandler"></div>
+<div swagger-ui url="URLToYourSwaggerSpecification" error-handler="yourErrorHandler"></div>
 ```
 ```js
 $scope.yourErrorHandler = function(/*String or Object*/ message, /*Integer*/ code){
@@ -107,42 +107,46 @@ $scope.yourErrorHandler = function(/*String or Object*/ message, /*Integer*/ cod
 #### Permalinks
 Allows having a URL direct access to a group of operations or to an operation and making it unfolded at startup
 ```html
-<div swagger-ui url="URLToYourSwaggerDescriptor" permalinks="true/false"></div>
+<div swagger-ui url="URLToYourSwaggerSpecification" permalinks="true/false"></div>
 ```
 
 #### Swagger validator
 Disable Swagger validator or define a custom Swagger validator.
 If parameter not defined, the validator will be 'http://online.swagger.io/validator'
 ```html
-<div swagger-ui url="URLToYourSwaggerDescriptor" validator-url="false or URL"></div>
+<div swagger-ui url="URLToYourSwaggerSpecification" validator-url="false or URL"></div>
 ```
 
 #### Parser type
-Swagger descriptor parser is chosen depending on the `Content-Type` of the descriptor response. If host serving your Swagger descriptor does not send `Content-Type: application/json` then you can force the parser to JSON:
+Swagger specification parser is chosen depending on the `Content-Type` of the specification response. If host serving your Swagger specification does not send `Content-Type: application/json` then you can force the parser to JSON:
 ```html
-<div swagger-ui url="URLToYourSwaggerDescriptor" parser="json"></div>
+<div swagger-ui url="URLToYourSwaggerSpecification" parser="json"></div>
 ```
 
 #### Template URL
 Define a custom template to be used by SwaggerUI
 ```html
-<div swagger-ui url="URLToYourSwaggerDescriptor" template-url="yourTemplatePath"></div>
+<div swagger-ui url="URLToYourSwaggerSpecification" template-url="yourTemplatePath"></div>
+```
+
+#### Input type and input
+##### Render a Swagger specification from JSON object
+```html
+<div swagger-ui inputType="json" input="yourJsonObject"></div>
+```
+
+##### Render a Swagger specification from YAML string
+Make sure to use module `swagger-yaml-parser`, see [Enable YAML](#enable-yaml)
+```html
+<div swagger-ui inputType="yaml" input="yourYamlString"></div>
+```
+
+##### Render a Swagger specification from URL (same behavior as using "url" parameter)
+```html
+<div swagger-ui inputType="url" input="yourURL"></div>
 ```
 
 ## Customization
-
-#### Enable YAML
-Add [js-yaml library](https://cdnjs.com/libraries/js-yaml)
-Add swagger-yaml-parser.min.js to the end of the body
-```html
-<body>
- 	...
- 	<script src="yourPathToAngularJS/angular.min.js"></script>
- 	<script src="yourPathToJsYaml/js-yaml.min.js"></script>
- 	<script src="yourPathToAngularSwaggerUI/dist/scripts/swagger-ui.min.js"></script>
- 	<script src="yourPathToAngularSwaggerUI/dist/scripts/modules/swagger-yaml-parser.min.js"></script>
-</body>
-```
 
 #### Enable Swagger 1.2
 Add swagger1-to-swagger2-converter.min.js to the end of the body
@@ -178,16 +182,29 @@ Add swagger-xml-formatter.min.js to the end of the body
 </body>
 ```
 
+#### Enable YAML
+Add [js-yaml library](https://cdnjs.com/libraries/js-yaml)
+Add swagger-yaml-parser.min.js to the end of the body
+```html
+<body>
+ 	...
+ 	<script src="yourPathToAngularJS/angular.min.js"></script>
+ 	<script src="yourPathToJsYaml/js-yaml.min.js"></script>
+ 	<script src="yourPathToAngularSwaggerUI/dist/scripts/swagger-ui.min.js"></script>
+ 	<script src="yourPathToAngularSwaggerUI/dist/scripts/modules/swagger-yaml-parser.min.js"></script>
+</body>
+```
+
 #### Writing your own modules
 Modifying angular-swagger-ui can be achieved by writing your own modules. As an example your can have a look at the ones in `src/scripts/modules`.
 A module is an object (can be a service) having a function `execute` which must return a promise.
 
 You can make your module modifying behaviours at different phases:
 
-* `BEFORE_LOAD`: allows modifying Swagger descriptor request before it is sent
-* `BEFORE_PARSE`: allows modifying Swagger descriptor after it has been loaded
+* `BEFORE_LOAD`: allows modifying Swagger specification request before it is sent
+* `BEFORE_PARSE`: allows modifying Swagger specification after it has been loaded
 * `PARSE`: allows adding a Swagger parser for content types other than JSON
-* `BEFORE_DISPLAY`: allows modifying internal parsed Swagger descriptor before it is displayed
+* `BEFORE_DISPLAY`: allows modifying internal parsed Swagger specification before it is displayed
 * `BEFORE_EXPLORER_LOAD`: allows modifying API explorer request before it is sent
 * `AFTER_EXPLORER_LOAD`: allows modifying API explorer response before it is displayed
 

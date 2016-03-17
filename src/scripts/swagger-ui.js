@@ -15,16 +15,17 @@ angular
 			controller: 'swaggerUiController',
 			templateUrl: 'templates/swagger-ui.html',
 			scope: {
-				// Swagger descriptor URL (string, required)
-				url: '=',
-				// Swagger descriptor parser type (string, optional, default = "auto")
+				// Swagger specification URL (string, required)
+				url: '=?',
+				// Swagger specification parser type (string, optional, default = "auto")
 				// Built-in allowed values:
 				// 		"auto": (default) parser is based on response Content-Type
 				//		"json": force using JSON parser
+				//		"yaml": force using YAML parser, requires to use module 'swagger-yaml-parser'
 				//
 				// More types could be defined by external modules
 				parser: '@?',
-				// Swagger descriptor loading indicator (variables, optional)
+				// Swagger specification loading indicator (variables, optional)
 				loading: '=?',
 				// Use permalinks? (boolean, optional, default = false)
 				permalinks: '=?',
@@ -32,7 +33,7 @@ angular
 				apiExplorer: '=?',
 				// Error handler (function, optional)
 				errorHandler: '=?',
-				// Are Swagger descriptors loaded from trusted source only ? (boolean, optional, default = false)
+				// Are Swagger specifications loaded from trusted source only ? (boolean, optional, default = false)
 				// If true, it avoids using ngSanitize but consider HTML as trusted so won't be cleaned
 				trustedSources: '=?',
 				// Allows defining a custom Swagger validator or disabling Swagger validation
@@ -41,12 +42,21 @@ angular
 				// If not defined, validator will be 'http://online.swagger.io/validator'
 				validatorUrl: '@?',
 				// Allows defining a custom Swagger UI template (string, optional)
-				templateUrl: '@?'
+				templateUrl: '@?',
+				// Specifies the type of "input" parameter to allow rendering Swagger specification from object or string (string, optional)
+				// Allowed values:
+				// 		"url": (default) "input" parameter is an URL
+				//		"json": "input" parameter is a JSON object
+				//		"yaml": "input" parameter is a YAML string, requires to use module 'swagger-yaml-parser'
+				//
+				inputType: '@?',
+				// Allows rendering an external Swagger specification (string or object, optional)
+				input: '=?'
 			},
 			link: function(scope) {
 				// check parameters
 				if (!scope.trustedSources && !$injector.has('$sanitize')) {
-					console.warn('AngularSwaggerUI: you must use ngSanitize OR set trusted-sources=true as directive param if swagger descriptors are loaded from trusted sources');
+					console.warn('AngularSwaggerUI: you must use ngSanitize OR set trusted-sources=true as directive param if swagger specifications are loaded from trusted sources');
 				}
 				if (scope.validatorUrl === undefined) {
 					scope.validatorUrl = 'http://online.swagger.io/validator';
@@ -64,7 +74,7 @@ angular
 		// WARNING authentication is not implemented, please use 'api-explorer-transform' directive's param to customize API calls
 
 		/**
-		 * Load Swagger descriptor
+		 * Load Swagger specification
 		 */
 		function loadSwagger(url, callback) {
 			$scope.loading = true;
@@ -88,7 +98,7 @@ angular
 		}
 
 		/**
-		 * Swagger descriptor has been loaded, launch parsing
+		 * Swagger specification has been loaded, launch parsing
 		 */
 		function swaggerLoaded(swaggerUrl, swaggerType) {
 			$scope.loading = false;
@@ -107,7 +117,7 @@ angular
 					} else {
 						onError({
 							code: 415,
-							message: 'no parser found for Swagger descriptor of type ' + swaggerType + ' and version ' + swagger.swagger
+							message: 'no parser found for Swagger specification of type ' + swaggerType + ' and version ' + swagger.swagger
 						});
 					}
 				})
@@ -115,7 +125,7 @@ angular
 		}
 
 		/**
-		 * Swagger descriptor has parsed, launch display
+		 * Swagger specification has parsed, launch display
 		 */
 		function swaggerParsed(parseResult) {
 			// execute modules
@@ -144,31 +154,60 @@ angular
 			}
 		}
 
-		$scope.$watch('url', function(url) {
-			//reset
-			$scope.infos = {};
-			$scope.resources = [];
-			$scope.form = {};
-			if (url && url !== '') {
-				if ($scope.loading) {
-					//TODO cancel current loading swagger
-				}
-				// load Swagger descriptor
-				loadSwagger(url, function(data, status, headers) {
+		function watchData() {
+			$scope.$watch('input', function(data) {
+				//reset
+				$scope.infos = {};
+				$scope.resources = [];
+				$scope.form = {};
+				if (data) {
 					swagger = data;
-					// execute modules
-					swaggerModules
-						.execute(swaggerModules.BEFORE_PARSE, url, swagger)
-						.then(function() {
-							var contentType = headers()['content-type'] || 'application/json',
-								swaggerType = contentType.split(';')[0];
+					swaggerLoaded(null, 'application/' + $scope.inputType);
+				}
+			});
+		}
 
-							swaggerLoaded(url, swaggerType);
-						})
-						.catch(onError);
-				});
-			}
-		});
+		function watchUrl(key) {
+			$scope.$watch(key, function(url) {
+				//reset
+				$scope.infos = {};
+				$scope.resources = [];
+				$scope.form = {};
+				if (url && url !== '') {
+					if ($scope.loading) {
+						//TODO cancel current loading swagger
+					}
+					// load Swagger specification
+					loadSwagger(url, function(data, status, headers) {
+						swagger = data;
+						// execute modules
+						swaggerModules
+							.execute(swaggerModules.BEFORE_PARSE, url, swagger)
+							.then(function() {
+								var contentType = headers()['content-type'] || 'application/json',
+									swaggerType = contentType.split(';')[0];
+
+								swaggerLoaded(url, swaggerType);
+							})
+							.catch(onError);
+					});
+				}
+			});
+		}
+
+		switch ($scope.inputType) {
+			case 'json':
+			case 'yaml':
+				$scope.validatorUrl = false; // disable validator
+				watchData();
+				break;
+			case 'url':
+				watchUrl('input');
+				break;
+			default:
+				watchUrl('url');
+				break;
+		}
 
 		/**
 		 * show all resource's operations as list or as expanded list
