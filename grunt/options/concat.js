@@ -39,6 +39,10 @@ module.exports = {
 			'dist/scripts/modules/swagger1-to-swagger2-converter.min.js': [
 				'copyright.txt',
 				'dist/scripts/modules/swagger1-to-swagger2-converter.min.js'
+			],
+			'dist/scripts/modules/swagger-yaml-parser.min.js': [
+				'copyright.txt',
+				'dist/scripts/modules/swagger-yaml-parser.min.js'
 			]
 		}
 	}
