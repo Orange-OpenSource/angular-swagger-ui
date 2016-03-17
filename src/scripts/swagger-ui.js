@@ -177,6 +177,11 @@ angular
 					if ($scope.loading) {
 						//TODO cancel current loading swagger
 					}
+					if ($scope.validatorUrl && url.indexOf('http') !== 0) {
+						// make URL absolute to make validator working
+						$scope.url = absoluteUrl(url);
+						return;
+					}
 					// load Swagger specification
 					loadSwagger(url, function(data, status, headers) {
 						swagger = data;
@@ -207,6 +212,15 @@ angular
 			default:
 				watchUrl('url');
 				break;
+		}
+
+		/**
+		 * transform a relative URL to an absolute URL
+		 */
+		function absoluteUrl(url) {
+			var a = document.createElement('a');
+			a.href = url;
+			return a.href;
 		}
 
 		/**
