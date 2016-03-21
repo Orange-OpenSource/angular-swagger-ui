@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.3.0
+ * Orange angular-swagger-ui - v0.3.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -15,16 +15,17 @@ angular
 			controller: 'swaggerUiController',
 			templateUrl: 'templates/swagger-ui.html',
 			scope: {
-				// Swagger descriptor URL (string, required)
-				url: '=',
-				// Swagger descriptor parser type (string, optional, default = "auto")
+				// Swagger specification URL (string, required)
+				url: '=?',
+				// Swagger specification parser type (string, optional, default = "auto")
 				// Built-in allowed values:
 				// 		"auto": (default) parser is based on response Content-Type
 				//		"json": force using JSON parser
+				//		"yaml": force using YAML parser, requires to use module 'swagger-yaml-parser'
 				//
 				// More types could be defined by external modules
 				parser: '@?',
-				// Swagger descriptor loading indicator (variables, optional)
+				// Swagger specification loading indicator (variables, optional)
 				loading: '=?',
 				// Use permalinks? (boolean, optional, default = false)
 				permalinks: '=?',
@@ -32,7 +33,7 @@ angular
 				apiExplorer: '=?',
 				// Error handler (function, optional)
 				errorHandler: '=?',
-				// Are Swagger descriptors loaded from trusted source only ? (boolean, optional, default = false)
+				// Are Swagger specifications loaded from trusted source only ? (boolean, optional, default = false)
 				// If true, it avoids using ngSanitize but consider HTML as trusted so won't be cleaned
 				trustedSources: '=?',
 				// Allows defining a custom Swagger validator or disabling Swagger validation
@@ -41,12 +42,21 @@ angular
 				// If not defined, validator will be 'http://online.swagger.io/validator'
 				validatorUrl: '@?',
 				// Allows defining a custom Swagger UI template (string, optional)
-				templateUrl: '@?'
+				templateUrl: '@?',
+				// Specifies the type of "input" parameter to allow rendering Swagger specification from object or string (string, optional)
+				// Allowed values:
+				// 		"url": (default) "input" parameter is an URL
+				//		"json": "input" parameter is a JSON object
+				//		"yaml": "input" parameter is a YAML string, requires to use module 'swagger-yaml-parser'
+				//
+				inputType: '@?',
+				// Allows rendering an external Swagger specification (string or object, optional)
+				input: '=?'
 			},
 			link: function(scope) {
 				// check parameters
 				if (!scope.trustedSources && !$injector.has('$sanitize')) {
-					console.warn('AngularSwaggerUI: you must use ngSanitize OR set trusted-sources=true as directive param if swagger descriptors are loaded from trusted sources');
+					console.warn('AngularSwaggerUI: You must use ngSanitize OR set trusted-sources=true as directive param if swagger specifications are loaded from trusted sources');
 				}
 				if (scope.validatorUrl === undefined) {
 					scope.validatorUrl = 'http://online.swagger.io/validator';
@@ -57,14 +67,14 @@ angular
 			}
 		};
 	}])
-	.controller('swaggerUiController', ["$scope", "$http", "$location", "$q", "$anchorScroll", "$timeout", "swaggerClient", "swaggerModules", function($scope, $http, $location, $q, $anchorScroll, $timeout, swaggerClient, swaggerModules) {
+	.controller('swaggerUiController', ["$scope", "$http", "$location", "$anchorScroll", "$timeout", "swaggerClient", "swaggerModules", "swaggerTranslator", function($scope, $http, $location, $anchorScroll, $timeout, swaggerClient, swaggerModules, swaggerTranslator) {
 
 		var swagger;
 
 		// WARNING authentication is not implemented, please use 'api-explorer-transform' directive's param to customize API calls
 
 		/**
-		 * Load Swagger descriptor
+		 * Load Swagger specification
 		 */
 		function loadSwagger(url, callback) {
 			$scope.loading = true;
@@ -88,7 +98,7 @@ angular
 		}
 
 		/**
-		 * Swagger descriptor has been loaded, launch parsing
+		 * Swagger specification has been loaded, launch parsing
 		 */
 		function swaggerLoaded(swaggerUrl, swaggerType) {
 			$scope.loading = false;
@@ -99,11 +109,18 @@ angular
 				.execute(swaggerModules.PARSE, $scope.parser, swaggerUrl, swaggerType, swagger, $scope.trustedSources, parseResult)
 				.then(function(executed) {
 					if (executed) {
+						if (parseResult.transformSwagger) {
+							swagger = parseResult.transformSwagger;
+							delete parseResult.transformSwagger;
+						}
 						swaggerParsed(parseResult);
 					} else {
 						onError({
 							code: 415,
-							message: 'no parser found for Swagger descriptor of type ' + swaggerType + ' and version ' + swagger.swagger
+							message: swaggerTranslator.translate('errorNoParserFound', {
+								type: swaggerType,
+								version: swagger.swagger
+							})
 						});
 					}
 				})
@@ -111,7 +128,7 @@ angular
 		}
 
 		/**
-		 * Swagger descriptor has parsed, launch display
+		 * Swagger specification has parsed, launch display
 		 */
 		function swaggerParsed(parseResult) {
 			// execute modules
@@ -140,31 +157,74 @@ angular
 			}
 		}
 
-		$scope.$watch('url', function(url) {
-			//reset
-			$scope.infos = {};
-			$scope.resources = [];
-			$scope.form = {};
-			if (url && url !== '') {
-				if ($scope.loading) {
-					//TODO cancel current loading swagger
-				}
-				// load Swagger descriptor
-				loadSwagger(url, function(data, status, headers) {
+		function watchData() {
+			$scope.$watch('input', function(data) {
+				//reset
+				$scope.infos = {};
+				$scope.resources = [];
+				$scope.form = {};
+				if (data) {
 					swagger = data;
-					// execute modules
-					swaggerModules
-						.execute(swaggerModules.BEFORE_PARSE, url, swagger)
-						.then(function() {
-							var contentType = headers()['content-type'] || 'application/json',
-								swaggerType = contentType.split(';')[0];
+					swaggerLoaded(null, 'application/' + $scope.inputType);
+				}
+			});
+		}
 
-							swaggerLoaded(url, swaggerType);
-						})
-						.catch(onError);
-				});
-			}
-		});
+		function watchUrl(key) {
+			$scope.$watch(key, function(url) {
+				//reset
+				$scope.infos = {};
+				$scope.resources = [];
+				$scope.form = {};
+				if (url && url !== '') {
+					if ($scope.loading) {
+						//TODO cancel current loading swagger
+					}
+					if ($scope.validatorUrl && url.indexOf('http') !== 0) {
+						// make URL absolute to make validator working
+						$scope.url = absoluteUrl(url);
+						return;
+					}
+					// load Swagger specification
+					loadSwagger(url, function(data, status, headers) {
+						swagger = data;
+						// execute modules
+						swaggerModules
+							.execute(swaggerModules.BEFORE_PARSE, url, swagger)
+							.then(function() {
+								var contentType = headers()['content-type'] || 'application/json',
+									swaggerType = contentType.split(';')[0];
+
+								swaggerLoaded(url, swaggerType);
+							})
+							.catch(onError);
+					});
+				}
+			});
+		}
+
+		switch ($scope.inputType) {
+			case 'json':
+			case 'yaml':
+				$scope.validatorUrl = false; // disable validator
+				watchData();
+				break;
+			case 'url':
+				watchUrl('input');
+				break;
+			default:
+				watchUrl('url');
+				break;
+		}
+
+		/**
+		 * transform a relative URL to an absolute URL
+		 */
+		function absoluteUrl(url) {
+			var a = document.createElement('a');
+			a.href = url;
+			return a.href;
+		}
 
 		/**
 		 * show all resource's operations as list or as expanded list
@@ -215,7 +275,7 @@ angular
 		};
 	});
 /*
- * Orange angular-swagger-ui - v0.3.0
+ * Orange angular-swagger-ui - v0.3.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -347,7 +407,7 @@ angular
 	}]);
 
 /*
- * Orange angular-swagger-ui - v0.3.0
+ * Orange angular-swagger-ui - v0.3.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -356,7 +416,7 @@ angular
 
 angular
 	.module('swaggerUi')
-	.service('swaggerModel', function() {
+	.service('swaggerModel', ["swaggerTranslator", function(swaggerTranslator) {
 
 		/**
 		 * sample object cache to avoid generating the same one multiple times
@@ -407,17 +467,33 @@ angular
 		}
 
 		/**
+		 * handles allOf property of a schema
+		 */
+		function resolveAllOf(swagger, schema) {
+			if (schema.allOf) {
+				var newSchema = {};
+				angular.forEach(schema.allOf, function(def) {
+					angular.merge(newSchema, resolveReference(swagger, def));
+				});
+				schema = newSchema;
+			}
+			return schema;
+		}
+
+		/**
 		 * generates a sample object (request body or response body)
 		 */
 		function getSampleObj(swagger, schema, currentGenerated) {
 			var sample;
 			currentGenerated = currentGenerated || {}; // used to handle circular references
+			schema = resolveAllOf(swagger, schema);
 			if (schema.default || schema.example) {
 				sample = schema.default || schema.example;
 			} else if (schema.properties) {
 				sample = {};
 				for (var name in schema.properties) {
-					sample[name] = getSampleObj(swagger, schema.properties[name], currentGenerated);
+					var prop = schema.properties[name];
+					sample[name] = getSampleObj(swagger, prop.schema || prop, currentGenerated);
 				}
 			} else if (schema.$ref) {
 				// complex object
@@ -437,8 +513,7 @@ angular
 			} else if (schema.type === 'object') {
 				sample = {};
 			} else {
-				sample = getSampleValue(getType(schema));
-				sample = schema.defaultValue || schema.example || getSampleValue(getType(schema));
+				sample = schema.defaultValue || schema.example || getSampleValue(schema);
 			}
 			return sample;
 		}
@@ -446,8 +521,10 @@ angular
 		/**
 		 * generates a sample value for a basic type
 		 */
-		function getSampleValue(type) {
-			var result;
+		function getSampleValue(schema) {
+			var result,
+				type = getType(schema);
+
 			switch (type) {
 				case 'long':
 				case 'integer':
@@ -462,6 +539,9 @@ angular
 					break;
 				case 'string':
 					result = 'string';
+					if (schema.enum && schema.enum.length > 0) {
+						result = schema.enum[0];
+					}
 					break;
 				case 'date':
 					result = (new Date()).toISOString().split('T')[0];
@@ -512,8 +592,18 @@ angular
 				return item.required && item.required.indexOf(name) !== -1;
 			}
 
+			function getInlineModelName() {
+				var n = 'Inline Model';
+				if (countInLine > 0) {
+					n += countInLine;
+				}
+				countInLine++;
+				return n;
+			}
+
+			schema = resolveAllOf(swagger, schema);
 			if (schema.properties) {
-				modelName = modelName || ('Inline Model' + countInLine++);
+				modelName = modelName || getInlineModelName();
 				currentGenerated[modelName] = true;
 				buffer = ['<div><strong>' + modelName + ' {</strong>'];
 				submodels = [];
@@ -523,16 +613,16 @@ angular
 					buffer.push('<div class="pad"><strong>', propertyName, '</strong> (<span class="type">');
 					// build type
 					if (property.properties) {
-						name = 'Inline Model' + countInLine++;
+						name = getInlineModelName();
 						buffer.push(name);
 						submodels.push(generateModel(swagger, property, name, currentGenerated));
-					} else if (property.$ref) {
-						buffer.push(getClassName(property));
-						submodels.push(generateModel(swagger, property, null, currentGenerated));
+					} else if (property.schema || property.$ref) {
+						buffer.push(getClassName(property.schema || property));
+						submodels.push(generateModel(swagger, property.schema || property, null, currentGenerated));
 					} else if (property.type === 'array') {
 						buffer.push('Array[');
 						if (property.items.properties) {
-							name = 'Inline Model' + countInLine++;
+							name = getInlineModelName();
 							buffer.push(name);
 							submodels.push(generateModel(swagger, property, name, currentGenerated));
 						} else if (property.items.$ref) {
@@ -548,7 +638,7 @@ angular
 					buffer.push('</span>');
 					// is required ?
 					if (!isRequired(schema, propertyName)) {
-						buffer.push(', ', '<em>optional</em>');
+						buffer.push(', ', '<em>' + swaggerTranslator.translate('modelOptional') + '</em>');
 					}
 					buffer.push(')');
 					// has description
@@ -557,7 +647,7 @@ angular
 					}
 					// is enum
 					if (property.enum) {
-						buffer.push(' = ', angular.toJson(property.enum).replace(/,/g, ' or '));
+						buffer.push(' = ', angular.toJson(property.enum).replace(/,/g, swaggerTranslator.translate('modelOr')));
 					}
 					buffer.push(',</div>');
 				}
@@ -586,7 +676,7 @@ angular
 				buffer = ['<strong>Array ['];
 				sub = '';
 				if (schema.items.properties) {
-					name = 'Inline Model' + countInLine++;
+					name = getInlineModelName();
 					buffer.push(name);
 					sub = generateModel(swagger, schema.items, name, currentGenerated);
 				} else if (schema.items.$ref) {
@@ -598,7 +688,8 @@ angular
 				buffer.push(']</strong><br><br>', sub);
 				model = buffer.join('');
 			} else if (schema.type === 'object') {
-				model = '<strong>Inline Model {<br>}</strong>';
+				name = modelName || getInlineModelName();
+				model = '<strong>' + name + ' {<br>}</strong>';
 			}
 			return model;
 		};
@@ -611,9 +702,9 @@ angular
 			modelCache = {};
 		};
 
-	});
+	}]);
 /*
- * Orange angular-swagger-ui - v0.3.0
+ * Orange angular-swagger-ui - v0.3.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -679,7 +770,7 @@ angular
 	}]);
 
 /*
- * Orange angular-swagger-ui - v0.3.0
+ * Orange angular-swagger-ui - v0.3.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -688,7 +779,7 @@ angular
 
 angular
 	.module('swaggerUi')
-	.service('swaggerParser', ["$q", "$sce", "$location", "swaggerModel", function($q, $sce, $location, swaggerModel) {
+	.service('swaggerParser', ["$q", "$sce", "$location", "swaggerModel", "swaggerTranslator", function($q, $sce, $location, swaggerModel, swaggerTranslator) {
 
 		var trustedSources,
 			operationId,
@@ -706,7 +797,7 @@ angular
 				} catch (e) {
 					deferred.reject({
 						code: 500,
-						message: 'failed to parse swagger: ' + e.message
+						message: swaggerTranslator.translate('errorParseFailed', e)
 					});
 				}
 			} else {
@@ -979,17 +1070,172 @@ angular
 	.run(["swaggerModules", "swaggerParser", function(swaggerModules, swaggerParser) {
 		swaggerModules.add(swaggerModules.PARSE, swaggerParser);
 	}]);
+/*
+ * Orange angular-swagger-ui - v0.3.1
+ *
+ * (C) 2015 Orange, all right reserved
+ * MIT Licensed
+ */
+'use strict';
+
+angular
+	.module('swaggerUi')
+	.provider('swaggerTranslator', function() {
+
+		var currentLang = 'en',
+			allTranslations = {};
+
+		/**
+		 * set startup language
+		 */
+		this.setLanguage = function(lang) {
+			currentLang = lang;
+			return this;
+		};
+
+		/**
+		 * add translations for a specific language code
+		 */
+		this.addTranslations = function(lang, translations) {
+			var map = allTranslations[lang] = allTranslations[lang] || {};
+			angular.merge(map, translations);
+			return this;
+		};
+
+		this.$get = ["$rootScope", "$interpolate", function($rootScope, $interpolate) {
+			return {
+				/**
+				 * change current used language
+				 */
+				useLanguage: function(lang) {
+					if (typeof allTranslations[lang] === 'undefined') {
+						console.error('AngularSwaggerUI: No translations found for language '+lang);
+					}
+					currentLang = lang;
+					$rootScope.$emit('swaggerTranslateLangChanged');
+				},
+				/**
+				 * get a localized message
+				 */
+				translate: function(key, values) {
+					if (currentLang && allTranslations && allTranslations[currentLang] && allTranslations[currentLang][key]) {
+						return $interpolate(allTranslations[currentLang][key])(values);
+					} else {
+						return key;
+					}
+				},
+				/**
+				 * get current used language
+				 */
+				language: function() {
+					return currentLang;
+				}
+			};
+		}];
+	})
+	.directive('swaggerTranslate', ["$rootScope", "$parse", "swaggerTranslator", function($rootScope, $parse, swaggerTranslator) {
+
+		return {
+			restrict: 'A',
+			link: function(scope, element, attributes) {
+				function translate() {
+					var params;
+					if (attributes.swaggerTranslateValue) {
+						params = $parse(attributes.swaggerTranslateValue)(scope.$parent);
+					}
+					element.text(swaggerTranslator.translate(attributes.swaggerTranslate, params));
+				}
+				var unbind = $rootScope.$on('swaggerTranslateLangChanged', function() {
+					translate();
+				});
+				scope.$on('$destroy', unbind);
+				translate();
+			}
+		};
+
+	}])
+	.filter('swaggerTranslate', ["swaggerTranslator", function(swaggerTranslator) {
+
+		var filter = function(input, option) {
+			return swaggerTranslator.translate(input, option);
+		};
+		filter.$stateful = true;
+		return filter;
+
+	}]);
+/*
+ * Orange angular-swagger-ui - v0.3.1
+ *
+ * (C) 2015 Orange, all right reserved
+ * MIT Licensed
+ */
+'use strict';
+
+angular
+	.module('swaggerUi')
+	.config(["swaggerTranslatorProvider", function(swaggerTranslatorProvider) {
+
+		swaggerTranslatorProvider
+			.addTranslations('en', {
+				infoContactCreatedBy: 'Created by {{name}}',
+				infoContactUrl: 'See more at',
+				infoContactEmail: 'Contact the developer',
+				infoLicense: 'License: ',
+				infoBaseUrl: 'BASE URL',
+				infoApiVersion: 'API VERSION',
+				infoHost: 'HOST',
+				endPointToggleOperations: 'Open/Hide',
+				endPointListOperations: 'List operations',
+				endPointExpandOperations: 'Expand operations',
+				operationDeprected: 'Warning: Deprecated',
+				operationImplementationNotes: 'Implementation notes',
+				parameters: 'Parameters',
+				parameterName: 'Parameter',
+				parameterValue: 'Value',
+				parameterDescription: 'Description',
+				parameterType: 'Parameter type',
+				parameterDataType: 'Data type',
+				parameterOr: ' or ',
+				parameterRequired: '(required)',
+				parameterModel: 'Model',
+				parameterSchema: 'Model schema',
+				parameterContentType: 'Parameter content type',
+				parameterDefault: '{{default}} (default)',
+				parameterSetValue: 'Click to set as parameter value',
+				responseClass: 'Response class (status {{status}})',
+				responseModel: 'Model',
+				responseSchema: 'Model schema',
+				responseContentType: 'Response content type',
+				responses: 'Response messages',
+				responseCode: 'HTTP status code',
+				responseReason: 'Reason',
+				responseHide: 'Hide response',
+				modelOptional: 'optional',
+				modelOr: ' or ',
+				explorerUrl: 'Request URL',
+				explorerBody: 'Response body',
+				explorerCode: 'Response code',
+				explorerHeaders: 'Response headers',
+				explorerLoading: 'Loading...',
+				explorerTryIt: 'Try it out!',
+				errorNoParserFound: 'No parser found for Swagger specification of type {{type}} and version {{version}}',
+				errorParseFailed: 'Failed to parse Swagger specification: {{message}}',
+				errorJsonParse: 'Failed to parse JSON',
+				errorNoYamlParser: 'No YAML parser found, please make sure to include js-yaml library'
+			});
+
+	}]);
 angular.module('swaggerUi').run(['$templateCache', function($templateCache) {
   $templateCache.put('templates/endpoint.html',
-    '<div id="{{api.name}}" class="clearfix"> <ul id="{{api.name}}*" class="list-inline pull-left endpoint-heading"> <li> <h4> <a href="javascript:;" ng-click="api.open=!api.open;permalink(api.name)" ng-bind="api.name"></a> <span ng-if="api.description"> : <span ng-bind="api.description"></span></span> </h4> </li> </ul> <ul class="list-inline pull-right endpoint-actions"> <li> <a href="javascript:;" ng-click="api.open=!api.open;permalink(api.name)">open/hide</a> </li> <li> <a href="javascript:;" ng-click="expand(api);permalink(api.name)">list operations</a> </li> <li> <a href="javascript:;" ng-click="expand(api,true);permalink(api.name+\'*\')">expand operations</a> </li> </ul> </div> <ul class="list-unstyled collapse operations" ng-class="{in:api.open}"> <li ng-repeat="op in api.operations track by $index" class="operation {{op.httpMethod}}" ng-include="\'templates/operation.html\'"></li> </ul>');
+    '<div id="{{api.name}}" class="clearfix"> <ul id="{{api.name}}*" class="list-inline pull-left endpoint-heading"> <li> <h4> <a href="javascript:;" ng-click="api.open=!api.open;permalink(api.name)" ng-bind="api.name"></a> <span ng-if="api.description"> : <span ng-bind="api.description"></span></span> </h4> </li> </ul> <ul class="list-inline pull-right endpoint-actions"> <li> <a href="javascript:;" ng-click="api.open=!api.open;permalink(api.name)" swagger-translate="endPointToggleOperations"></a> </li> <li> <a href="javascript:;" ng-click="expand(api);permalink(api.name)" swagger-translate="endPointListOperations"></a> </li> <li> <a href="javascript:;" ng-click="expand(api,true);permalink(api.name+\'*\')" swagger-translate="endPointExpandOperations"></a> </li> </ul> </div> <ul class="list-unstyled collapse operations" ng-class="{in:api.open}"> <li ng-repeat="op in api.operations track by $index" class="operation {{op.httpMethod}}" ng-include="\'templates/operation.html\'"></li> </ul>');
   $templateCache.put('templates/main.html',
-    '<div class="swagger-ui" aria-live="polite" aria-relevant="additions removals"> <div class="api-name"> <h3 ng-bind="infos.title"></h3> </div> <div class="api-description" ng-bind-html="infos.description"></div> <div class="api-infos"> <div class="api-infos-contact" ng-if="infos.contact"> <div ng-if="infos.contact.name" class="api-infos-contact-name">created by <span ng-bind="infos.contact.name"></span></div> <div ng-if="infos.contact.url" class="api-infos-contact-url">see more at <a href="{{infos.contact.url}}" ng-bind="infos.contact.url"></a></div> <a ng-if="infos.contact.email" class="api-infos-contact-url" href="mailto:{{infos.contact.email}}?subject={{infos.title}}">contact the developer</a> </div> <div class="api-infos-license" ng-if="infos.license"> <span>license: </span><a href="{{infos.license.url}}" ng-bind="infos.license.name"></a> </div> </div> <ul class="list-unstyled endpoints"> <li ng-repeat="api in resources track by $index" class="endpoint" ng-class="{active:api.open}" ng-include="\'templates/endpoint.html\'"></li> </ul> <div class="api-version clearfix" ng-if="infos"> [BASE URL: <span class="h4" ng-bind="infos.basePath"></span>, API VERSION: <span class="h4" ng-bind="infos.version"></span>, HOST: <span class="h4" ng-bind="infos.scheme"></span>://<span class="h4" ng-bind="infos.host"></span>] <a ng-if="validatorUrl!=\'false\'" target="_blank" href="{{validatorUrl}}/debug?url={{url}}"><img class="pull-right swagger-validator" ng-src="{{validatorUrl}}?url={{url}}"></a> </div> </div>');
+    '<div class="swagger-ui" aria-live="polite" aria-relevant="additions removals"> <div class="api-name"> <h3 ng-bind="infos.title"></h3> </div> <div class="api-description" ng-bind-html="infos.description"></div> <div class="api-infos"> <div class="api-infos-contact" ng-if="infos.contact"> <div ng-if="infos.contact.name" class="api-infos-contact-name"><span swagger-translate="infoContactCreatedBy" swagger-translate-value="infos.contact"></span></div> <div ng-if="infos.contact.url" class="api-infos-contact-url"><span swagger-translate="infoContactUrl"></span> <a href="{{infos.contact.url}}" ng-bind="infos.contact.url"></a></div> <a ng-if="infos.contact.email" class="api-infos-contact-url" href="mailto:{{infos.contact.email}}?subject={{infos.title}}" swagger-translate="infoContactEmail"></a> </div> <div class="api-infos-license" ng-if="infos.license"> <span swagger-translate="infoLicense"></span><a href="{{infos.license.url}}" ng-bind="infos.license.name"></a> </div> </div> <ul class="list-unstyled endpoints"> <li ng-repeat="api in resources track by $index" class="endpoint" ng-class="{active:api.open}" ng-include="\'templates/endpoint.html\'"></li> </ul> <div class="api-version clearfix" ng-if="infos"> [<span swagger-translate="infoBaseUrl"></span>: <span class="h4" ng-bind="infos.basePath"></span>, <span swagger-translate="infoApiVersion"></span>: <span class="h4" ng-bind="infos.version"></span>, <span swagger-translate="infoHost"></span>: <span class="h4" ng-bind="infos.scheme"></span>://<span class="h4" ng-bind="infos.host"></span>] <a ng-if="validatorUrl!=\'false\'" target="_blank" href="{{validatorUrl}}/debug?url={{url}}"><img class="pull-right swagger-validator" ng-src="{{validatorUrl}}?url={{url}}"></a> </div> </div>');
   $templateCache.put('templates/operation.html',
-    '<div id="{{op.operationId}}" class="heading"> <a ng-click="op.open=!op.open;permalink(op.operationId)" href="javascript:;"> <div class="clearfix"> <span class="http-method text-uppercase" ng-bind="op.httpMethod"></span> <span class="path" ng-bind="op.path"></span> <span class="description pull-right" ng-bind="op.summary"></span> </div> </a> </div> <div class="content collapse" ng-class="{in:op.open}"> <div ng-if="op.description"> <h5>implementation notes</h5> <p ng-bind-html="op.description"></p> </div> <form role="form" name="explorerForm" ng-submit="explorerForm.$valid&&submitExplorer(op)"> <div ng-if="op.responseClass" class="response"> <h5>response class (status {{op.responseClass.status}})</h5> <div ng-if="op.responseClass.display!=-1"> <ul class="list-inline schema"> <li><a href="javascript:;" ng-click="op.responseClass.display=0" ng-class="{active:op.responseClass.display==0}">model</a></li> <li><a href="javascript:;" ng-click="op.responseClass.display=1" ng-class="{active:op.responseClass.display==1}">model schema</a></li> </ul> <pre class="model" ng-if="op.responseClass.display==0" ng-bind-html="op.responseClass.schema.model"></pre> <pre class="model-schema" ng-if="op.responseClass.display==1" ng-bind="op.responseClass.schema.json"></pre> </div> <div ng-if="op.produces" class="content-type"> <label for="responseContentType{{op.id}}">response content type</label> <select ng-model="form[op.id].responseType" ng-options="item for item in op.produces track by item" id="responseContentType{{op.id}}" name="responseContentType{{op.id}}" required></select> </div> </div> <div ng-if="op.parameters&&op.parameters.length>0" class="table-responsive"> <h5>parameters</h5> <table class="table table-condensed parameters"> <thead> <tr> <th class="name">parameter <th class="value">value <th class="desc">description <th class="type">parameter type <th class="data">data type   <tbody> <tr ng-repeat="param in op.parameters track by $index" ng-include="\'templates/parameter.html\'">  </table> </div> <div class="table-responsive" ng-if="op.hasResponses"> <h5>response messages</h5> <table class="table responses"> <thead> <tr> <th class="code">HTTP status code <th>reason <th>response model   <tbody> <tr ng-repeat="(code,resp) in op.responses track by $index" ng-include="\'templates/response.html\'">  </table> </div> <div ng-if="apiExplorer"> <button class="btn btn-default" ng-click="op.explorerResult=false;op.hideExplorerResult=false" type="submit" ng-disabled="op.loading" ng-bind="op.loading?\'loading...\':\'try it out!\'"></button> <a class="hide-try-it" ng-if="op.explorerResult&&!op.hideExplorerResult" ng-click="op.hideExplorerResult=true" href="javascript:;">hide response</a> </div> </form> <div ng-if="op.explorerResult" ng-show="!op.hideExplorerResult"> <h5>request URL</h5> <pre ng-bind="op.explorerResult.url"></pre> <h5>response body</h5> <pre ng-bind="op.explorerResult.response.body"></pre> <h5>response code</h5> <pre ng-bind="op.explorerResult.response.status"></pre> <h5>response headers</h5> <pre ng-bind="op.explorerResult.response.headers"></pre> </div> </div>');
+    '<div id="{{op.operationId}}" class="heading"> <a ng-click="op.open=!op.open;permalink(op.operationId)" href="javascript:;"> <div class="clearfix"> <span class="http-method text-uppercase" ng-bind="op.httpMethod"></span> <span class="path" ng-class="{deprecated:op.deprecated}" ng-bind="op.path"></span> <span class="description pull-right" ng-bind="op.summary"></span> </div> </a> </div> <div class="content collapse" ng-class="{in:op.open}"> <div class="h5" ng-if="op.deprecated" swagger-translate="operationDeprected"></div> <div ng-if="op.description"> <h5 swagger-translate="operationImplementationNotes"></h5> <p ng-bind-html="op.description"></p> </div> <form role="form" name="explorerForm" ng-submit="explorerForm.$valid&&submitExplorer(op)"> <div ng-if="op.responseClass" class="response"> <h5 swagger-translate="responseClass" swagger-translate-value="op.responseClass"></h5> <div ng-if="op.responseClass.display!=-1"> <ul class="list-inline schema"> <li><a href="javascript:;" ng-click="op.responseClass.display=0" ng-class="{active:op.responseClass.display==0}" swagger-translate="responseModel"></a></li> <li><a href="javascript:;" ng-click="op.responseClass.display=1" ng-class="{active:op.responseClass.display==1}" swagger-translate="responseSchema"></a></li> </ul> <pre class="model" ng-if="op.responseClass.display==0" ng-bind-html="op.responseClass.schema.model"></pre> <pre class="model-schema" ng-if="op.responseClass.display==1" ng-bind="op.responseClass.schema.json"></pre> </div> <div ng-if="op.produces" class="content-type"> <label for="responseContentType{{op.id}}" swagger-translate="responseContentType"></label> <select ng-model="form[op.id].responseType" ng-options="item for item in op.produces track by item" id="responseContentType{{op.id}}" name="responseContentType{{op.id}}" required></select> </div> </div> <div ng-if="op.parameters&&op.parameters.length>0" class="table-responsive"> <h5 swagger-translate="parameters"></h5> <table class="table table-condensed parameters"> <thead> <tr> <th class="name" swagger-translate="parameterName"> <th class="value" swagger-translate="parameterValue"> <th class="desc" swagger-translate="parameterDescription"> <th class="type" swagger-translate="parameterType"> <th class="data" swagger-translate="parameterDataType">   <tbody> <tr ng-repeat="param in op.parameters track by $index" ng-include="\'templates/parameter.html\'">  </table> </div> <div class="table-responsive" ng-if="op.hasResponses"> <h5 swagger-translate="responses"></h5> <table class="table responses"> <thead> <tr> <th class="code" swagger-translate="responseCode"> <th swagger-translate="responseReason"> <th swagger-translate="responseModel">   <tbody> <tr ng-repeat="(code,resp) in op.responses track by $index" ng-include="\'templates/response.html\'">  </table> </div> <div ng-if="apiExplorer"> <button class="btn btn-default" ng-click="op.explorerResult=false;op.hideExplorerResult=false" type="submit" ng-disabled="op.loading" ng-bind="op.loading?\'explorerLoading\':\'explorerTryIt\'|swaggerTranslate"></button> <a class="hide-try-it" ng-if="op.explorerResult&&!op.hideExplorerResult" ng-click="op.hideExplorerResult=true" href="javascript:;" swagger-translate="responseHide"></a> </div> </form> <div ng-if="op.explorerResult" ng-show="!op.hideExplorerResult"> <h5 swagger-translate="explorerUrl"></h5> <pre ng-bind="op.explorerResult.url"></pre> <h5 swagger-translate="explorerBody"></h5> <pre ng-bind="op.explorerResult.response.body"></pre> <h5 swagger-translate="explorerCode"></h5> <pre ng-bind="op.explorerResult.response.status"></pre> <h5 swagger-translate="explorerHeaders"></h5> <pre ng-bind="op.explorerResult.response.headers"></pre> </div> </div>');
   $templateCache.put('templates/parameter.html',
-    '<td ng-class="{bold:param.required}"> <label for="param{{param.id}}" ng-bind="param.name"></label>  <td ng-class="{bold:param.required}"> <div ng-if="apiExplorer"> <div ng-if="param.in!=\'body\'" ng-switch="param.subtype"> <input ng-switch-when="file" type="file" file-input ng-model="form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?\'(required)\':\'\'}}" ng-required="param.required"> <select ng-switch-when="enum" ng-model="form[op.id][param.name]" id="param{{param.id}}"> <option ng-repeat="value in param.enum" value="{{value}}" ng-bind="value+(param.default==value?\' (default)\':\'\')" ng-selected="param.default==value"> </select> <input ng-switch-default type="text" ng-model="form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?\'(required)\':\'\'}}" ng-required="param.required"> </div> <div ng-if="param.in==\'body\'"> <textarea id="param{{param.id}}" ng-model="form[op.id][param.name]" ng-required="param.required"></textarea> <br> <div ng-if="op.consumes" class="content-type"> <label for="bodyContentType{{op.id}}">parameter content type</label> <select ng-model="form[op.id].contentType" id="bodyContentType{{op.id}}" name="bodyContentType{{op.id}}" ng-options="item for item in op.consumes track by item"></select> </div> </div> </div> <div ng-if="!apiExplorer"> <div ng-if="param.in!=\'body\'"> <div ng-if="param.default"><span ng-bind="param.default"></span> (default)</div> <div ng-if="param.enum"> <span ng-repeat="value in param.enum track by $index">{{value}}<span ng-if="!$last"> or </span></span> </div> <div ng-if="param.required"><strong>(required)</strong></div> </div> </div>  <td ng-class="{bold:param.required}" ng-bind-html="param.description"> <td ng-bind="param.in"> <td ng-if="param.type" ng-switch="param.type"> <span ng-switch-when="array" ng-bind="\'Array[\'+param.items.type+\']\'"></span> <span ng-switch-default ng-bind="param.type"></span>  <td ng-if="param.schema"> <ul class="list-inline schema"> <li><a href="javascript:;" ng-click="param.schema.display=0" ng-class="{active:param.schema.display==0}">model</a></li> <li><a href="javascript:;" ng-click="param.schema.display=1" ng-class="{active:param.schema.display==1}">model schema</a></li> </ul> <pre class="model" ng-if="param.schema.display==0&&param.schema.model" ng-bind-html="param.schema.model"></pre> <div class="model-schema" ng-if="param.schema.display==1&&param.schema.json"> <pre ng-bind="param.schema.json" ng-click="form[op.id][param.name]=param.schema.json" aria-described-by="help-{{param.id}}"></pre> <div id="help-{{param.id}}">click to set as parameter value</div> </div> ');
+    '<td ng-class="{bold:param.required}"> <label for="param{{param.id}}" ng-bind="param.name"></label>  <td ng-class="{bold:param.required}"> <div ng-if="apiExplorer"> <div ng-if="param.in!=\'body\'" ng-switch="param.subtype"> <input ng-switch-when="file" type="file" file-input ng-model="form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?\'parameterRequired\':\'\'|swaggerTranslate}}" ng-required="param.required"> <select ng-switch-when="enum" ng-model="form[op.id][param.name]" id="param{{param.id}}"> <option ng-repeat="value in param.enum" value="{{value}}" ng-bind="value+(param.default==value?\'parameterDefault\':\'\'|swaggerTranslate)" ng-selected="param.default==value"> </select> <input ng-switch-default type="text" ng-model="form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?\'parameterRequired\':\'\'|swaggerTranslate}}" ng-required="param.required"> </div> <div ng-if="param.in==\'body\'"> <textarea id="param{{param.id}}" ng-model="form[op.id][param.name]" ng-required="param.required"></textarea> <br> <div ng-if="op.consumes" class="content-type"> <label for="bodyContentType{{op.id}}" swagger-translate="parameterContentType"></label> <select ng-model="form[op.id].contentType" id="bodyContentType{{op.id}}" name="bodyContentType{{op.id}}" ng-options="item for item in op.consumes track by item"></select> </div> </div> </div> <div ng-if="!apiExplorer"> <div ng-if="param.in!=\'body\'"> <div ng-if="param.default" swagger-translate="parameterDefault" swagger-translate-value="param.default"></div> <div ng-if="param.enum"> <span ng-repeat="value in param.enum track by $index">{{value}}<span ng-if="!$last" swagger-translate="parameterOr"></span></span> </div> <div ng-if="param.required"><strong swagger-translate="parameterRequired"></strong></div> </div> </div>  <td ng-class="{bold:param.required}" ng-bind-html="param.description"> <td ng-bind="param.in"> <td ng-if="param.type" ng-switch="param.type"> <span ng-switch-when="array" ng-bind="\'Array[\'+param.items.type+\']\'"></span> <span ng-switch-default ng-bind="param.type"></span>  <td ng-if="param.schema"> <ul class="list-inline schema"> <li><a href="javascript:;" ng-click="param.schema.display=0" ng-class="{active:param.schema.display==0}" swagger-translate="parameterModel"></a></li> <li><a href="javascript:;" ng-click="param.schema.display=1" ng-class="{active:param.schema.display==1}" swagger-translate="parameterSchema"></a></li> </ul> <pre class="model" ng-if="param.schema.display==0&&param.schema.model" ng-bind-html="param.schema.model"></pre> <div class="model-schema" ng-if="param.schema.display==1&&param.schema.json"> <pre ng-bind="param.schema.json" ng-click="form[op.id][param.name]=param.schema.json" aria-described-by="help-{{param.id}}"></pre> <div id="help-{{param.id}}" swagger-translate="parameterSetValue"></div> </div> ');
   $templateCache.put('templates/response.html',
-    '<td ng-bind="code"> <td ng-bind-html="resp.description"> <td> <ul ng-if="resp.schema&&resp.schema.model&&resp.schema.json" class="list-inline schema"> <li><a href="javascript:;" ng-click="resp.display=0" ng-class="{active:resp.display==0}">model</a></li> <li><a href="javascript:;" ng-click="resp.display=1" ng-class="{active:resp.display==1}">model schema</a></li> </ul> <pre class="model" ng-if="resp.display==0&&resp.schema&&resp.schema.model" ng-bind-html="resp.schema.model"></pre> <pre class="model-schema" ng-if="resp.display==1&&resp.schema&&resp.schema.json" ng-bind="resp.schema.json"></pre> ');
+    '<td ng-bind="code"> <td ng-bind-html="resp.description"> <td> <ul ng-if="resp.schema&&resp.schema.model&&resp.schema.json" class="list-inline schema"> <li><a href="javascript:;" ng-click="resp.display=0" ng-class="{active:resp.display==0}" swagger-translate="responseModel"></a></li> <li><a href="javascript:;" ng-click="resp.display=1" ng-class="{active:resp.display==1}" swagger-translate="responseSchema"></a></li> </ul> <pre class="model" ng-if="resp.display==0&&resp.schema&&resp.schema.model" ng-bind-html="resp.schema.model"></pre> <pre class="model-schema" ng-if="resp.display==1&&resp.schema&&resp.schema.json" ng-bind="resp.schema.json"></pre> ');
   $templateCache.put('templates/swagger-ui.html',
     '<div ng-include="templateUrl"></div>');
 }]);

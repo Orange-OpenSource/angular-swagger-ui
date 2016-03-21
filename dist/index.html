@@ -61,13 +61,13 @@
                         english: 'anglais'
                     });
             })
-            .controller('MyCtrl', function($scope,swaggerTranslator) {
+            .controller('MyCtrl', function($scope, swaggerTranslator) {
                 // init form
                 $scope.isLoading = false;
                 $scope.url = $scope.swaggerUrl = 'http://petstore.swagger.io/v2/swagger.json';
                 // error management
                 $scope.myErrorHandler = function(data, status){
-                    alert(translator.translate('error', {
+                    alert(swaggerTranslator.translate('error', {
                         message: data,
                         code: status
                     }));
