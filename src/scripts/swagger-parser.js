@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi')
-	.service('swaggerParser', function($q, $sce, $location, swaggerModel) {
+	.service('swaggerParser', function($q, $sce, $location, swaggerModel, swaggerTranslator) {
 
 		var trustedSources,
 			operationId,
@@ -26,7 +26,7 @@ angular
 				} catch (e) {
 					deferred.reject({
 						code: 500,
-						message: 'failed to parse swagger: ' + e.message
+						message: swaggerTranslator.translate('errorParseFailed', e)
 					});
 				}
 			} else {

@@ -1,5 +1,5 @@
 //
-// Use to clean files/directories
+// Used to clean files/directories
 //
 module.exports = {
 	predist: {
@@ -21,6 +21,7 @@ module.exports = {
 				'dist/scripts/templates.js',
 				'dist/scripts/swagger-modules.js',
 				'dist/scripts/swagger-parser.js',
+				'dist/scripts/swagger-i18n.js',
 				'dist/scripts/modules/swagger-external-references.js',
 				'dist/scripts/modules/swagger-xml-formatter.js',
 				'dist/scripts/modules/swagger1-to-swagger2-converter.js',

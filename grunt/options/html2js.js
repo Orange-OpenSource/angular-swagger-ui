@@ -1,5 +1,5 @@
 //
-// Use to inline templates
+// Used to inline templates
 //
 module.exports = {
 	dist: {

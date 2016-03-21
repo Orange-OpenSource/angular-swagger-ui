@@ -9,35 +9,35 @@
 </div>
 <div class="content collapse" ng-class="{in:op.open}">
 	<div ng-if="op.description">
-		<h5>implementation notes</h5>
+		<h5 swagger-translate="operationImplementationNotes"></h5>
 		<p ng-bind-html="op.description"></p>
 	</div>
 	<form role="form" name="explorerForm" ng-submit="explorerForm.$valid&&submitExplorer(op)">
     	<div ng-if="op.responseClass" class="response">
-    		<h5>response class (status {{op.responseClass.status}})</h5>
+    		<h5 swagger-translate="responseClass" swagger-translate-value="op.responseClass"></h5>
     		<div ng-if="op.responseClass.display!=-1">
         		<ul class="list-inline schema">
-        			<li><a href="javascript:;" ng-click="op.responseClass.display=0" ng-class="{active:op.responseClass.display==0}">model</a></li>
-        			<li><a href="javascript:;" ng-click="op.responseClass.display=1" ng-class="{active:op.responseClass.display==1}">model schema</a></li>
+        			<li><a href="javascript:;" ng-click="op.responseClass.display=0" ng-class="{active:op.responseClass.display==0}" swagger-translate="responseModel"></a></li>
+        			<li><a href="javascript:;" ng-click="op.responseClass.display=1" ng-class="{active:op.responseClass.display==1}" swagger-translate="responseSchema"></a></li>
         		</ul>
         		<pre class="model" ng-if="op.responseClass.display==0" ng-bind-html="op.responseClass.schema.model"></pre>
         		<pre class="model-schema" ng-if="op.responseClass.display==1" ng-bind="op.responseClass.schema.json"></pre>
     		</div>
     		<div ng-if="op.produces" class="content-type">
-    			<label for="responseContentType{{op.id}}">response content type</label>
+    			<label for="responseContentType{{op.id}}" swagger-translate="responseContentType"></label>
     			<select ng-model="form[op.id].responseType" ng-options="item for item in op.produces track by item" id="responseContentType{{op.id}}" name="responseContentType{{op.id}}" required></select>
     		</div>
     	</div>
     	<div ng-if="op.parameters&&op.parameters.length>0" class="table-responsive">
-    		<h5>parameters</h5>
+    		<h5 swagger-translate="parameters"></h5>
     		<table class="table table-condensed parameters">
     			<thead>
     				<tr>
-    					<th class="name">parameter</th>
-    					<th class="value">value</th>
-    					<th class="desc">description</th>
-    					<th class="type">parameter type</th>
-    					<th class="data">data type</th>
+    					<th class="name" swagger-translate="parameterName"></th>
+    					<th class="value" swagger-translate="parameterValue"></th>
+    					<th class="desc" swagger-translate="parameterDescription"></th>
+    					<th class="type" swagger-translate="parameterType"></th>
+    					<th class="data" swagger-translate="parameterDataType"></th>
     				</tr>
     			</thead>
     			<tbody>
@@ -46,13 +46,13 @@
     		</table>
 		</div>
     	<div class="table-responsive" ng-if="op.hasResponses">
-    		<h5>response messages</h5>
+    		<h5 swagger-translate="responses"></h5>
     		<table class="table responses">
     			<thead>
     				<tr>
-    					<th class="code">HTTP status code</th>
-    					<th>reason</th>
-    					<th>response model</th>
+    					<th class="code" swagger-translate="responseCode"></th>
+    					<th swagger-translate="responseReason"></th>
+    					<th swagger-translate="responseModel"></th>
     				</tr>
     			</thead>
     			<tbody>
@@ -61,18 +61,18 @@
     		</table>
     	</div>
     	<div ng-if="apiExplorer">
-    		<button class="btn btn-default" ng-click="op.explorerResult=false;op.hideExplorerResult=false" type="submit" ng-disabled="op.loading" ng-bind="op.loading?'loading...':'try it out!'"></button>
-        	<a class="hide-try-it" ng-if="op.explorerResult&&!op.hideExplorerResult" ng-click="op.hideExplorerResult=true" href="javascript:;">hide response</a>
+    		<button class="btn btn-default" ng-click="op.explorerResult=false;op.hideExplorerResult=false" type="submit" ng-disabled="op.loading" ng-bind="op.loading?'explorerLoading':'explorerTryIt'|swaggerTranslate"></button>
+        	<a class="hide-try-it" ng-if="op.explorerResult&&!op.hideExplorerResult" ng-click="op.hideExplorerResult=true" href="javascript:;" swagger-translate="responseHide"></a>
     	</div>
 	</form>
 	<div ng-if="op.explorerResult" ng-show="!op.hideExplorerResult">
-		<h5>request URL</h5>
+		<h5 swagger-translate="explorerUrl"></h5>
 		<pre ng-bind="op.explorerResult.url"></pre>
-		<h5>response body</h5>
+		<h5 swagger-translate="explorerBody"></h5>
 		<pre ng-bind="op.explorerResult.response.body"></pre>
-		<h5>response code</h5>
+		<h5 swagger-translate="explorerCode"></h5>
 		<pre ng-bind="op.explorerResult.response.status"></pre>
-		<h5>response headers</h5>
+		<h5 swagger-translate="explorerHeaders"></h5>
 		<pre ng-bind="op.explorerResult.response.headers"></pre>
 	</div>
 </div>

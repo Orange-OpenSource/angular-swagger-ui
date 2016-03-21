@@ -1,6 +1,6 @@
 # angular-swagger-ui
 
-angular-swagger-ui is an angularJS implementation of [Swagger UI](http://swagger.io)
+`angular-swagger-ui` is an angularJS implementation of [Swagger UI](http://swagger.io)
 
 Swagger helps you documenting your RESTful API.
 
@@ -9,6 +9,7 @@ Swagger UI helps developers discovering your RESTful API by providing an online 
 ### Warning 
 > By default, only JSON Swagger 2.0 is supported. 
 To handle Swagger 1.2 please add module `swagger1-to-swagger2-converter` (beta) see [enable Swagger 1.2](#enable-swagger-12)
+To handle YAML please add module `swagger-yaml-parser` see [enable YAML](#enable-yaml)
 
 > Authentication is not implemented, please use modules to customize API calls
 
@@ -36,7 +37,7 @@ See LICENSE file for copyright details.
 
 ## Getting Started
 
-Include angular-swagger-ui as a dependency into your application
+Include `angular-swagger-ui` as a dependency into your application
 
 As some properties of Swagger specifications can be formatted as HTML:
 
@@ -58,7 +59,7 @@ Create an HTML element in your angularJS application's template or in your HTML 
 ```html
 <div swagger-ui url="URLToYourSwaggerSpecification" api-explorer="true"></div>
 ```
-Add swagger-ui.min.js and angular.min.js to the end of the body
+Add `swagger-ui.min.js` and `angular.min.js` at the end of the body
 ```html
 <body>
  	...
@@ -68,7 +69,7 @@ Add swagger-ui.min.js and angular.min.js to the end of the body
  	<script src="yourPathToAngularSanitize/angular-sanitize.min.js"></script>
 </body>
 ```
-Add swagger-ui.min.css and bootstrap.min.css to the head of the HTML page.
+Add `swagger-ui.min.css` and `bootstrap.min.css` to the head of the HTML page.
 ```html
 <body>
 	<head>
@@ -78,6 +79,7 @@ Add swagger-ui.min.css and bootstrap.min.css to the head of the HTML page.
   	</head>
 </body>
 ```
+
 ## Parameters
 
 #### API explorer
@@ -146,10 +148,89 @@ Make sure to use module `swagger-yaml-parser`, see [Enable YAML](#enable-yaml)
 <div swagger-ui inputType="url" input="yourURL"></div>
 ```
 
+## i18n
+
+#### Built-in languages
+`angular-swagger-ui` is available in english and french, english is used by default
+
+To use french, add `fr.min.js` at the end of the body
+```html
+<body>
+ 	...
+ 	<script src="yourPathToAngularJS/angular.min.js"></script>
+ 	<script src="yourPathToAngularSwaggerUI/dist/scripts/swagger-ui.min.js"></script>
+ 	<script src="yourPathToAngularSwaggerUI/dist/scripts/i18/fr.min.js"></script>
+</body>
+```
+Set language to french at startup
+```html
+<script type="text/javascript">
+	angular
+		.module('yourApp', ['swaggerUi'])
+		.config(function(swaggerTranslatorProvider) {
+			swaggerTranslatorProvider.setLanguage('fr');
+		});
+	...
+</script>
+```
+Set language to french at runtime
+```html
+<script type="text/javascript">
+	angular
+		.module('yourApp', ['swaggerUi'])
+		.controller('yourController', function(swaggerTranslator) {
+			swaggerTranslator.useLanguage('fr');
+		});
+	...
+</script>
+```
+
+#### Add languages
+You can add your own languages, see `src/scripts/i18n/en.js` to find the keys you have to override
+```html
+<script type="text/javascript">
+	angular
+		.module('yourApp', ['swaggerUi'])
+		.config(function(swaggerTranslatorProvider) {
+			swaggerTranslatorProvider.addTranslations('yourLangId', {
+				key: 'value'
+				...
+			});
+			swaggerTranslatorProvider.setLanguage('yourLangId');
+		});
+	...
+</script>
+```
+
+#### Internationalize your app
+You can also use `swaggerTranslator` to internationalize your app by using a service, a directive or a filter
+```html
+<body>
+ 	...
+ 	<div swagger-translate="yourKey" swagger-translate-value="yourParam"></div>
+ 	<div ng-bind="yourDynamicKey|swaggerTranslate:yourDynamicParam"></div>
+ 	...
+	<script type="text/javascript">
+		angular
+			.module('yourApp', ['swaggerUi'])
+			.config(function(swaggerTranslatorProvider) {
+				swaggerTranslatorProvider.addTranslations('en', {
+					yourKey: 'blablabla {{propertyNameOfYourParam}}'
+					...
+				});
+			})
+			.controller('yourController', function(swaggerTranslator) {
+				var localizedMessage = swaggerTranslator.translate('yourKey', yourParam);
+			});
+		...
+	</script>
+</body>
+```
+
 ## Customization
 
 #### Enable Swagger 1.2
-Add swagger1-to-swagger2-converter.min.js to the end of the body
+Add `swagger1-to-swagger2-converter.min.js` at the end of the body
 ```html
 <body>
  	...
@@ -161,7 +242,7 @@ Add swagger1-to-swagger2-converter.min.js to the end of the body
 
 #### Enable Swagger external references
 See [Swagger 2.0 spec](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md#relative-schema-file-example)
-Add swagger-external-references.min.js to the end of the body
+Add `swagger-external-references.min.js` at the end of the body
 ```html
 <body>
  	...
@@ -172,7 +253,7 @@ Add swagger-external-references.min.js to the end of the body
 ```
 
 #### Enable XML formatter on API explorer responses
-Add swagger-xml-formatter.min.js to the end of the body
+Add `swagger-xml-formatter.min.js` at the end of the body
 ```html
 <body>
  	...
@@ -184,7 +265,7 @@ Add swagger-xml-formatter.min.js to the end of the body
 
 #### Enable YAML
 Add [js-yaml library](https://cdnjs.com/libraries/js-yaml)
-Add swagger-yaml-parser.min.js to the end of the body
+Add `swagger-yaml-parser.min.js` at the end of the body
 ```html
 <body>
  	...
@@ -196,7 +277,7 @@ Add swagger-yaml-parser.min.js to the end of the body
 ```
 
 #### Writing your own modules
-Modifying angular-swagger-ui can be achieved by writing your own modules. As an example your can have a look at the ones in `src/scripts/modules`.
+Modifying `angular-swagger-ui` can be achieved by writing your own modules. As an example your can have a look at the ones in `src/scripts/modules`.
 A module is an object (can be a service) having a function `execute` which must return a promise.
 
 You can make your module modifying behaviours at different phases:

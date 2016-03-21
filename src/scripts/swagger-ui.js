@@ -56,7 +56,7 @@ angular
 			link: function(scope) {
 				// check parameters
 				if (!scope.trustedSources && !$injector.has('$sanitize')) {
-					console.warn('AngularSwaggerUI: you must use ngSanitize OR set trusted-sources=true as directive param if swagger specifications are loaded from trusted sources');
+					console.warn('AngularSwaggerUI: You must use ngSanitize OR set trusted-sources=true as directive param if swagger specifications are loaded from trusted sources');
 				}
 				if (scope.validatorUrl === undefined) {
 					scope.validatorUrl = 'http://online.swagger.io/validator';
@@ -67,7 +67,7 @@ angular
 			}
 		};
 	})
-	.controller('swaggerUiController', function($scope, $http, $location, $q, $anchorScroll, $timeout, swaggerClient, swaggerModules) {
+	.controller('swaggerUiController', function($scope, $http, $location, $anchorScroll, $timeout, swaggerClient, swaggerModules, swaggerTranslator) {
 
 		var swagger;
 
@@ -117,7 +117,10 @@ angular
 					} else {
 						onError({
 							code: 415,
-							message: 'no parser found for Swagger specification of type ' + swaggerType + ' and version ' + swagger.swagger
+							message: swaggerTranslator.translate('errorNoParserFound', {
+								type: swaggerType,
+								version: swagger.swagger
+							})
 						});
 					}
 				})

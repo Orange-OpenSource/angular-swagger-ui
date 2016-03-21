@@ -1,5 +1,5 @@
 //
-// Use to concat templates with code
+// Used to concat templates with code
 //
 module.exports = {
 	dist: {
@@ -10,7 +10,9 @@ module.exports = {
 				'dist/scripts/swagger-model.js',
 				'dist/scripts/swagger-modules.js',
 				'dist/scripts/swagger-parser.js',
-				'dist/scripts/templates.js'
+				'dist/scripts/swagger-i18n.js',
+				'dist/scripts/i18n/en.js',
+				'dist/scripts/templates.js',
 			]
 		}
 	},
@@ -43,6 +45,10 @@ module.exports = {
 			'dist/scripts/modules/swagger-yaml-parser.min.js': [
 				'copyright.txt',
 				'dist/scripts/modules/swagger-yaml-parser.min.js'
+			],
+			'dist/scripts/i18n/fr.min.js': [
+				'copyright.txt',
+				'dist/scripts/i18n/fr.min.js'
 			]
 		}
 	}

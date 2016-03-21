@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi')
-	.service('swaggerModel', function() {
+	.service('swaggerModel', function(swaggerTranslator) {
 
 		/**
 		 * sample object cache to avoid generating the same one multiple times
@@ -230,7 +230,7 @@ angular
 					buffer.push('</span>');
 					// is required ?
 					if (!isRequired(schema, propertyName)) {
-						buffer.push(', ', '<em>optional</em>');
+						buffer.push(', ', '<em>' + swaggerTranslator.translate('modelOptional') + '</em>');
 					}
 					buffer.push(')');
 					// has description
@@ -239,7 +239,7 @@ angular
 					}
 					// is enum
 					if (property.enum) {
-						buffer.push(' = ', angular.toJson(property.enum).replace(/,/g, ' or '));
+						buffer.push(' = ', angular.toJson(property.enum).replace(/,/g, swaggerTranslator.translate('modelOr')));
 					}
 					buffer.push(',</div>');
 				}

@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi')
-	.service('swaggerUiExternalReferences', function($http, $q, swaggerModules) {
+	.service('swaggerUiExternalReferences', function($http, $q, swaggerModules, swaggerTranslator) {
 
 		var url,
 			deferred,
@@ -47,7 +47,7 @@ angular
 					} catch (e) {
 						onError({
 							code: 500,
-							message: 'failed to parse JSON'
+							message: swaggerTranslator.translate('errorJsonParse')
 						});
 					}
 					return obj;

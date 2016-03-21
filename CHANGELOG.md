@@ -1,9 +1,10 @@
 ### 0.3.1 (2016-03-??)
 
  * Make Swagger specification URL absolute when passed to Swagger validator (#43)
- * Support YAML
+ * YAML support
  * Allow rendering a Swagger specification from JSON object or YAML string (#32)
  * Support `allOf` in object definitions (#41)
+ * i18n (#37)
 
 ### 0.3.0 (2016-02-22)
 

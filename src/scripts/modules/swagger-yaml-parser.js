@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi')
-	.service('swaggerUiYamlParser', function($window, $q, swaggerParser) {
+	.service('swaggerUiYamlParser', function($window, $q, swaggerParser, swaggerTranslator) {
 
 		/**
 		 * Module entry point
@@ -20,7 +20,7 @@ angular
 				if (typeof YAML === 'undefined') {
 					deferred.reject({
 						code: 500,
-						message: 'No YAML parser found, please make sure to include js-yaml library'
+						message: swaggerTranslator.translate('errorNoYamlParser')
 					});
 				} else {
 					try {
@@ -35,7 +35,7 @@ angular
 					} catch (e) {
 						deferred.reject({
 							code: 500,
-							message: 'failed to parse swagger: ' + e.message
+							message: swaggerTranslator.translate('errorParseFailed', e)
 						});
 					}
 				}
