@@ -12,6 +12,7 @@
     }
 
     h5,
+    .h5,
     .description{
         color: @method-color;
     }
@@ -110,6 +111,10 @@
             color: #000;
             padding-left: 10px;
             display: inline-block;
+
+            &.deprecated{
+                text-decoration: line-through;
+            }
         }
 
         .description{
@@ -125,7 +130,8 @@
             padding: 10px;
             border-top: 0 !important;
 
-            h5{
+            h5,
+            .h5{
                 font-weight: bold;
                 padding: 15px 0 5px;
                 margin: 0;

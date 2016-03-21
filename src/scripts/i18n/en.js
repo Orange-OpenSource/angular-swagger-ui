@@ -22,6 +22,7 @@ angular
 				endPointToggleOperations: 'Open/Hide',
 				endPointListOperations: 'List operations',
 				endPointExpandOperations: 'Expand operations',
+				operationDeprected: 'Warning: Deprecated',
 				operationImplementationNotes: 'Implementation notes',
 				parameters: 'Parameters',
 				parameterName: 'Parameter',

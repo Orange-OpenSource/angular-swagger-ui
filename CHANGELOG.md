@@ -5,6 +5,7 @@
  * Allow rendering a Swagger specification from JSON object or YAML string (#32)
  * Support `allOf` in object definitions (#41)
  * i18n (#37)
+ * Handle deprecated operations
 
 ### 0.3.0 (2016-02-22)
 

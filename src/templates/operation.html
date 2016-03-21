@@ -2,12 +2,13 @@
     <a ng-click="op.open=!op.open;permalink(op.operationId)" href="javascript:;">
         <div class="clearfix">
             <span class="http-method text-uppercase" ng-bind="op.httpMethod"></span>
-            <span class="path" ng-bind="op.path"></span>
+            <span class="path" ng-class="{deprecated:op.deprecated}" ng-bind="op.path"></span>
             <span class="description pull-right" ng-bind="op.summary"></span>
         </div>
     </a>
 </div>
 <div class="content collapse" ng-class="{in:op.open}">
+    <div class="h5" ng-if="op.deprecated" swagger-translate="operationDeprected"></div>
 	<div ng-if="op.description">
 		<h5 swagger-translate="operationImplementationNotes"></h5>
 		<p ng-bind-html="op.description"></p>
