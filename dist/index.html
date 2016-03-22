@@ -23,6 +23,10 @@
                 <span class="country en"></span>
                 <span swagger-translate="english"></span>
             </button>
+            <button type="button" ng-click="setJp()" class="btn btn-link pull-right" ng-disabled="getLang()=='jp'">
+                <span class="country jp"></span>
+                <span swagger-translate="japanese"></span>
+            </button>
        </form>
          <h3 ng-show="isLoading" swagger-translate="loading"></h3>
         <div swagger-ui url="swaggerUrl" loading="isLoading" api-explorer="true" trusted-sources="true" error-handler="myErrorHandler" permalinks="true"></div>
@@ -38,6 +42,7 @@
     <script src="scripts/modules/swagger-xml-formatter.min.js"></script>
     <script src="scripts/modules/swagger-yaml-parser.min.js"></script>
     <script src="scripts/i18n/fr.min.js"></script>
+    <script src="scripts/i18n/jp.js"></script>
     <script type="text/javascript">
         angular
             .module('myApp', ['ngSanitize', 'swaggerUi'])
@@ -50,7 +55,17 @@
                         loading: 'loading...',
                         error: 'Failed to generate Swagger-UI: {{code}} {{message}}',
                         french: 'french',
-                        english: 'english'
+                        english: 'english',
+                        japanese: 'japanese'
+                    })
+                    .addTranslations('jp', {
+                        appTitle: 'angular-swagger-ui sample',
+                        explore: 'Explore',
+                        loading: 'loading...',
+                        error: 'Failed to generate Swagger-UI: {{code}} {{message}}',
+                        french: 'フランス語',
+                        english: '英語',
+                        japanese: '日本語'
                     })
                     .addTranslations('fr', {
                         appTitle: 'Exemple angular-swagger-ui',
@@ -58,7 +73,8 @@
                         loading: 'Chargement ...',
                         error: 'Impossible de générer Swagger-UI: {{code}} {{message}}',
                         french: 'français',
-                        english: 'anglais'
+                        english: 'anglais',
+                        japanese: 'japanese'
                     });
             })
             .controller('MyCtrl', function($scope, swaggerTranslator) {
@@ -71,6 +87,9 @@
                         message: data,
                         code: status
                     }));
+                };
+                $scope.setJp = function() {
+                    swaggerTranslator.useLanguage('jp');
                 };
                 $scope.setFr = function() {
                     swaggerTranslator.useLanguage('fr');
