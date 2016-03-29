@@ -13,7 +13,9 @@ angular
 		return {
 			restrict: 'A',
 			controller: 'swaggerUiController',
-			templateUrl: 'templates/swagger-ui.html',
+			templateUrl: function(element, attrs) {
+				return attrs.templateUrl || 'templates/swagger-ui.html';
+			},
 			scope: {
 				// Swagger specification URL (string, required)
 				url: '=?',
@@ -41,8 +43,6 @@ angular
 				// If URL, will be used as Swagger validator
 				// If not defined, validator will be 'http://online.swagger.io/validator'
 				validatorUrl: '@?',
-				// Allows defining a custom Swagger UI template (string, optional)
-				templateUrl: '@?',
 				// Specifies the type of "input" parameter to allow rendering Swagger specification from object or string (string, optional)
 				// Allowed values:
 				// 		"url": (default) "input" parameter is an URL
@@ -60,9 +60,6 @@ angular
 				}
 				if (scope.validatorUrl === undefined) {
 					scope.validatorUrl = 'http://online.swagger.io/validator';
-				}
-				if (scope.templateUrl === undefined) {
-					scope.templateUrl = 'templates/main.html';
 				}
 			}
 		};
