@@ -125,11 +125,15 @@ angular
 				case 'boolean':
 					result = false;
 					break;
+				case 'float':
 				case 'double':
 				case 'number':
 					result = 0.0;
 					break;
 				case 'string':
+				case 'byte':
+				case 'binary':
+				case 'password':
 					result = 'string';
 					if (schema.enum && schema.enum.length > 0) {
 						result = schema.enum[0];
