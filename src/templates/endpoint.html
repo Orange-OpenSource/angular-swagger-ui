@@ -19,6 +19,6 @@
         </li>
     </ul>
 </div>
-<ul class="list-unstyled collapse operations" ng-class="{in:api.open}">
+<ul class="list-unstyled collapse operations in" ng-if="api.open">
     <li ng-repeat="op in api.operations track by $index" class="operation {{op.httpMethod}}" ng-include="'templates/operation.html'"></li>
 </ul>
