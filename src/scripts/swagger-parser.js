@@ -213,7 +213,7 @@ angular
 		}
 
 		/**
-		 * parse operatiopn responses
+		 * parse operation responses
 		 */
 		function parseResponses(swagger, operation) {
 			var code,
@@ -223,7 +223,7 @@ angular
 			if (operation.responses) {
 				for (code in operation.responses) {
 					//TODO manage response headers
-					response = operation.responses[code];
+					response = operation.responses[code] = swaggerModel.resolveReference(swagger, operation.responses[code]);
 					response.description = trustHtml(response.description);
 					if (response.schema) {
 						if (response.examples && response.examples[operation.produces[0]]) {
