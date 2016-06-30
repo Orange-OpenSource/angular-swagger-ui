@@ -5,7 +5,7 @@
     <title swagger-translate="appTitle"></title>
     <meta name="viewport" content="width=device-width">
     <link rel="icon" href="favicon.ico">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
     <link rel="stylesheet" href="css/swagger-ui.min.css">
     <link rel="stylesheet" href="css/demo.css">
 </head>
@@ -23,17 +23,13 @@
                 <span class="country en"></span>
                 <span swagger-translate="english"></span>
             </button>
-            <button type="button" ng-click="setJp()" class="btn btn-link pull-right" ng-disabled="getLang()=='jp'">
-                <span class="country jp"></span>
-                <span swagger-translate="japanese"></span>
-            </button>
        </form>
          <h3 ng-show="isLoading" swagger-translate="loading"></h3>
         <div swagger-ui url="swaggerUrl" loading="isLoading" api-explorer="true" trusted-sources="true" error-handler="myErrorHandler" permalinks="true"></div>
     </div>
     <!-- dependencies -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.1/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.1/angular-sanitize.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular-sanitize.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.5.4/js-yaml.min.js"></script>
     <!-- angular-swagger-ui -->
     <script src="scripts/swagger-ui.min.js"></script>
@@ -42,7 +38,6 @@
     <script src="scripts/modules/swagger-xml-formatter.min.js"></script>
     <script src="scripts/modules/swagger-yaml-parser.min.js"></script>
     <script src="scripts/i18n/fr.min.js"></script>
-    <script src="scripts/i18n/jp.js"></script>
     <script type="text/javascript">
         angular
             .module('myApp', ['ngSanitize', 'swaggerUi'])
@@ -57,15 +52,6 @@
                         french: 'french',
                         english: 'english',
                         japanese: 'japanese'
-                    })
-                    .addTranslations('jp', {
-                        appTitle: 'angular-swagger-ui sample',
-                        explore: 'Explore',
-                        loading: 'loading...',
-                        error: 'Failed to generate Swagger-UI: {{code}} {{message}}',
-                        french: 'フランス語',
-                        english: '英語',
-                        japanese: '日本語'
                     })
                     .addTranslations('fr', {
                         appTitle: 'Exemple angular-swagger-ui',
@@ -87,9 +73,6 @@
                         message: data,
                         code: status
                     }));
-                };
-                $scope.setJp = function() {
-                    swaggerTranslator.useLanguage('jp');
                 };
                 $scope.setFr = function() {
                     swaggerTranslator.useLanguage('fr');
