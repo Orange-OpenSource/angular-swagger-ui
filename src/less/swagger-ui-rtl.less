@@ -1,0 +1,67 @@
+
+[dir='rtl'] .swagger-ui {
+
+    th {
+        text-align: right;
+    }
+
+    .pull-left {
+        float: right !important;
+    }
+
+    .pull-right {
+        float: left !important;
+    }
+
+    .list-unstyled,
+    .list-inline {
+        padding-right: 0;
+        padding-left: initial;
+    }
+
+    .endpoint-actions{
+
+        li{
+
+            border-left: 1px solid #ddd;
+            border-right: 0;
+
+            &:last-child{
+                border-left: 0;
+            }
+        }
+    }
+
+    .operation {
+
+        .description{
+            margin: 2px 0 0 10px;
+        }
+
+        .content-type label{
+            margin-left: 5px;
+            margin-right: 0;
+        }
+
+        ul.schema{
+            li{
+                margin: 0 0 5px 5px;
+                padding: 2px 0 2px 5px;
+                border-right: 0;
+                border-left: 1px solid #ddd;
+
+                &:last-child{
+                    border-left: 0;
+                }
+            }
+        }
+
+        pre.model{
+            .pad{
+                margin-left: 0;
+                margin-right: 1em;
+            }
+        }
+    }
+
+}
