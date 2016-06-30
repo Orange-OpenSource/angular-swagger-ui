@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.3.1
+ * Orange angular-swagger-ui - v0.3.2
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -24,6 +24,10 @@ angular
 				endPointExpandOperations: 'Ouvrir les opérations',
 				operationDeprected: 'Attention: Obsolète',
 				operationImplementationNotes: 'Notes d\'implementation',
+				headers: 'Entêtes de la réponse',
+				headerName: 'Entêtes',
+				headerDescription: 'Description',
+				headerType: 'Type',
 				parameters: 'Paramètres',
 				parameterName: 'Paramètre',
 				parameterValue: 'Valeur',
