@@ -9,7 +9,8 @@ module.exports = {
 			'dist/scripts/modules/swagger-xml-formatter.min.js': ['dist/scripts/modules/swagger-xml-formatter.js'],
 			'dist/scripts/modules/swagger1-to-swagger2-converter.min.js': ['dist/scripts/modules/swagger1-to-swagger2-converter.js'],
 			'dist/scripts/modules/swagger-yaml-parser.min.js': ['dist/scripts/modules/swagger-yaml-parser.js'],
-			'dist/scripts/i18n/fr.min.js': ['dist/scripts/i18n/fr.js']
+			'dist/scripts/i18n/fr.min.js': ['dist/scripts/i18n/fr.js'],
+			'dist/scripts/i18n/jp.min.js': ['dist/scripts/i18n/jp.js']
 		}
 	}
 }

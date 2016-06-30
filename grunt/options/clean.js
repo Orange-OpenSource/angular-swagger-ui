@@ -27,6 +27,8 @@ module.exports = {
 				'dist/scripts/modules/swagger1-to-swagger2-converter.js',
 				'dist/scripts/modules/swagger-yaml-parser.js',
 				'dist/scripts/i18n/en.js',
+				'dist/scripts/i18n/fr.js',
+				'dist/scripts/i18n/jp.js'
 			]
 		}]
 	}

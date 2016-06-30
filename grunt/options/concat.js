@@ -12,7 +12,7 @@ module.exports = {
 				'dist/scripts/swagger-parser.js',
 				'dist/scripts/swagger-i18n.js',
 				'dist/scripts/i18n/en.js',
-				'dist/scripts/templates.js',
+				'dist/scripts/templates.js'
 			]
 		}
 	},
@@ -49,6 +49,10 @@ module.exports = {
 			'dist/scripts/i18n/fr.min.js': [
 				'copyright.txt',
 				'dist/scripts/i18n/fr.min.js'
+			],
+			'dist/scripts/i18n/jp.min.js': [
+				'copyright.txt',
+				'dist/scripts/i18n/jp.min.js'
 			]
 		}
 	}
