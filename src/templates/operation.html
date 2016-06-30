@@ -29,6 +29,25 @@
     			<select ng-model="form[op.id].responseType" ng-options="item for item in op.produces track by item" id="responseContentType{{op.id}}" name="responseContentType{{op.id}}" required></select>
     		</div>
     	</div>
+        <div ng-if="op.headers" class="table-responsive">
+            <h5 swagger-translate="headers"></h5>
+            <table class="table table-condensed headers">
+                <thead>
+                    <tr>
+                        <th class="name" swagger-translate="headerName"></th>
+                        <th class="desc" swagger-translate="headerDescription"></th>
+                        <th class="type" swagger-translate="headerType"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="(name,header) in op.headers track by $index">
+                        <td class="bold" ng-bind="name"></td>
+                        <td ng-bind-html="header.description"></td>
+                        <td ng-bind="header.type"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     	<div ng-if="op.parameters&&op.parameters.length>0" class="table-responsive">
     		<h5 swagger-translate="parameters"></h5>
     		<table class="table table-condensed parameters">

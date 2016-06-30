@@ -222,7 +222,6 @@ angular
 
 			if (operation.responses) {
 				for (code in operation.responses) {
-					//TODO manage response headers
 					response = operation.responses[code] = swaggerModel.resolveReference(swagger, operation.responses[code]);
 					response.description = trustHtml(response.description);
 					if (response.schema) {
@@ -242,6 +241,7 @@ angular
 							operation.responseClass = response;
 							operation.responseClass.display = 1;
 							operation.responseClass.status = code;
+							parseHeaders(swagger, operation, response);
 							delete operation.responses[code];
 						} else {
 							operation.hasResponses = true;
@@ -250,6 +250,25 @@ angular
 						operation.hasResponses = true;
 					}
 				}
+			}
+		}
+
+		/**
+		 * parse operation response headers
+		 */
+		function parseHeaders(swagger, operation, response) {
+			if (response.headers) {
+				console.log(operation)
+				operation.headers = response.headers;
+				for (var name in operation.headers) {
+					var header = operation.headers[name];
+					header.type = swaggerModel.getType(header);
+					if (header.type === 'array') {
+						header.type = 'Array[' + swaggerModel.getType(header.items) + ']';
+					}
+					header.description = trustHtml(header.description);
+				}
+				delete response.headers;
 			}
 		}
 
