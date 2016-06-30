@@ -258,7 +258,6 @@ angular
 		 */
 		function parseHeaders(swagger, operation, response) {
 			if (response.headers) {
-				console.log(operation)
 				operation.headers = response.headers;
 				for (var name in operation.headers) {
 					var header = operation.headers[name];
