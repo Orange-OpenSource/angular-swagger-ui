@@ -68,7 +68,7 @@ angular
 
 		var swagger;
 
-		// WARNING authentication is not implemented, please use 'api-explorer-transform' directive's param to customize API calls
+		// WARNING authentication is not implemented, please use modules to customize API calls, see README.md
 
 		/**
 		 * Load Swagger specification
