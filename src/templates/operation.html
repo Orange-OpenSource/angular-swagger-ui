@@ -1,5 +1,5 @@
 <div id="{{op.operationId}}" class="heading">
-    <a ng-click="op.open=!op.open;permalink(op.operationId)" href="javascript:;">
+    <a ng-click="op.open=!op.open;permalink(op.operationId)" href="">
         <div class="clearfix">
             <span class="http-method text-uppercase" ng-bind="op.httpMethod"></span>
             <span class="path" ng-class="{deprecated:op.deprecated}" ng-bind="op.path"></span>
@@ -18,8 +18,8 @@
     		<h5 swagger-translate="responseClass" swagger-translate-value="op.responseClass"></h5>
     		<div ng-if="op.responseClass.display!=-1">
         		<ul class="list-inline schema">
-        			<li><a href="javascript:;" ng-click="op.responseClass.display=0" ng-class="{active:op.responseClass.display==0}" swagger-translate="responseModel"></a></li>
-        			<li><a href="javascript:;" ng-click="op.responseClass.display=1" ng-class="{active:op.responseClass.display==1}" swagger-translate="responseSchema"></a></li>
+        			<li><a ng-click="op.responseClass.display=0" ng-class="{active:op.responseClass.display==0}" swagger-translate="responseModel"></a></li>
+        			<li><a ng-click="op.responseClass.display=1" ng-class="{active:op.responseClass.display==1}" swagger-translate="responseSchema"></a></li>
         		</ul>
         		<pre class="model" ng-if="op.responseClass.display==0" ng-bind-html="op.responseClass.schema.model"></pre>
         		<pre class="model-schema" ng-if="op.responseClass.display==1" ng-bind="op.responseClass.schema.json"></pre>
@@ -82,7 +82,7 @@
     	</div>
     	<div ng-if="apiExplorer">
     		<button class="btn btn-default" ng-click="op.explorerResult=false;op.hideExplorerResult=false" type="submit" ng-disabled="op.loading" ng-bind="op.loading?'explorerLoading':'explorerTryIt'|swaggerTranslate"></button>
-        	<a class="hide-try-it" ng-if="op.explorerResult&&!op.hideExplorerResult" ng-click="op.hideExplorerResult=true" href="javascript:;" swagger-translate="responseHide"></a>
+        	<a class="hide-try-it" ng-if="op.explorerResult&&!op.hideExplorerResult" ng-click="op.hideExplorerResult=true" swagger-translate="responseHide"></a>
     	</div>
 	</form>
 	<div ng-if="op.explorerResult" ng-show="!op.hideExplorerResult">

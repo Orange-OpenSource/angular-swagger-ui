@@ -37,8 +37,8 @@
 </td>
 <td ng-if="param.schema">
 	<ul class="list-inline schema">
-		<li><a href="javascript:;" ng-click="param.schema.display=0" ng-class="{active:param.schema.display==0}" swagger-translate="parameterModel"></a></li>
-		<li><a href="javascript:;" ng-click="param.schema.display=1" ng-class="{active:param.schema.display==1}" swagger-translate="parameterSchema"></a></li>
+		<li><a ng-click="param.schema.display=0" ng-class="{active:param.schema.display==0}" swagger-translate="parameterModel"></a></li>
+		<li><a ng-click="param.schema.display=1" ng-class="{active:param.schema.display==1}" swagger-translate="parameterSchema"></a></li>
 	</ul>
 	<pre class="model" ng-if="param.schema.display==0&&param.schema.model" ng-bind-html="param.schema.model"></pre>
 	<div class="model-schema" ng-if="param.schema.display==1&&param.schema.json">
