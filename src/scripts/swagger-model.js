@@ -63,11 +63,10 @@ angular
 		 */
 		function resolveAllOf(swagger, schema) {
 			if (schema.allOf) {
-				var newSchema = {};
 				angular.forEach(schema.allOf, function(def) {
-					angular.merge(newSchema, resolveReference(swagger, def));
+					angular.merge(schema, resolveReference(swagger, def));
 				});
-				schema = newSchema;
+				delete schema.allOf;
 			}
 			return schema;
 		}
