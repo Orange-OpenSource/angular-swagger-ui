@@ -1,3 +1,9 @@
+### 0.3.3 (2016-10-??)
+
+ * Display resources in same order as tags are declared in Swagger specification or alphabetically if no tag defined (#56)
+ * Fix `allOf` implementation (#55)
+ * CSP compliant templates (#54)
+
 ### 0.3.2 (2016-06-30)
 
  * Fix Swagger model generation (float properties not displayed in samples)
