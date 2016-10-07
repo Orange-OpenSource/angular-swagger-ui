@@ -11,7 +11,7 @@
 </head>
 <body>
     <div ng-controller="MyCtrl" class="container my-ctrl">
-        <h1 swagger-translate="appTitle"></h1>
+        <h1><span swagger-translate="appTitle"></span> <span class="version">v0.3.3</span></h1>
         <form name="urlForm" ng-submit="swaggerUrl=url" class="form-inline">
             <input type="text" placeholder="swagger URL" class="form-control" id="url" name="url" ng-model="url" required>
             <button type="submit" class="btn btn-primary" swagger-translate="explore"></button>
@@ -23,15 +23,15 @@
                 <span class="country en"></span>
                 <span swagger-translate="english"></span>
             </button>
-       </form>
-         <h3 ng-show="isLoading" swagger-translate="loading"></h3>
+        </form>
+        <h3 ng-show="isLoading" swagger-translate="loading"></h3>
         <div swagger-ui url="swaggerUrl" loading="isLoading" api-explorer="true" trusted-sources="true" error-handler="myErrorHandler" permalinks="true"></div>
     </div>
 
     <!-- dependencies -->
     <script src="bower_components/angular/angular.min.js"></script>
     <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.5.4/js-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.6.1/js-yaml.min.js"></script>
 
     <!-- angular-swagger-ui -->
     <script src="scripts/swagger-ui.js"></script>
@@ -53,7 +53,7 @@
                 swaggerTranslatorProvider
                     .setLanguage('en')
                     .addTranslations('en', {
-                        appTitle: 'angular-swagger-ui sample',
+                        appTitle: 'angular-swagger-ui',
                         explore: 'Explore',
                         loading: 'loading...',
                         error: 'Failed to generate Swagger-UI: {{code}} {{message}}',
@@ -61,7 +61,7 @@
                         english: 'english'
                     })
                     .addTranslations('fr', {
-                        appTitle: 'Exemple angular-swagger-ui',
+                        appTitle: 'angular-swagger-ui',
                         explore: 'Explorer',
                         loading: 'Chargement ...',
                         error: 'Impossible de générer Swagger-UI: {{code}} {{message}}',
