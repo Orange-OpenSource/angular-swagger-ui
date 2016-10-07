@@ -1,3 +1,8 @@
+### 0.3.4 (2016-10-07)
+
+ * Fix Swagger 1.2 converter
+ * Add CSS classes to DOM to ease customization
+
 ### 0.3.3 (2016-10-04)
 
  * Display resources in same order as tags are declared in Swagger specification or alphabetically if no tag defined (#56)
