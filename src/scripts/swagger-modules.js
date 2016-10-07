@@ -18,6 +18,7 @@ angular
 		this.BEFORE_DISPLAY = 'BEFORE_DISPLAY';
 		this.BEFORE_EXPLORER_LOAD = 'BEFORE_EXPLORER_LOAD';
 		this.AFTER_EXPLORER_LOAD = 'AFTER_EXPLORER_LOAD';
+		this.BEFORE_CONVERT = 'BEFORE_CONVERT';
 
 		/**
 		 * Adds a new module to swagger-ui

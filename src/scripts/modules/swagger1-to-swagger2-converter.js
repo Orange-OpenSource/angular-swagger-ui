@@ -52,7 +52,7 @@ angular
 		function convert(deferred, swaggerUrl, swaggerData) {
 			// prepare swagger2 objects
 			var swagger2 = swaggerData,
-				info = swagger2.info,
+				info = swagger2.info || (swagger2.info = {}),
 				promises = [];
 
 			info.contact = {
@@ -74,13 +74,18 @@ angular
 
 			$q.all(promises)
 				.then(function(results) {
-					angular.forEach(results, function(swagger1) {
-						convertInfos(swagger1, swagger2);
-						convertOperations(swagger1, swagger2);
-						convertModels(swagger1, swagger2);
-					});
-					swagger2.swagger = '2.0';
-					deferred.resolve(true); // success
+					swaggerModules
+						.execute(swaggerModules.BEFORE_CONVERT, results)
+						.then(function() {
+							angular.forEach(results, function(swagger1) {
+								convertInfos(swagger1, swagger2);
+								convertOperations(swagger1, swagger2);
+								convertModels(swagger1, swagger2);
+							});
+							swagger2.swagger = '2.0';
+							deferred.resolve(true); // success
+						})
+						.catch(deferred.reject);
 				})
 				.catch(deferred.reject);
 		}
@@ -98,7 +103,7 @@ angular
 				swagger2.basePath = a.pathname;
 			}
 			swagger2.tags.push({
-				name: swagger1.resourcePath
+				name: swagger1.resourcePath.substring(swagger1.resourcePath.lastIndexOf('/') + 1)
 			});
 		}
 
@@ -117,7 +122,7 @@ angular
 						consumes: operation.consumes || swagger1.consumes,
 						parameters: operation.parameters,
 						responses: responses,
-						tags: [swagger1.resourcePath]
+						tags: [swagger1.resourcePath.substring(swagger1.resourcePath.lastIndexOf('/') + 1)]
 					};
 					convertParameters(swagger1, operation);
 					convertResponses(swagger1, operation, responses);
@@ -128,6 +133,7 @@ angular
 		function convertParameters(swagger1, operation) {
 			angular.forEach(operation.parameters, function(param) {
 				param.in = param.paramType;
+				param.default = param.defaultValue;
 				var ref = param.type || param.$ref;
 				if (swagger1.models && ref && swagger1.models[ref]) {
 					param.schema = {
@@ -154,9 +160,11 @@ angular
 					}
 				} else if (resp.code === 200 && operation.type !== 'void') {
 					response.schema = {
-						type: operation.type
+						type: operation.type,
+						$ref: '#/definitions/' + operation.type
 					};
 					if (operation.type === 'array') {
+						delete response.schema.$ref;
 						var ref = operation.items.type || operation.items.$ref,
 							items = response.schema.items = {};
 							
@@ -198,6 +206,10 @@ angular
 							prop.items.$ref = '#/definitions/' + ref;
 						}
 						delete prop.items.type;
+					}
+					if (prop.enum) {
+						prop.type = 'string';
+						delete prop.$ref;
 					}
 				});
 			});
