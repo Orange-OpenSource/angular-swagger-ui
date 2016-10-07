@@ -1,4 +1,4 @@
-<div id="{{api.name}}" class="clearfix">
+<div id="{{api.name}}" class="clearfix" ng-class="api.css">
     <ul id="{{api.name}}*" class="list-inline pull-left endpoint-heading">
         <li>
             <h4>
@@ -19,6 +19,6 @@
         </li>
     </ul>
 </div>
-<ul class="list-unstyled operations" ng-if="api.open">
-    <li ng-repeat="op in api.operations track by $index" class="operation {{op.httpMethod}}" ng-include="'templates/operation.html'"></li>
+<ul class="list-unstyled operations" ng-class="api.css" ng-if="api.open">
+    <li ng-repeat="op in api.operations track by $index" class="operation" ng-class="[op.httpMethod,op.css]" ng-include="'templates/operation.html'"></li>
 </ul>

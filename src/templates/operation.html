@@ -40,7 +40,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr ng-repeat="(name,header) in op.headers track by $index">
+                    <tr ng-repeat="(name,header) in op.headers track by $index" ng-class="header.css" class="response-header">
                         <td class="bold" ng-bind="name"></td>
                         <td ng-bind-html="header.description"></td>
                         <td ng-bind="header.type"></td>
@@ -61,7 +61,7 @@
     				</tr>
     			</thead>
     			<tbody>
-    				<tr ng-repeat="param in op.parameters track by $index" ng-include="'templates/parameter.html'"></tr>
+    				<tr ng-repeat="param in op.parameters track by $index" ng-include="'templates/parameter.html'" class="operation-parameter" ng-class="[param.css,'operation-parameter-'+param.in]"></tr>
     			</tbody>
     		</table>
 		</div>
@@ -76,7 +76,7 @@
     				</tr>
     			</thead>
     			<tbody>
-    				<tr ng-repeat="(code,resp) in op.responses track by $index" ng-include="'templates/response.html'"></tr>
+    				<tr ng-repeat="(code,resp) in op.responses track by $index" ng-include="'templates/response.html'" class="operation-response" ng-class="resp.css"></tr>
     			</tbody>
     		</table>
     	</div>
@@ -85,14 +85,14 @@
         	<a class="hide-try-it" ng-if="op.explorerResult&&!op.hideExplorerResult" ng-click="op.hideExplorerResult=true" swagger-translate="responseHide"></a>
     	</div>
 	</form>
-	<div ng-if="op.explorerResult" ng-show="!op.hideExplorerResult">
+	<div ng-if="op.explorerResult" ng-show="!op.hideExplorerResult" class="explorer-result">
 		<h5 swagger-translate="explorerUrl"></h5>
-		<pre ng-bind="op.explorerResult.url"></pre>
+		<pre ng-bind="op.explorerResult.url" class="explorer-url"></pre>
 		<h5 swagger-translate="explorerBody"></h5>
-		<pre ng-bind="op.explorerResult.response.body"></pre>
+		<pre ng-bind="op.explorerResult.response.body" class="explorer-body"></pre>
 		<h5 swagger-translate="explorerCode"></h5>
-		<pre ng-bind="op.explorerResult.response.status"></pre>
+		<pre ng-bind="op.explorerResult.response.status" class="explorer-status"></pre>
 		<h5 swagger-translate="explorerHeaders"></h5>
-		<pre ng-bind="op.explorerResult.response.headers"></pre>
+		<pre ng-bind="op.explorerResult.response.headers" class="explorer-headers"></pre>
 	</div>
 </div>

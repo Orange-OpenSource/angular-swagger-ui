@@ -1,17 +1,17 @@
-<td ng-class="{bold:param.required}">
+<td ng-class="{bold:param.required}" class="operation-parameter-name">
 	<label for="param{{param.id}}" ng-bind="param.name"></label>
 </td>
-<td ng-class="{bold:param.required}">
+<td ng-class="{bold:param.required}" class="operation-parameter-value">
 	<div ng-if="apiExplorer">
 		<div ng-if="param.in!='body'" ng-switch="param.subtype">
-			<input ng-switch-when="file" type="file" file-input ng-model="form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?'parameterRequired':''|swaggerTranslate}}" ng-required="param.required">
-			<select ng-switch-when="enum" ng-model="form[op.id][param.name]" id="param{{param.id}}">
+			<input ng-switch-when="file" type="file" file-input ng-model="form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?'parameterRequired':''|swaggerTranslate}}" ng-required="param.required" name="{{param.name}}">
+			<select ng-switch-when="enum" ng-model="form[op.id][param.name]" id="param{{param.id}}" name="{{param.name}}">
 				<option ng-repeat="value in param.enum" value="{{value}}" ng-bind="value+(param.default==value?'parameterDefault':''|swaggerTranslate)" ng-selected="param.default==value"></option>
 			</select>
-			<input ng-switch-default type="text" ng-model="form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?'parameterRequired':''|swaggerTranslate}}" ng-required="param.required">
+			<input ng-switch-default type="text" ng-model="form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?'parameterRequired':''|swaggerTranslate}}" ng-required="param.required" name="{{param.name}}">
 		</div>
 		<div ng-if="param.in=='body'">
-			<textarea id="param{{param.id}}" ng-model="form[op.id][param.name]" ng-required="param.required"></textarea>
+			<textarea id="param{{param.id}}" ng-model="form[op.id][param.name]" ng-required="param.required" name="{{param.name}}"></textarea>
 			<br>
 			<div ng-if="op.consumes" class="content-type">
     			<label for="bodyContentType{{op.id}}" swagger-translate="parameterContentType"></label>
@@ -29,13 +29,13 @@
 		</div>
 	</div>
 </td>
-<td ng-class="{bold:param.required}" ng-bind-html="param.description"></td>
-<td ng-bind="param.in"></td>
-<td ng-if="param.type" ng-switch="param.type">
+<td ng-class="{bold:param.required}" ng-bind-html="param.description" class="operation-parameter-description"></td>
+<td ng-bind="param.in" class="operation-parameter-in"></td>
+<td ng-if="param.type" ng-switch="param.type" class="operation-parameter-type">
 	<span ng-switch-when="array" ng-bind="'Array['+param.items.type+']'"></span>
 	<span ng-switch-default ng-bind="param.type"></span>
 </td>
-<td ng-if="param.schema">
+<td ng-if="param.schema" class="operation-parameter-model">
 	<ul class="list-inline schema">
 		<li><a ng-click="param.schema.display=0" ng-class="{active:param.schema.display==0}" swagger-translate="parameterModel"></a></li>
 		<li><a ng-click="param.schema.display=1" ng-class="{active:param.schema.display==1}" swagger-translate="parameterSchema"></a></li>

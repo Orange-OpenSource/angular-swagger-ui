@@ -1,6 +1,6 @@
-<td ng-bind="code"></td>
-<td ng-bind-html="resp.description"></td>
-<td>
+<td ng-bind="code" class="operation-response-code"></td>
+<td ng-bind-html="resp.description" class="operation-response-description"></td>
+<td class="operation-response-model">
 	<ul ng-if="resp.schema&&resp.schema.model&&resp.schema.json" class="list-inline schema">
 		<li><a ng-click="resp.display=0" ng-class="{active:resp.display==0}" swagger-translate="responseModel"></a></li>
 		<li><a ng-click="resp.display=1" ng-class="{active:resp.display==1}" swagger-translate="responseSchema"></a></li>
