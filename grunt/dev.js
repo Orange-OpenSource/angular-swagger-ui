@@ -3,7 +3,7 @@
 //
 module.exports = function(grunt) {
 	grunt.registerTask('dev', '', function(target) {
-		var tasks = [ 'less:dev' ];
+		var tasks = ['less:dev'];
 		if (target === 'server') {
 			tasks.push('connect:dev');
 		}
