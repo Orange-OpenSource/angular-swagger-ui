@@ -120,7 +120,7 @@ angular
 					operation.description = trustHtml(operation.description);
 					operation.produces = operation.produces || swagger.produces;
 					form[operationId] = {
-						responseType: defaultContentType
+						responseType: operation.produces && operation.produces[0] || defaultContentType
 					};
 					operation.httpMethod = httpMethod;
 					operation.path = path;
@@ -207,7 +207,7 @@ angular
 				}
 				if (param.in === 'body' || param.in === 'formData') {
 					operation.consumes = operation.consumes || swagger.consumes;
-					form[operationId].contentType = operation.consumes.length === 1 ? operation.consumes[0] : defaultContentType;
+					form[operationId].contentType = operation.consumes && operation.consumes[0] || defaultContentType;
 				}
 				paramId++;
 			}
