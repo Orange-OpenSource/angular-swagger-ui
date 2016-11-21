@@ -276,6 +276,19 @@ Add `swagger-yaml-parser.min.js` at the end of the body
 </body>
 ```
 
+#### Enable markdown
+Add [marked library](https://cdnjs.com/libraries/marked)
+Add `swagger-markdown.min.js` at the end of the body
+```html
+<body>
+ 	...
+ 	<script src="yourPathToAngularJS/angular.min.js"></script>
+ 	<script src="yourPathToMarked/marked.min.js"></script>
+ 	<script src="yourPathToAngularSwaggerUI/dist/scripts/swagger-ui.min.js"></script>
+ 	<script src="yourPathToAngularSwaggerUI/dist/scripts/modules/swagger-markdown.min.js"></script>
+</body>
+```
+
 #### Writing your own modules
 Modifying `angular-swagger-ui` can be achieved by writing your own modules. As an example your can have a look at the ones in `src/scripts/modules`.
 A module is an object (can be a service) having a function `execute` which must return a promise.

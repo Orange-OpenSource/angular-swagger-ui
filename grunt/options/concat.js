@@ -46,6 +46,10 @@ module.exports = {
 				'copyright.txt',
 				'dist/scripts/modules/swagger-yaml-parser.min.js'
 			],
+			'dist/scripts/modules/swagger-markdown.min.js': [
+				'copyright.txt',
+				'dist/scripts/modules/swagger-markdown.min.js'
+			],
 			'dist/scripts/i18n/fr.min.js': [
 				'copyright.txt',
 				'dist/scripts/i18n/fr.min.js'
