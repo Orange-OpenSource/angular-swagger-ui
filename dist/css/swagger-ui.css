@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.3.3
+ * Orange angular-swagger-ui - v0.3.4
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -30,11 +30,15 @@
 .swagger-ui .endpoint:hover .endpoint-actions li a {
   color: #555;
 }
-.swagger-ui .endpoint a {
+.swagger-ui .endpoint h4 a,
+.swagger-ui .endpoint .endpoint-actions a,
+.swagger-ui .endpoint .schema a {
   text-decoration: none;
   color: #999;
 }
-.swagger-ui .endpoint a:hover {
+.swagger-ui .endpoint h4 a:hover,
+.swagger-ui .endpoint .endpoint-actions a:hover,
+.swagger-ui .endpoint .schema a:hover {
   color: #000;
   text-decoration: underline;
 }
