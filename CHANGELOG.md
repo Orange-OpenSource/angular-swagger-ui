@@ -1,7 +1,8 @@
-### 0.3.4 (2016-10-07)
+### 0.3.4 (2016-11-21)
 
  * Fix Swagger 1.2 converter
- * Add CSS classes to DOM to ease customization
+ * Add CSS classes to ease customization
+ * Create module to allow rendering markdown (#57)
 
 ### 0.3.3 (2016-10-04)
 
