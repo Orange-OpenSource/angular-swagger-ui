@@ -241,7 +241,7 @@ Add `swagger1-to-swagger2-converter.min.js` at the end of the body
 ```
 
 #### Enable Swagger external references
-See [Swagger 2.0 spec](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md#relative-schema-file-example)
+See [Swagger 2.0 spec](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md#relative-schema-file-example).
 Add `swagger-external-references.min.js` at the end of the body
 ```html
 <body>
@@ -264,7 +264,7 @@ Add `swagger-xml-formatter.min.js` at the end of the body
 ```
 
 #### Enable YAML
-Add [js-yaml library](https://cdnjs.com/libraries/js-yaml)
+Add [js-yaml library](https://cdnjs.com/libraries/js-yaml).
 Add `swagger-yaml-parser.min.js` at the end of the body
 ```html
 <body>
@@ -277,7 +277,7 @@ Add `swagger-yaml-parser.min.js` at the end of the body
 ```
 
 #### Enable markdown
-Add [marked library](https://cdnjs.com/libraries/marked)
+Add [marked library](https://cdnjs.com/libraries/marked).
 Add `swagger-markdown.min.js` at the end of the body
 ```html
 <body>
