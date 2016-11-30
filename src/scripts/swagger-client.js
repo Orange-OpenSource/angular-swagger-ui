@@ -91,8 +91,7 @@ angular
 					swagger.schemes[0],
 					'://',
 					swagger.host,
-					((swagger.basePath.substring(swagger.basePath.length-1,swagger.basePath.length) === '/') ? swagger.basePath.slice(0,-1) : swagger.basePath)
-
+					swagger.basePath && swagger.basePath.substring(swagger.basePath.length - 1) === '/' ? swagger.basePath.slice(0, -1) : swagger.basePath
 				].join(''),
 				options = {
 					method: operation.httpMethod,
