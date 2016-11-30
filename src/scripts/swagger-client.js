@@ -87,11 +87,12 @@ angular
 			headers['Content-Type'] = body ? values.contentType : 'text/plain';
 
 			// build request
-			var baseUrl = [
+			var basePath = swagger.basePath || '',
+				baseUrl = [
 					swagger.schemes[0],
 					'://',
 					swagger.host,
-					swagger.basePath && swagger.basePath.substring(swagger.basePath.length - 1) === '/' ? swagger.basePath.slice(0, -1) : swagger.basePath
+					basePath.length > 1 && basePath.substring(basePath.length - 1) === '/' ? basePath.slice(0, -1) : basePath
 				].join(''),
 				options = {
 					method: operation.httpMethod,
