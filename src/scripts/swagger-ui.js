@@ -161,7 +161,7 @@ angular
 				$scope.resources = [];
 				$scope.form = {};
 				if (data) {
-					swagger = data;
+					swagger = angular.copy(data);
 					swaggerLoaded(null, 'application/' + $scope.inputType);
 				}
 			});
