@@ -101,7 +101,8 @@ angular
 		 * parse operations
 		 */
 		function parseOperations(swagger, resources, form, map, defaultContentType, openPath) {
-			var path,
+			var i,
+				path,
 				pathObject,
 				pathParameters,
 				httpMethod,
@@ -115,8 +116,6 @@ angular
 				delete pathObject.parameters;
 				for (httpMethod in pathObject) {
 					operation = pathObject[httpMethod];
-					//TODO manage 'deprecated' operations ?
-					operation.id = operationId;
 					operation.description = trustHtml(operation.description);
 					operation.produces = operation.produces || swagger.produces;
 					form[operationId] = {
@@ -128,22 +127,24 @@ angular
 					parseParameters(swagger, operation, pathParameters, form, defaultContentType);
 					parseResponses(swagger, operation);
 					operation.tags = operation.tags || ['default'];
-					// map operation to resource
-					tag = operation.tags[0];
-					if (typeof map[tag] === 'undefined') {
-						map[tag] = resources.length;
-						resources.push({
-							name: tag
-						});
+					// map operation to resources
+					for (i = 0; i < operation.tags.length; i++) {
+						tag = operation.tags[i];
+						if (typeof map[tag] === 'undefined') {
+							map[tag] = resources.length;
+							resources.push({
+								name: tag
+							});
+						}
+						resource = resources[map[tag]];
+						resource.operations = resource.operations || [];
+						operation.id = operationId++;
+						operation.open = openPath && openPath === operation.operationId || openPath === resource.name + '*';
+						resource.operations.push(angular.copy(operation));
+						if (operation.open) {
+							resource.open = true;
+						}
 					}
-					resource = resources[map[operation.tags[0]]];
-					operation.open = openPath && openPath === operation.operationId || openPath === resource.name + '*';
-					resource.operations = resource.operations || [];
-					resource.operations.push(operation);
-					if (operation.open) {
-						resource.open = true;
-					}
-					operationId++;
 				}
 			}
 		}
