@@ -7,8 +7,9 @@ module.exports = {
 			}]
 		},
 		files: {
-			'src/': 'src/**',
-			'./': 'copyright.txt'
+			'src/': ['src/index.html', 'src/scripts/**', 'src/less/main.less'],
+			'./': 'copyright.txt',
+			'dist/': 'dist/index.html'
 		}
 	},
 	package: {
