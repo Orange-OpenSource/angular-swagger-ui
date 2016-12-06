@@ -86,14 +86,13 @@ angular
 			headers.Accept = values.responseType;
 			headers['Content-Type'] = body ? values.contentType : 'text/plain';
 
-			// build request
-			var basePath = swagger.basePath || '',
-				baseUrl = [
+		    // build request
+			var basePath = swagger.basePath || '';
+			var baseUrl = [
 					swagger.schemes[0],
 					'://',
 					swagger.host,
-					basePath.length > 1 && basePath.substring(basePath.length - 1) === '/' ? basePath.slice(0, -1) : basePath
-				].join(''),
+                    			basePath.length >= 1 && basePath.substring(basePath.length - 1) === '/' ? basePath.slice(0, -1) : basePath].join(''),
 				options = {
 					method: operation.httpMethod,
 					url: baseUrl + path,
