@@ -23,7 +23,9 @@ module.exports = {
                         res.setHeader('Access-Control-Allow-Origin', '*');
                         res.setHeader('Access-Control-Allow-Methods', '*');
                         next();
-                    }, connect().use('/bower_components', connect.static('./bower_components')),
+                    }, 
+                    connect().use('/bower_components', connect.static('./bower_components')),
+                    connect().use('/uib/template', connect.static('./bower_components/angular-ui-bootstrap/template')),
                     connect.static('src')
                 );
                 return middlewares;

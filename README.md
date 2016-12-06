@@ -8,10 +8,11 @@ Swagger UI helps developers discovering your RESTful API by providing an online 
 
 ### Warning 
 > By default, only JSON Swagger 2.0 is supported. 
-To handle Swagger 1.2 please add module `swagger1-to-swagger2-converter` (beta) see [enable Swagger 1.2](#enable-swagger-12)
+To handle Swagger 1.2 please add module `swagger1-to-swagger2-converter` see [enable Swagger 1.2](#enable-swagger-12)
 To handle YAML please add module `swagger-yaml-parser` see [enable YAML](#enable-yaml)
 
-> Authentication is not implemented, please use modules to customize API calls
+> By default, Authorization is not supported
+To handle authorization (oauth2 is not implemented) please add module `swagger-auth` see [enable Authorization](#enable-authorization)
 
 ## Demo
 
@@ -29,6 +30,7 @@ http://orange-opensource.github.io/angular-swagger-ui
 
 1. [angularJS](https://angularjs.org)
 2. [bootstrap CSS](http://getbootstrap.com)
+3. [angular-ui-bootstrap](https://angular-ui.github.io/bootstrap/)
 
 ## License
 
@@ -228,6 +230,24 @@ You can also use `swaggerTranslator` to internationalize your app by using a ser
 ```
 
 ## Customization
+
+#### Enable authorization
+`oauth` is not implemented, only `basic` and `API key` authorizations are implemented.
+Add `swagger-auth.min.js` at the end of the body
+```html
+<body>
+ 	...
+ 	<script src="yourPathToAngularJS/angular.min.js"></script>
+ 	<script src="yourPathToAngularSwaggerUI/dist/scripts/swagger-ui.min.js"></script>
+ 	<script src="yourPathToAngularSwaggerUI/dist/scripts/modules/swagger-auth.min.js"></script>
+ 	...
+	<script type="text/javascript">
+		angular
+			.module('yourApp', ['swaggerUi', 'swaggerUiAuthorization'])
+			...
+	</script>
+</body>
+```
 
 #### Enable Swagger 1.2
 Add `swagger1-to-swagger2-converter.min.js` at the end of the body

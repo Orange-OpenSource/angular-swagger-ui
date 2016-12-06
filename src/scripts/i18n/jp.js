@@ -60,7 +60,24 @@ angular
 				errorNoParserFound: 'No parser found for Swagger specification of type {{type}} and version {{version}}',
 				errorParseFailed: 'Swaggerスペッキをパース心配になりました : {{message}}',
 				errorJsonParse: 'JSONをパース心配なりました',
-				errorNoYamlParser: 'YAML パーサを見つかりませんでした、js-yaml libraryを追加お願いいたします'
+				errorNoYamlParser: 'YAML パーサを見つかりませんでした、js-yaml libraryを追加お願いいたします',
+				authRequired: 'Authorization required',
+				authAvailable: 'Available authorizations',
+				apiKey: 'API key authorization',
+				authParamName: 'Name',
+				authParamType: 'In',
+				authParamValue: 'Value',
+				basic: 'Basic authorization',
+				authLogin: 'Login',
+				authPassword: 'Password',
+				oauth2: 'oAuth2 authorization',
+				authOAuthDesc: 'Scopes are used to grant an application different levels of access to data on behalf of the end user. Each API may declare one or more scopes. API requires the following scopes. Select which ones you want to grant.',
+				authAuthorizationUrl: 'Authorization URL',
+				authFlow: 'Flow',
+				authTokenUrl: 'Token URL',
+				authScopes: 'Scopes',
+				authCancel: 'Cancel',
+				authAuthorize: 'Authorize'
 			});
 
 	});

@@ -12,6 +12,7 @@ angular
 
 		var modules = {};
 
+		this.AUTH = 'AUTH';
 		this.BEFORE_LOAD = 'BEFORE_LOAD';
 		this.BEFORE_PARSE = 'BEFORE_PARSE';
 		this.PARSE = 'PARSE';

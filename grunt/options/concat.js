@@ -13,6 +13,14 @@ module.exports = {
 				'dist/scripts/swagger-i18n.js',
 				'dist/scripts/i18n/en.js',
 				'dist/scripts/templates.js'
+			],
+			'dist/scripts/modules/swagger-auth.js': [
+				'dist/scripts/modules/swagger-auth.js',
+				'bower_components/angular-ui-bootstrap/src/position/position.js',
+				'bower_components/angular-ui-bootstrap/src/stackedMap/stackedMap.js',
+				'bower_components/angular-ui-bootstrap/src/modal/modal.js',
+				'dist/scripts/templates-auth.js',
+				'dist/scripts/templates-auth-deps.js'
 			]
 		}
 	},

@@ -11,6 +11,8 @@ module.exports = function(grunt) {
             'less:distuncompressed',
             'copy:dist',
             'html2js:dist',
+            'html2js:dist-auth',
+            'html2js:dist-auth-deps',
             'concat:dist',
             'ngAnnotate:dist',
             'uglify:dist',

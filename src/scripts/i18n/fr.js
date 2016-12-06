@@ -60,7 +60,24 @@ angular
 				errorNoParserFound: 'Aucun parseur trouvé pour la spécification Swagger au format {{type}} et version {{version}}',
 				errorParseFailed: 'Impossible de parser la spécification Swagger : {{message}}',
 				errorJsonParse: 'Impossible de parser le JSON',
-				errorNoYamlParser: 'Aucun parseur YAML trouvé, veuillez vérifier que la librairie js-yaml est bien chargée'
+				errorNoYamlParser: 'Aucun parseur YAML trouvé, veuillez vérifier que la librairie js-yaml est bien chargée',
+				authRequired: 'Authentification requise',
+				authAvailable: 'Authentifications disponibles',
+				apiKey: 'Clé d\'API',
+				authParamName: 'Nom',
+				authParamType: 'Dans',
+				authParamValue: 'Valeur',
+				basic: 'Basic',
+				authLogin: 'Identifiant',
+				authPassword: 'Mot de passe',
+				oauth2: 'oAuth2',
+				authOAuthDesc: 'Les scopes sont utilisés pour autoriser une application à accéder aux données utilisateur de différants niveaux. Chaque API peut déclarer un ou plusieurs scopes. Cette API requiert les scopes suivants. Selectionnez ceux dont vous voulez l\'accès.',
+				authAuthorizationUrl: 'URL d\'authorisation',
+				authFlow: 'Séquence',
+				authTokenUrl: 'URL du jeton',
+				authScopes: 'Scopes',
+				authCancel: 'Annuler',
+				authAuthorize: 'Valider'
 			});
 
 	});

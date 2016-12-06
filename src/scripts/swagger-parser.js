@@ -124,6 +124,7 @@ angular
 					};
 					operation.httpMethod = httpMethod;
 					operation.path = path;
+					operation.security = operation.security || swagger.security;
 					parseParameters(swagger, operation, pathParameters, form, defaultContentType);
 					parseResponses(swagger, operation);
 					operation.tags = operation.tags || ['default'];

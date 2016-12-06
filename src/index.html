@@ -31,6 +31,9 @@
     <!-- dependencies -->
     <script src="bower_components/angular/angular.min.js"></script>
     <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+    <script src="bower_components/angular-ui-bootstrap/src/position/position.js"></script>
+    <script src="bower_components/angular-ui-bootstrap/src/stackedMap/stackedMap.js"></script>
+    <script src="bower_components/angular-ui-bootstrap/src/modal/modal.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.6.1/js-yaml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
 
@@ -45,12 +48,13 @@
     <script src="scripts/modules/swagger1-to-swagger2-converter.js"></script>
     <script src="scripts/modules/swagger-yaml-parser.js"></script>
     <script src="scripts/modules/swagger-markdown.js"></script>
+    <script src="scripts/modules/swagger-auth.js"></script>
     <script src="scripts/i18n/en.js"></script>
     <script src="scripts/i18n/fr.js"></script>
 
     <script type="text/javascript">
         angular
-            .module('myApp', ['swaggerUi'])
+            .module('myApp', ['swaggerUi', 'swaggerUiAuthorization'])
             .config(function(swaggerTranslatorProvider) {
                 swaggerTranslatorProvider
                     .setLanguage('en')

@@ -82,6 +82,26 @@ angular
 				}
 			}
 
+			// authorization
+			var authParams = operation.authParams;
+			if (authParams) {
+				switch (authParams.type) {
+					case 'apiKey':
+						switch (authParams.in) {
+							case 'header':
+								headers[authParams.name] = authParams.apiKey;
+								break;
+							case 'query':
+								query[authParams.name] = authParams.apiKey;
+								break;
+						}
+						break;
+					case 'basic':
+						headers.Authorization = 'Basic ' + btoa(authParams.login + ':' + authParams.password);
+						break;
+				}
+			}
+
 			// add headers
 			headers.Accept = values.responseType;
 			headers['Content-Type'] = body ? values.contentType : 'text/plain';
