@@ -75,20 +75,27 @@ angular
 		 * generates a sample object (request body or response body)
 		 */
 		function getSampleObj(swagger, schema, currentGenerated) {
-			var sample;
+			var sample, def, name, prop;
 			currentGenerated = currentGenerated || {}; // used to handle circular references
 			schema = resolveAllOf(swagger, schema);
 			if (schema.default || schema.example) {
 				sample = schema.default || schema.example;
 			} else if (schema.properties) {
 				sample = {};
-				for (var name in schema.properties) {
-					var prop = schema.properties[name];
+				for (name in schema.properties) {
+					prop = schema.properties[name];
 					sample[name] = getSampleObj(swagger, prop.schema || prop, currentGenerated);
 				}
+			} else if (schema.additionalProperties) {
+				// this is a map/dictionary
+				// @see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#model-with-mapdictionary-properties
+				def = resolveReference(swagger, schema.additionalProperties);
+				sample = {
+					'string': getSampleObj(swagger, def, currentGenerated)
+				};
 			} else if (schema.$ref) {
 				// complex object
-				var def = resolveReference(swagger, schema);
+				def = resolveReference(swagger, schema);
 				if (def) {
 					if (!objCache[schema.$ref] && !currentGenerated[schema.$ref]) {
 						// object not in cache
@@ -98,6 +105,7 @@ angular
 					sample = objCache[schema.$ref] || {};
 				} else {
 					console.warn('schema not found', schema.$ref);
+					sample = schema.$ref;
 				}
 			} else if (schema.type === 'array') {
 				sample = [getSampleObj(swagger, schema.items, currentGenerated)];
@@ -253,6 +261,8 @@ angular
 				buffer.push('<div><strong>}</strong></div>');
 				buffer.push(submodels.join(''), '</div>');
 				model = buffer.join('');
+			} else if (schema.additionalProperties) {
+				//TODO ??
 			} else if (schema.$ref) {
 				className = getClassName(schema);
 				def = resolveReference(swagger, schema);
