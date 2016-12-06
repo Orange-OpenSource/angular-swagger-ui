@@ -106,7 +106,7 @@ angular
 			headers.Accept = values.responseType;
 			headers['Content-Type'] = body ? values.contentType : 'text/plain';
 
-			// build request
+		    // build request
 			var basePath = swagger.basePath || '',
 				baseUrl = [
 					swagger.schemes[0],
