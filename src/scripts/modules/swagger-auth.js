@@ -14,7 +14,6 @@ angular
 		 * Module entry point
 		 */
 		this.execute = function(operation, auth) {
-			console.log(auth)
 			var deferred = $q.defer();
 			$uibModal.open({
 				templateUrl: 'templates/modal-auth.html',
