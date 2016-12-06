@@ -14,9 +14,11 @@ module.exports = function(grunt) {
     grunt.log.writeln(' $0');
     grunt.log.writeln('     dev     develop swagger-ui');
     grunt.log.writeln('     prod    build swagger-ui');
+    grunt.log.writeln('     version update version number');
     grunt.log.writeln('');
-    grunt.log.writeln(' $1 (optional) for dev & prod');
+    grunt.log.writeln(' $1 (optional) for dev & prod, (required for version)');
     grunt.log.writeln('     server          webserver on 127.0.0.1');
+    grunt.log.writeln('     x.x.x           version will be replaced in aff required files');
     grunt.log.writeln('');
 
     /**
