@@ -16,7 +16,7 @@ angular
 		this.execute = function(operation, auth) {
 			var deferred = $q.defer();
 			$uibModal.open({
-				templateUrl: 'templates/modal-auth.html',
+				templateUrl: 'templates/auth/modal-auth.html',
 				controller: 'SwaggerUiModalAuthCtrl',
 				backdrop: true,
 				resolve: {
