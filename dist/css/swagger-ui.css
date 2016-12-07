@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.3.4
+ * Orange angular-swagger-ui - v0.3.5
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -83,6 +83,23 @@
 }
 .swagger-ui .operation .content-type label {
   margin-right: 5px;
+}
+.swagger-ui .operation .auth-required {
+  background: #d9534f;
+  color: #fff;
+  float: right;
+  width: 20px;
+  height: 20px;
+  padding: 6px;
+  border: 0;
+  border-radius: 10px;
+  line-height: 5px;
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+}
+.swagger-ui .operation .auth-required.valid {
+  background: #337ab7;
 }
 .swagger-ui .operation .content {
   padding: 10px;
@@ -299,6 +316,35 @@
 .swagger-ui .bold,
 .swagger-ui .bold label {
   font-weight: bold !important;
+}
+.swagger-auth-modal {
+  padding: 0 20px 20px;
+}
+.swagger-auth-modal span.form-control {
+  border: 0;
+  box-shadow: none;
+}
+.swagger-auth-modal .buttons {
+  text-align: center;
+}
+.swagger-auth-modal .form-group {
+  margin-bottom: 5px;
+}
+.swagger-auth-modal .form-group:last-child {
+  margin-bottom: 15px;
+}
+.swagger-auth-modal li a {
+  cursor: pointer;
+  color: #999;
+  font-size: 1.2em;
+}
+.swagger-auth-modal li.active a {
+  color: #337ab7;
+}
+.swagger-auth-modal .scope-desc {
+  font-style: italic;
+  padding-left: 20px;
+  color: #999;
 }
 [dir='rtl'] .swagger-ui th {
   text-align: right;
