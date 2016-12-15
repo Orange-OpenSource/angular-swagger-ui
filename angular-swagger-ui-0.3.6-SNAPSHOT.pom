@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <packaging>jar</packaging>
+    <groupId>org.webjars.bower</groupId>
+    <artifactId>angular-swagger-ui</artifactId>
+    <version>0.3.6-SNAPSHOT</version>
+    <name>angular-swagger-ui</name>
+    <description>WebJar for angular-swagger-ui</description>
+    <url>http://webjars.org</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <scm>
+        <url>https://github.com/Orange-OpenSource/angular-swagger-ui</url>
+        <connection>https://github.com/Orange-OpenSource/angular-swagger-ui.git</connection>
+        <developerConnection>https://github.com/Orange-OpenSource/angular-swagger-ui.git</developerConnection>
+        <tag>v0.3.5</tag>
+    </scm>
+
+    <developers>
+        <developer>
+            <id>webjars</id>
+            <url>http://webjars.org</url>
+        </developer>
+    </developers>
+
+    <licenses>
+        
+        <license>
+            <name>MIT</name>
+            <url>https://spdx.org/licenses/MIT#licenseText</url>
+            <distribution>repo</distribution>
+        </license>
+        
+    </licenses>
+
+    <dependencies>
+        
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>angular</artifactId>
+            <version>[1,2)</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>angular-sanitize</artifactId>
+            <version>[1,2)</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>angular-ui-bootstrap</artifactId>
+            <version>[1.3,1.4)</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>bootstrap-less-only</artifactId>
+            <version>[3.3,3.4)</version>
+        </dependency>
+        
+    </dependencies>
+
+</project>
