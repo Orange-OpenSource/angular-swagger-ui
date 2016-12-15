@@ -1,8 +1,8 @@
-### 0.3.5 (2016-xx-xx)
+### 0.3.5 (2016-12-15)
 
  * Fix basePath issue (#46)
  * Fix secondary tags (#61)
- * Create module to allow authorizations by API key or Basic auth for Swagger 2.0 specifications
+ * Create module to allow authorizations by API key or Basic auth for Swagger 2.0 specifications (#38)
 
 ### 0.3.4 (2016-11-21)
 
