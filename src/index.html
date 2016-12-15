@@ -80,10 +80,10 @@
                 $scope.isLoading = false;
                 $scope.url = $scope.swaggerUrl = 'http://petstore.swagger.io/v2/swagger.json';
                 // error management
-                $scope.myErrorHandler = function(data, status){
+                $scope.myErrorHandler = function(response){
                     alert(swaggerTranslator.translate('error', {
-                        message: data,
-                        code: status
+                        message: response.data,
+                        code: response.status
                     }));
                 };
                 $scope.setFr = function() {

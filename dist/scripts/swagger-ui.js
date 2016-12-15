@@ -83,11 +83,11 @@ angular
 				.execute(swaggerModules.BEFORE_LOAD, options)
 				.then(function() {
 					$http(options)
-						.success(callback)
-						.error(function(data, status) {
+						.then(callback)
+						.catch(function(response) {
 							onError({
-								code: status,
-								message: data
+								code: response.status,
+								message: response.data
 							});
 						});
 				})
@@ -183,13 +183,13 @@ angular
 						return;
 					}
 					// load Swagger specification
-					loadSwagger(url, function(data, status, headers) {
-						swagger = data;
+					loadSwagger(url, function(response) {
+						swagger = response.data;
 						// execute modules
 						swaggerModules
 							.execute(swaggerModules.BEFORE_PARSE, url, swagger)
 							.then(function() {
-								var contentType = headers()['content-type'] || 'application/json',
+								var contentType = response.headers()['content-type'] || 'application/json',
 									swaggerType = contentType.split(';')[0];
 
 								swaggerLoaded(url, swaggerType);
@@ -433,13 +433,13 @@ angular
 					data: body,
 					params: query
 				},
-				callback = function(data, status, headers, config) {
+				callback = function(response) {
 					// execute modules
 					var response = {
-						data: data,
-						status: status,
-						headers: headers,
-						config: config
+						data: response.data,
+						status: response.status,
+						headers: response.headers,
+						config: response.config
 					};
 					swaggerModules
 						.execute(swaggerModules.AFTER_EXPLORER_LOAD, response)
@@ -454,8 +454,8 @@ angular
 				.then(function() {
 					// send request
 					$http(options)
-						.success(callback)
-						.error(callback);
+						.then(callback)
+						.catch(callback);
 				});
 
 			return deferred.promise;
