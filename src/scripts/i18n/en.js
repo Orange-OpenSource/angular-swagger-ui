@@ -24,6 +24,7 @@ angular
 				endPointExpandOperations: 'Expand operations',
 				operationDeprected: 'Warning: Deprecated',
 				operationImplementationNotes: 'Implementation notes',
+				externalDocs: 'External docs',
 				headers: 'Response headers',
 				headerName: 'Header',
 				headerDescription: 'Description',
