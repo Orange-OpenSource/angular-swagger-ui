@@ -11,7 +11,7 @@
 </head>
 <body>
     <div ng-controller="MyCtrl" class="container my-ctrl">
-        <h1><span swagger-translate="appTitle"></span> <span class="version">v0.3.5</span></h1>
+        <h1><span swagger-translate="appTitle"></span> <span class="version">v0.4.0</span></h1>
         <form name="urlForm" ng-submit="swaggerUrl=url" class="form-inline">
             <input type="text" placeholder="swagger URL" class="form-control" id="url" name="url" ng-model="url" required>
             <button type="submit" class="btn btn-primary" swagger-translate="explore"></button>
@@ -28,8 +28,8 @@
         <div swagger-ui url="swaggerUrl" loading="isLoading" api-explorer="true" trusted-sources="true" error-handler="myErrorHandler" permalinks="true"></div>
     </div>
     <!-- dependencies -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.9/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.9/angular-sanitize.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.0/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.0/angular-sanitize.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.6.1/js-yaml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
     <!-- angular-swagger-ui -->
@@ -71,10 +71,10 @@
                 $scope.isLoading = false;
                 $scope.url = $scope.swaggerUrl = 'http://petstore.swagger.io/v2/swagger.json';
                 // error management
-                $scope.myErrorHandler = function(data, status){
+                $scope.myErrorHandler = function(message, code){
                     alert(swaggerTranslator.translate('error', {
-                        message: data,
-                        code: status
+                        code: code,
+                        message: message
                     }));
                 };
                 $scope.setFr = function() {
