@@ -38,22 +38,25 @@ angular
 		}
 
 		function markdown(item) {
-			var $sanitize, 
-				desc = item.description,
-				isString = angular.isString(desc);
+			var $sanitize, desc, isString,
+				toMarkdown = [item, item.externalDocs];
 
-			if (desc) {
-				if (desc.$$unwrapTrustedValue) {
-					// looks like it's a trusted source (@see $sce)
-					desc = desc.toString();
-				} else if (isString && $injector.has('$sanitize')) {
-					$sanitize = $injector.get('$sanitize');
-					desc = $sanitize(desc);
+			angular.forEach(toMarkdown, function(obj) {
+				desc = obj && obj.description;
+				if (desc) {
+					isString = angular.isString(desc);
+					if (desc.$$unwrapTrustedValue) {
+						// looks like it's a trusted source (@see $sce)
+						desc = desc.toString();
+					} else if (isString && $injector.has('$sanitize')) {
+						$sanitize = $injector.get('$sanitize');
+						desc = $sanitize(desc);
+					}
+					if (angular.isString(desc) && desc !== '') {
+						obj.description = $sce.trustAsHtml($window.marked(desc));
+					}
 				}
-				if (angular.isString(desc) && desc !== '') {
-					item.description = $sce.trustAsHtml($window.marked(desc));
-				}
-			}
+			});
 		}
 
 	})

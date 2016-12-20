@@ -3,6 +3,10 @@
 		<h3 ng-bind="infos.title"></h3>
 	</div>
 	<div class="api-description" ng-bind-html="infos.description"></div>
+	<div class="external-docs" ng-if="infos.externalDocs">
+		<span ng-bind-html="infos.externalDocs.description"></span>
+		<a target="_blank" ng-href="{{infos.externalDocs.url}}">{{infos.externalDocs.url}}</span></a>
+	</div>
 	<div class="api-infos">
 		<div class="api-infos-contact" ng-if="infos.contact">
 			<div ng-if="infos.contact.name" class="api-infos-contact-name"><span swagger-translate="infoContactCreatedBy" swagger-translate-value="infos.contact"></span></div>

@@ -24,6 +24,7 @@ angular
 				endPointExpandOperations: '機能詳しく説明',
 				operationDeprected: 'ワーニング: 亡くなった機能',
 				operationImplementationNotes: '連携方法説明',
+				externalDocs: '外部ドキュメント',
 				headers: 'レスポンスヘッダ',
 				headerName: 'ヘッダ',
 				headerDescription: '説明',

@@ -75,6 +75,7 @@ angular
 			infos.basePath = swagger.basePath;
 			infos.host = swagger.host;
 			infos.description = trustHtml(infos.description);
+			infos.externalDocs = swagger.externalDocs;
 		}
 
 		/**
