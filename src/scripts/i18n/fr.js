@@ -24,7 +24,7 @@ angular
 				endPointExpandOperations: 'Ouvrir les opérations',
 				operationDeprected: 'Attention: Obsolète',
 				operationImplementationNotes: 'Notes d\'implementation',
-				externalDocs: 'Documents externes',
+				externalDocs: 'Documentation externe',
 				headers: 'Entêtes de la réponse',
 				headerName: 'Entêtes',
 				headerDescription: 'Description',

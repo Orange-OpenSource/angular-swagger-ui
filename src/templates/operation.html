@@ -12,13 +12,14 @@
 	<div ng-if="op.description">
 		<h5 swagger-translate="operationImplementationNotes"></h5>
 		<p ng-bind-html="op.description"></p>
-	</div>
-  <div ng-if="op.externalDocs">
-    <h5 swagger-translate="externalDocs"></h5>
-    <a target="_blank" ng-href="{{op.externalDocs.url}}">{{op.externalDocs.description}}</span></a>
-  </div>
+    </div>
+    <div ng-if="op.externalDocs">
+        <h5 swagger-translate="externalDocs"></h5>
+        <span ng-bind-html="op.externalDocs.description"></span>
+        <a target="_blank" ng-href="{{op.externalDocs.url}}" ng-bind="op.externalDocs.url"></span></a>
+    </div>
     <button ng-if="op.security.length>0" ng-click="auth(op)" class="auth-required" ng-class="{valid:authValid(op)}" title="{{'authRequired'|swaggerTranslate}}">!</button>
-	<form role="form" name="explorerForm" ng-submit="explorerForm.$valid&&submitExplorer(op)">
+    <form role="form" name="explorerForm" ng-submit="explorerForm.$valid&&submitExplorer(op)">
     	<div ng-if="op.responseClass" class="response">
     		<h5 swagger-translate="responseClass" swagger-translate-value="op.responseClass"></h5>
     		<div ng-if="op.responseClass.display!=-1">
