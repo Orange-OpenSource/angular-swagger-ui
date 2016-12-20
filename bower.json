@@ -29,8 +29,8 @@
         "dist/css/swagger-ui.min.css"
     ],
     "dependencies": {
-        "angular": "~1",
-        "angular-sanitize": "~1",
+        "angular": ">=1.5.0 <2",
+        "angular-sanitize": ">=1.5.0 <2",
         "angular-ui-bootstrap": "~1.3",
         "bootstrap-less-only": "~3.3"
     }

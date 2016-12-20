@@ -38,8 +38,8 @@ angular
 				.execute(swaggerModules.BEFORE_LOAD, options)
 				.then(function() {
 					$http(options)
-						.success(deferred.resolve)
-						.error(deferred.reject);
+						.then(deferred.resolve)
+						.catch(deferred.reject);
 				})
 				.catch(deferred.reject);
 
