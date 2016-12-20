@@ -1,3 +1,7 @@
+### 0.4.0 (2016-12-20)
+
+ * Support angularJS 1.6 (#66)
+
 ### 0.3.5 (2016-12-15)
 
  * Fix basePath issue (#46)
