@@ -7,12 +7,12 @@ Swagger helps you documenting your RESTful API.
 Swagger UI helps developers discovering your RESTful API by providing an online documentation with an integrated API explorer.
 
 ### Warning 
-> By default, only JSON Swagger 2.0 is supported. 
-To handle Swagger 1.2 please add module `swagger1-to-swagger2-converter` see [enable Swagger 1.2](#enable-swagger-12)
+> By default, only JSON Swagger 2.0 is supported.
+To handle Swagger 1.2 please add module `swagger1-to-swagger2-converter` see [enable Swagger 1.2](#enable-swagger-12).
 To handle YAML please add module `swagger-yaml-parser` see [enable YAML](#enable-yaml)
 
-> By default, Authorization is not supported
-To handle authorization (oauth2 is not implemented) please add module `swagger-auth` see [enable Authorization](#enable-authorization)
+> By default, Authorization is not supported.
+To handle authorization (oauth2 is not implemented) please add module `swagger-auth` see [enable authorization](#enable-authorization)
 
 ## Demo
 
