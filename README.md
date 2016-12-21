@@ -8,11 +8,11 @@ Swagger UI helps developers discovering your RESTful API by providing an online 
 
 ### Warning 
 > By default, only JSON Swagger 2.0 is supported.
-To handle Swagger 1.2 please add module `swagger1-to-swagger2-converter` see [enable Swagger 1.2](#enable-swagger-12).
-To handle YAML please add module `swagger-yaml-parser` see [enable YAML](#enable-yaml)
+To handle Swagger 1.2 please add module `swagger1-to-swagger2-converter` see [Enable Swagger 1.2](#enable-swagger-12).
+To handle YAML please add module `swagger-yaml-parser` see [Enable YAML](#enable-yaml)
 
 > By default, Authorization is not supported.
-To handle authorization (oauth2 is not implemented) please add module `swagger-auth` see [enable authorization](#enable-authorization)
+To handle authorization (oauth2 is not implemented) please add module `swagger-auth` see [Enable authorization](#enable-authorization)
 
 ## Demo
 
@@ -261,7 +261,7 @@ Add `swagger1-to-swagger2-converter.min.js` at the end of the body
 ```
 
 #### Enable Swagger external references
-See [Swagger 2.0 spec](https://github.com/swagger-api/swagger-spec/blob/master/versions/2.0.md#relative-schema-file-example).
+See [Swagger 2.0 spec](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#relative-schema-file-example).
 Add `swagger-external-references.min.js` at the end of the body
 ```html
 <body>
