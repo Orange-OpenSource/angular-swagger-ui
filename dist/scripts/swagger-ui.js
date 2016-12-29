@@ -285,9 +285,9 @@ angular
 				for (key in sec) {
 					auth = swagger.securityDefinitions[key];
 					if (auth.valid) {
-						operation.authParams = auth;
+						operation.authParams = angular.copy(auth);
 						operation.authParams.scopes = sec[key];
-						return true;
+						return true
 					}
 				}
 			}
