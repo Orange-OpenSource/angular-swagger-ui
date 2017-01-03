@@ -259,7 +259,8 @@ angular
 		 * handle operation's authentication params
 		 */
 		$scope.auth = function(operation) {
-			var i = 0, sec, key, auth = [], 
+			var i = 0,
+				sec, key, auth = [],
 				security = operation.security;
 
 			for (; i < security.length; i++) {
@@ -277,7 +278,8 @@ angular
 		 * check if operation's authorization params are set
 		 */
 		$scope.authValid = function(operation) {
-			var i = 0, sec, auth, key,
+			var i = 0,
+				sec, auth, key,
 				security = operation.security;
 
 			for (; i < security.length; i++) {
@@ -285,7 +287,7 @@ angular
 				for (key in sec) {
 					auth = swagger.securityDefinitions[key];
 					if (auth.valid) {
-						operation.authParams = auth;
+						operation.authParams = angular.copy(auth);
 						operation.authParams.scopes = sec[key];
 						return true;
 					}

@@ -34,10 +34,13 @@ angular
 
 	})
 	.controller('SwaggerUiModalAuthCtrl', function($scope, operation, auth) {
+		
 		$scope.form = {};
 		$scope.auth = auth;
 		$scope.tab = 0;
+
 		var authParams = operation.authParams || auth[0];
+
 		if (authParams) {
 			switch (authParams.type) {
 				case 'apiKey':
