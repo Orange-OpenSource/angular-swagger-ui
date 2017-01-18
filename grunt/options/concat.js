@@ -58,6 +58,10 @@ module.exports = {
 				'copyright.txt',
 				'dist/scripts/modules/swagger-markdown.min.js'
 			],
+			'dist/scripts/modules/swagger-auth.min.js': [
+				'copyright.txt',
+				'dist/scripts/modules/swagger-auth.min.js'
+			],
 			'dist/scripts/i18n/fr.min.js': [
 				'copyright.txt',
 				'dist/scripts/i18n/fr.min.js'
