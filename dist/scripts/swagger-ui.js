@@ -289,7 +289,7 @@ angular
 					if (auth.valid) {
 						operation.authParams = angular.copy(auth);
 						operation.authParams.scopes = sec[key];
-						return true;
+						return true
 					}
 				}
 			}
