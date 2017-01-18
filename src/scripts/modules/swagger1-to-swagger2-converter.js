@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.4.0
+ * Orange angular-swagger-ui - v0.4.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -77,10 +77,10 @@ angular
 					swaggerModules
 						.execute(swaggerModules.BEFORE_CONVERT, results)
 						.then(function() {
-							angular.forEach(results, function(swagger1) {
-								convertInfos(swagger1, swagger2);
-								convertOperations(swagger1, swagger2);
-								convertModels(swagger1, swagger2);
+							angular.forEach(results, function(response) {
+								convertInfos(response.data, swagger2);
+								convertOperations(response.data, swagger2);
+								convertModels(response.data, swagger2);
 							});
 							swagger2.swagger = '2.0';
 							deferred.resolve(true); // success
