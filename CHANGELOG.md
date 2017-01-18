@@ -1,4 +1,4 @@
-### 0.4.1 (2017-xx-xx)
+### 0.4.1 (2017-01-18)
 
  * Fix overriting security definitions (#69)
  * Fix swagger1-to-swagger2-converter when using angular 1.6
