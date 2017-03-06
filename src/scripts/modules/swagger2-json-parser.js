@@ -200,7 +200,7 @@ angular
 			if (operation.responses) {
 				for (code in operation.responses) {
 					//TODO manage response headers
-					response = operation.responses[code];
+					response = operation.responses[code] = swaggerModel.resolveReference(swagger, operation.responses[code]);
 					response.description = trustHtml(response.description);
 					if (response.schema) {
 						response.schema.json = response.examples && response.examples[operation.produces[0]] || swaggerModel.generateSampleJson(swagger, response.schema);
