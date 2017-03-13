@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi')
-	.service('swaggerClient', function($q, $http, swaggerModules) {
+	.service('swaggerClient', function($q, $http, $httpParamSerializer, swaggerModules) {
 
 		/**
 		 * format API explorer response before display
@@ -45,6 +45,7 @@ angular
 				query = {},
 				headers = {},
 				path = operation.path,
+				urlEncoded = values.contentType === 'application/x-www-form-urlencoded',
 				body;
 
 			// build request parameters
@@ -68,12 +69,16 @@ angular
 						}
 						break;
 					case 'formData':
-						body = body || new FormData();
+						body = body || (urlEncoded ? {} : new FormData());
 						if (!!value) {
 							if (param.type === 'file') {
 								values.contentType = undefined; // make browser defining it by himself
 							}
-							body.append(param.name, value);
+							if (urlEncoded) {
+								body[param.name] = value;
+							} else {
+								body.append(param.name, value);
+							}
 						}
 						break;
 					case 'body':
@@ -118,16 +123,16 @@ angular
 					method: operation.httpMethod,
 					url: baseUrl + path,
 					headers: headers,
-					data: body,
+					data: urlEncoded ? $httpParamSerializer(body) : body,
 					params: query
 				},
-				callback = function(response) {
+				callback = function(result) {
 					// execute modules
 					var response = {
-						data: response.data,
-						status: response.status,
-						headers: response.headers,
-						config: response.config
+						data: result.data,
+						status: result.status,
+						headers: result.headers,
+						config: result.config
 					};
 					swaggerModules
 						.execute(swaggerModules.AFTER_EXPLORER_LOAD, response)

@@ -208,9 +208,13 @@ angular
 					param.schema.json = swaggerModel.generateSampleJson(swagger, param.schema);
 					param.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, param.schema));
 				}
-				if (param.in === 'body' || param.in === 'formData') {
-					operation.consumes = operation.consumes || swagger.consumes;
-					form[operationId].contentType = operation.consumes && operation.consumes[0] || defaultContentType;
+				// fix consumes
+				if (param.in === 'body') {
+					operation.consumes = operation.consumes || swagger.consumes || [defaultContentType];
+					form[operationId].contentType = operation.consumes && operation.consumes[0];
+				} else if (param.in === 'formData') {
+					operation.consumes = operation.consumes || [param.subtype === 'file' ? 'multipart/form-data' : 'application/x-www-form-urlencoded'];
+					form[operationId].contentType = operation.consumes && operation.consumes[0];
 				}
 				paramId++;
 			}
