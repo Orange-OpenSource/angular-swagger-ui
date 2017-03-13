@@ -33,6 +33,9 @@ angular
 					angular.forEach(operation.parameters, function(parameter) {
 						markdown(parameter);
 					});
+					angular.forEach(operation.responses, function(response) {
+						markdown(response);
+					});
 				});
 			});
 		}
