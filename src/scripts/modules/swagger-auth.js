@@ -14,27 +14,34 @@ angular
 		 * Module entry point
 		 */
 		this.execute = function(operation, auth) {
-			var deferred = $q.defer();
-			$uibModal.open({
-				templateUrl: 'templates/auth/modal-auth.html',
-				controller: 'SwaggerUiModalAuthCtrl',
-				backdrop: true,
-				resolve: {
-					auth: function() {
-						return auth;
-					},
-					operation: function() {
-						return operation;
+			var deferred = $q.defer(),
+				modalInstance = $uibModal.open({
+					templateUrl: 'templates/auth/modal-auth.html',
+					controller: 'SwaggerUiModalAuthCtrl',
+					backdrop: true,
+					resolve: {
+						auth: function() {
+							return auth;
+						},
+						operation: function() {
+							return operation;
+						}
 					}
-				}
+				});
+
+			modalInstance.result.then(function() {
+				// validated, do nothing
+			}, function() {
+				// dismissed, do nothing
 			});
+
 			deferred.resolve(true);
 			return deferred.promise;
 		};
 
 	})
 	.controller('SwaggerUiModalAuthCtrl', function($scope, operation, auth) {
-		
+
 		$scope.form = {};
 		$scope.auth = auth;
 		$scope.tab = 0;

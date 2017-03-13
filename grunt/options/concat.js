@@ -14,13 +14,18 @@ module.exports = {
 				'dist/scripts/i18n/en.js',
 				'dist/scripts/templates.js'
 			],
-			'dist/scripts/modules/swagger-auth.js': [
+			'dist/scripts/modules/swagger-auth-ui-bootstrap-modal.js': [
 				'dist/scripts/modules/swagger-auth.js',
 				'bower_components/angular-ui-bootstrap/src/position/position.js',
+				'bower_components/angular-ui-bootstrap/src/multiMap/multiMap.js',
 				'bower_components/angular-ui-bootstrap/src/stackedMap/stackedMap.js',
 				'bower_components/angular-ui-bootstrap/src/modal/modal.js',
 				'dist/scripts/templates-auth.js',
 				'dist/scripts/templates-auth-deps.js'
+			],
+			'dist/scripts/modules/swagger-auth.js': [
+				'dist/scripts/modules/swagger-auth.js',
+				'dist/scripts/templates-auth.js'
 			]
 		}
 	},
@@ -61,6 +66,10 @@ module.exports = {
 			'dist/scripts/modules/swagger-auth.min.js': [
 				'copyright.txt',
 				'dist/scripts/modules/swagger-auth.min.js'
+			],
+			'dist/scripts/modules/swagger-auth-ui-bootstrap-modal.min.js': [
+				'copyright.txt',
+				'dist/scripts/modules/swagger-auth-ui-bootstrap-modal.min.js'
 			],
 			'dist/scripts/i18n/fr.min.js': [
 				'copyright.txt',

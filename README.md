@@ -30,7 +30,7 @@ http://orange-opensource.github.io/angular-swagger-ui
 
 1. [angularJS](https://angularjs.org)
 2. [bootstrap CSS](http://getbootstrap.com)
-3. [angular-ui-bootstrap](https://angular-ui.github.io/bootstrap/)
+3. [angular-ui-bootstrap](https://angular-ui.github.io/bootstrap/) (required only if using [Authorization](#enable-authorization))
 
 ## License
 
@@ -239,7 +239,9 @@ Add `swagger-auth.min.js` at the end of the body
  	...
  	<script src="yourPathToAngularJS/angular.min.js"></script>
  	<script src="yourPathToAngularSwaggerUI/dist/scripts/swagger-ui.min.js"></script>
- 	<script src="yourPathToAngularSwaggerUI/dist/scripts/modules/swagger-auth.min.js"></script>
+ 	<script src="yourPathToAngularSwaggerUI/dist/scripts/modules/swagger-auth.min.js"></script><!-- without angular-ui-bootstrap modal embedded -->
+ 	OR
+ 	<script src="yourPathToAngularSwaggerUI/dist/scripts/modules/swagger-auth-ui-boostrap-modal.min.js"></script><!-- angular-ui-bootstrap modal embedded -->
  	...
 	<script type="text/javascript">
 		angular

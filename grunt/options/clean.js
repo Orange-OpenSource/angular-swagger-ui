@@ -28,6 +28,7 @@ module.exports = {
 				'dist/scripts/modules/swagger-yaml-parser.js',
 				'dist/scripts/modules/swagger-markdown.js',
 				'dist/scripts/modules/swagger-auth.js',
+				'dist/scripts/modules/swagger-auth-ui-bootstrap-modal.js',
 				'dist/scripts/templates-auth.js',
 				'dist/scripts/templates-auth-deps.js',
 				'dist/scripts/i18n/en.js',
