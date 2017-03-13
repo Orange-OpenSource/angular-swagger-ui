@@ -13,12 +13,7 @@ angular
 		/**
 		 * sample object cache to avoid generating the same one multiple times
 		 */
-		var objCache = {};
-
-		/**
-		 * model cache to avoid generating the same one multiple times
-		 */
-		var modelCache = {};
+		var sampleCache = {};
 
 		/**
 		 * retrieves object definition
@@ -49,14 +44,6 @@ angular
 			}
 			return format || item.type;
 		};
-
-		/**
-		 * retrieves object class name based on $ref
-		 */
-		function getClassName(item) {
-			var parts = item.$ref.split('/');
-			return parts[parts.length - 1];
-		}
 
 		/**
 		 * handles allOf property of a schema
@@ -97,12 +84,12 @@ angular
 				// complex object
 				def = resolveReference(swagger, schema);
 				if (def) {
-					if (!objCache[schema.$ref] && !currentGenerated[schema.$ref]) {
+					if (!sampleCache[schema.$ref] && !currentGenerated[schema.$ref]) {
 						// object not in cache
 						currentGenerated[schema.$ref] = true;
-						objCache[schema.$ref] = getSampleObj(swagger, def, currentGenerated);
+						sampleCache[schema.$ref] = getSampleObj(swagger, def, currentGenerated);
 					}
-					sample = objCache[schema.$ref] || {};
+					sample = sampleCache[schema.$ref] || {};
 				} else {
 					console.warn('schema not found', schema.$ref);
 					sample = schema.$ref;
@@ -170,141 +157,201 @@ angular
 		};
 
 		/**
-		 * inline model counter
+		 * retrieves object class name based on $ref
 		 */
-		var countInLine = 0;
+		function getClassName(schema) {
+			var parts = schema.$ref.split('/');
+			return parts[parts.length - 1];
+		}
 
 		/**
-		 * generates object's model
+		 * inline model counter
 		 */
-		var generateModel = this.generateModel = function(swagger, schema, modelName, currentGenerated) {
-			var model = '',
-				buffer,
-				submodels,
-				propertyName,
-				property,
-				hasProperties = false,
-				name,
-				className,
-				def,
-				sub;
+		var countInLineModels = 1;
 
-			currentGenerated = currentGenerated || {}; // used to handle circular references
+		/**
+		 * is model attribute required ?
+		 */
+		function isRequired(item, name) {
+			return item.required && item.required.indexOf(name) !== -1;
+		}
 
-			function isRequired(item, name) {
-				return item.required && item.required.indexOf(name) !== -1;
+		/**
+		 * generates new inline model name
+		 */
+		function getInlineModelName() {
+			var name = 'InlineModel' + (countInLineModels++);
+			return name;
+		}
+
+		/**
+		 * generate a model and its submodels from schema
+		 */
+		this.generateModel = function(swagger, schema, operationId) {
+			schema = resolveAllOf(swagger, schema);
+			var model = [],
+				subModelIds = {},
+				subModels = {};
+
+			if (schema.properties) {
+				subModels[getInlineModelName()] = schema;
+				subModels = angular.merge(subModels, findAllModels(swagger, schema, subModelIds));
+			} else {
+				subModels = findAllModels(swagger, schema, subModelIds);
 			}
 
-			function getInlineModelName() {
-				var n = 'Inline Model';
-				if (countInLine > 0) {
-					n += countInLine;
+			if (!schema.$ref && !schema.properties) {
+				model.push('<strong>', getModelProperty(schema, subModels, subModelIds, operationId), '</strong><br><br>');
+			}
+			angular.forEach(subModels, function(schema, modelName) {
+				model.push(getModel(swagger, schema, modelName, subModels, subModelIds, operationId));
+			});
+			return model.join('');
+		};
+
+		/**
+		 * find all models to generate
+		 */
+		function findAllModels(swagger, schema, subModelIds, modelName, onGoing) {
+			var models = {};
+			if (modelName) {
+				onGoing = onGoing || {}; // used to handle circular definitions
+				if (onGoing[modelName]) {
+					return models;
 				}
-				countInLine++;
-				return n;
+				onGoing[modelName] = true;
 			}
-
 			schema = resolveAllOf(swagger, schema);
 			if (schema.properties) {
-				modelName = modelName || getInlineModelName();
-				currentGenerated[modelName] = true;
-				buffer = ['<div><strong>' + modelName + ' {</strong>'];
-				submodels = [];
-				for (propertyName in schema.properties) {
+				angular.forEach(schema.properties, function(property) {
+					inspectSubModel(swagger, property, models, subModelIds, onGoing);
+				});
+			} else if (schema.schema || schema.$ref) {
+				var subSchema = schema.schema || schema,
+					def = resolveReference(swagger, subSchema),
+					subPropertyModelName = getClassName(subSchema);
+
+				models[subPropertyModelName] = def;
+				subModelIds[subPropertyModelName] = countModel++;
+				angular.merge(models, findAllModels(swagger, def, subModelIds, subPropertyModelName, onGoing));
+			} else if (schema.type === 'array') {
+				inspectSubModel(swagger, schema.items, models, subModelIds, onGoing);
+			} else if (schema.additionalProperties) {
+				// this is a map/dictionary
+				inspectSubModel(swagger, schema.additionalProperties, models, subModelIds, onGoing);
+			}
+			return models;
+		}
+
+		/**
+		 * look for submodels
+		 */
+		function inspectSubModel(swagger, schema, models, subModelIds, onGoing) {
+			var inlineModelName = generateInlineModel(schema, models, subModelIds);
+			angular.merge(models, findAllModels(swagger, schema, subModelIds, inlineModelName, onGoing));
+		}
+
+		/**
+		 * generates an inline model if needed
+		 */
+		function generateInlineModel(subProperty, models, subModelIds) {
+			var subModelName;
+			if (subProperty.properties) {
+				subModelName = getInlineModelName();
+				subProperty.modelName = subModelName;
+				subModelIds[subModelName] = countModel++;
+				models[subModelName] = subProperty;
+			}
+			return subModelName;
+		}
+
+		/**
+		 * generates an HTML link to a submodel
+		 */
+		function getSubModelLink(operationId, modelId, name) {
+			return ['<a class="model-link type" onclick="swaggerlink(\'', operationId, '-model-', modelId, '\')">', name, '</a>'].join('');
+		}
+
+		/**
+		 * model counter
+		 */
+		var countModel = 0;
+
+		/**
+		 * generates a single model in HTML
+		 */
+		function getModel(swagger, schema, modelName, subModels, subModelIds, operationId) {
+			var buffer = ['<div class="model" id="', operationId, '-model-', subModelIds[modelName], '">'];
+			if (schema.properties) {
+				buffer.push('<div><strong>' + modelName + ' {</strong></div>');
+				var hasProperties = false;
+				angular.forEach(schema.properties, function(property, propertyName) {
 					hasProperties = true;
-					property = schema.properties[propertyName];
 					buffer.push('<div class="pad"><strong>', propertyName, '</strong> (<span class="type">');
-					// build type
-					if (property.properties) {
-						name = getInlineModelName();
-						buffer.push(name);
-						submodels.push(generateModel(swagger, property, name, currentGenerated));
-					} else if (property.schema || property.$ref) {
-						buffer.push(getClassName(property.schema || property));
-						submodels.push(generateModel(swagger, property.schema || property, null, currentGenerated));
-					} else if (property.type === 'array') {
-						buffer.push('Array[');
-						if (property.items.properties) {
-							name = getInlineModelName();
-							buffer.push(name);
-							submodels.push(generateModel(swagger, property, name, currentGenerated));
-						} else if (property.items.$ref) {
-							buffer.push(getClassName(property.items));
-							submodels.push(generateModel(swagger, property.items, null, currentGenerated));
-						} else {
-							buffer.push(getType(property.items));
-						}
-						buffer.push(']');
-					} else {
-						buffer.push(getType(property));
-					}
+					buffer.push(getModelProperty(property, subModels, subModelIds, operationId));
 					buffer.push('</span>');
-					// is required ?
 					if (!isRequired(schema, propertyName)) {
 						buffer.push(', ', '<em>' + swaggerTranslator.translate('modelOptional') + '</em>');
 					}
 					buffer.push(')');
-					// has description
 					if (property.description) {
 						buffer.push(': ', property.description);
 					}
-					// is enum
 					if (property.enum) {
 						buffer.push(' = ', angular.toJson(property.enum).replace(/,/g, swaggerTranslator.translate('modelOr')));
 					}
 					buffer.push(',</div>');
-				}
+				});
 				if (hasProperties) {
 					buffer.pop();
 					buffer.push('</div>');
 				}
 				buffer.push('<div><strong>}</strong></div>');
-				buffer.push(submodels.join(''), '</div>');
-				model = buffer.join('');
-			} else if (schema.additionalProperties) {
-				//TODO ??
-			} else if (schema.$ref) {
-				className = getClassName(schema);
-				def = resolveReference(swagger, schema);
-				if (currentGenerated[className]) {
-					return ''; // already generated
-				}
-				if (def) {
-					if (!modelCache[schema.$ref]) {
-						// cache generated object
-						modelCache[schema.$ref] = generateModel(swagger, def, className, currentGenerated);
-					}
-					currentGenerated[className] = true;
-					model = modelCache[schema.$ref];
-				}
-			} else if (schema.type === 'array') {
-				buffer = ['<strong>Array ['];
-				sub = '';
-				if (schema.items.properties) {
-					name = getInlineModelName();
-					buffer.push(name);
-					sub = generateModel(swagger, schema.items, name, currentGenerated);
-				} else if (schema.items.$ref) {
-					buffer.push(getClassName(schema.items));
-					sub = generateModel(swagger, schema.items, null, currentGenerated);
-				} else {
-					buffer.push(getType(schema.items));
-				}
-				buffer.push(']</strong><br><br>', sub);
-				model = buffer.join('');
+			} else if (schema.type === 'array' || schema.additionalProperties) {
+				buffer.push(getModelProperty(schema, subModels, subModelIds, operationId));
 			} else if (schema.type === 'object') {
-				name = modelName || getInlineModelName();
-				model = '<strong>' + name + ' {<br>}</strong>';
+				buffer.push('<strong>', modelName || getInlineModelName(), ' {<br>}</strong>');
+			} else if (schema.type) {
+				buffer.push('<strong>', getType(schema), '</strong>');
 			}
-			return model;
-		};
+			buffer.push('</div>');
+			return buffer.join('');
+		}
 
 		/**
-		 * clears generated models cache
+		 * retrieves model property class
+		 */
+		function getModelProperty(property, subModels, subModelIds, operationId) {
+			var modelName, buffer = [];
+			if (property.modelName) {
+				buffer.push(getSubModelLink(operationId, subModelIds[property.modelName], property.modelName));
+			} else if (property.schema || property.$ref) {
+				modelName = getClassName(property.schema || property);
+				buffer.push(getSubModelLink(operationId, subModelIds[modelName], modelName));
+			} else if (property.type === 'array') {
+				buffer.push('Array[');
+				buffer.push(getModelProperty(property.items, subModels, subModelIds, operationId));
+				buffer.push(']');
+			} else if (property.properties) {
+				buffer.push(getSubModelLink(operationId, subModelIds[property.modelName], modelName));
+			} else if (property.additionalProperties) {
+				// this is a map/dictionary
+				buffer.push('Map&lt;string, ');
+				buffer.push(getModelProperty(property.additionalProperties, subModels, subModelIds, operationId));
+				buffer.push('&gt;');
+			} else {
+				buffer.push(getType(property));
+			}
+			return buffer.join('');
+		}
+
+		/**
+		 * clears generated samples cache
 		 */
 		this.clearCache = function() {
-			objCache = {};
-			modelCache = {};
+			sampleCache = {};
+			countModel = 0;
+			countInLineModels = 1;
 		};
 
 	});

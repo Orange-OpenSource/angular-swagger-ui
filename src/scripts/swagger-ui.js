@@ -64,7 +64,7 @@ angular
 			}
 		};
 	})
-	.controller('swaggerUiController', function($scope, $http, $location, $anchorScroll, $timeout, swaggerClient, swaggerModules, swaggerTranslator) {
+	.controller('swaggerUiController', function($scope, $window, $http, $location, $anchorScroll, $timeout, swaggerClient, swaggerModules, swaggerTranslator) {
 
 		var swagger;
 
@@ -139,7 +139,7 @@ angular
 					if ($scope.permalinks) {
 						$timeout(function() {
 							$anchorScroll();
-						}, 100);
+						}, 200);
 					}
 				})
 				.catch(onError);
@@ -233,13 +233,13 @@ angular
 			}
 		};
 
-		$scope.permalink = function(name) {
+		$window.swaggerlink = $scope.permalink = function(name) {
 			if ($scope.permalinks) {
 				$location.hash(name);
-				$timeout(function() {
-					$anchorScroll();
-				}, 50);
 			}
+			$timeout(function() {
+				$anchorScroll(name);
+			}, 50);
 		};
 
 		/**

@@ -109,7 +109,8 @@ angular
 				httpMethod,
 				operation,
 				tag,
-				resource;
+				resource,
+				openModel;
 
 			for (path in swagger.paths) {
 				pathObject = swagger.paths[path];
@@ -125,8 +126,10 @@ angular
 					operation.httpMethod = httpMethod;
 					operation.path = path;
 					operation.security = operation.security || swagger.security;
-					parseParameters(swagger, operation, pathParameters, form, defaultContentType);
-					parseResponses(swagger, operation);
+					openModel = openPath && openPath.match(new RegExp(operation.operationId + '-model-.*'));
+					openModel = openModel && openModel[0];
+					parseParameters(swagger, operation, pathParameters, form, defaultContentType, openModel);
+					parseResponses(swagger, operation, openModel);
 					operation.tags = operation.tags || ['default'];
 					// map operation to resources
 					for (i = 0; i < operation.tags.length; i++) {
@@ -140,7 +143,7 @@ angular
 						resource = resources[map[tag]];
 						resource.operations = resource.operations || [];
 						operation.id = operationId++;
-						operation.open = openPath && openPath === operation.operationId || openPath === resource.name + '*';
+						operation.open = openPath && (openPath.match(new RegExp(operation.operationId + '$|' + resource.name + '\\*$')) || openModel);
 						resource.operations.push(angular.copy(operation));
 						if (operation.open) {
 							resource.open = true;
@@ -184,9 +187,10 @@ angular
 		/**
 		 * parse operation parameters
 		 */
-		function parseParameters(swagger, operation, pathParameters, form, defaultContentType) {
+		function parseParameters(swagger, operation, pathParameters, form, defaultContentType, openModel) {
 			var i, l,
 				param,
+				model,
 				parameters = operation.parameters = computeParameters(swagger, pathParameters, operation);
 
 			for (i = 0, l = parameters.length; i < l; i++) {
@@ -204,9 +208,10 @@ angular
 				// put param into form scope
 				form[operationId][param.name] = param.default || '';
 				if (param.schema) {
-					param.schema.display = 1; // display schema
 					param.schema.json = swaggerModel.generateSampleJson(swagger, param.schema);
-					param.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, param.schema));
+					model = swaggerModel.generateModel(swagger, param.schema, operation.operationId);
+					param.schema.model = $sce.trustAsHtml(model);
+					param.schema.display = openModel && model.match(new RegExp(openModel)) ? 0 : 1;
 				}
 				// fix consumes
 				if (param.in === 'body') {
@@ -223,8 +228,9 @@ angular
 		/**
 		 * parse operation responses
 		 */
-		function parseResponses(swagger, operation) {
+		function parseResponses(swagger, operation, openModel) {
 			var code,
+				model,
 				response,
 				sampleJson;
 
@@ -239,15 +245,12 @@ angular
 							sampleJson = swaggerModel.generateSampleJson(swagger, response.schema);
 						}
 						response.schema.json = sampleJson;
-						if (response.schema.type === 'object' || response.schema.type === 'array' || response.schema.$ref) {
-							response.display = 1; // display schema
-							response.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, response.schema));
-						} else if (response.schema.type === 'string') {
-							delete response.schema;
-						}
+						model = swaggerModel.generateModel(swagger, response.schema, operation.operationId);
+						response.display = openModel && model.match(new RegExp(openModel)) ? 0 : 1;
+						response.schema.model = $sce.trustAsHtml(model);
 						if (code === '200' || code === '201') {
 							operation.responseClass = response;
-							operation.responseClass.display = 1;
+							operation.responseClass.display = response.display;
 							operation.responseClass.status = code;
 							parseHeaders(swagger, operation, response);
 							delete operation.responses[code];
