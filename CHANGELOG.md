@@ -1,3 +1,13 @@
+### 0.4.2 (2017-03-15)
+
+ * Fix POST/PUT with content type 'x-www-form-urlencoded'
+ * Fix model generation: could get some duplicates
+ * Fix module swagger-auth: it should not embed angular-ui-bootstrap components (#73)
+ * Fix module swagger1-to-swagger2-converter: form parameters were lost
+ * Fix module markdown: Allow using markdown in responses description
+ * Add support for map/dictonary in model definitions
+ * Add possibility to navigate within model complex type using links (#34)
+
 ### 0.4.1 (2017-01-18)
 
  * Fix overriting security definitions (#69)
