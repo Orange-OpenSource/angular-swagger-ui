@@ -132,7 +132,7 @@ angular
 
 		function convertParameters(swagger1, operation) {
 			angular.forEach(operation.parameters, function(param) {
-				param.in = param.paramType;
+				param.in = param.paramType === 'form' ? 'formData' : param.paramType;
 				param.default = param.defaultValue;
 				var ref = param.type || param.$ref;
 				if (swagger1.models && ref && swagger1.models[ref]) {
