@@ -11,7 +11,7 @@
 </head>
 <body>
     <div ng-controller="MyCtrl" class="container my-ctrl">
-        <h1><span swagger-translate="appTitle"></span> <span class="version">v0.4.1</span></h1>
+        <h1><span swagger-translate="appTitle"></span> <span class="version">v0.4.2</span></h1>
         <form name="urlForm" ng-submit="swaggerUrl=url" class="form-inline">
             <input type="text" placeholder="swagger URL" class="form-control" id="url" name="url" ng-model="url" required>
             <button type="submit" class="btn btn-primary" swagger-translate="explore"></button>
@@ -28,9 +28,9 @@
         <div swagger-ui url="swaggerUrl" loading="isLoading" api-explorer="true" trusted-sources="true" error-handler="myErrorHandler" permalinks="true"></div>
     </div>
     <!-- dependencies -->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.0/angular.min.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.0/angular-sanitize.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.6.1/js-yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.3/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.3/angular-sanitize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.8.2/js-yaml.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
     <!-- angular-swagger-ui -->
     <script src="scripts/swagger-ui.min.js"></script>
@@ -39,7 +39,7 @@
     <script src="scripts/modules/swagger-xml-formatter.min.js"></script>
     <script src="scripts/modules/swagger-yaml-parser.min.js"></script>
     <script src="scripts/modules/swagger-markdown.min.js"></script>
-    <script src="scripts/modules/swagger-auth.min.js"></script>
+    <script src="scripts/modules/swagger-auth-ui-bootstrap-modal.min.js"></script>
     <script src="scripts/i18n/fr.min.js"></script>
     <script type="text/javascript">
         angular

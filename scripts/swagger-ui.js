@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.4.1
+ * Orange angular-swagger-ui - v0.4.2
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -64,7 +64,7 @@ angular
 			}
 		};
 	}])
-	.controller('swaggerUiController', ["$scope", "$http", "$location", "$anchorScroll", "$timeout", "swaggerClient", "swaggerModules", "swaggerTranslator", function($scope, $http, $location, $anchorScroll, $timeout, swaggerClient, swaggerModules, swaggerTranslator) {
+	.controller('swaggerUiController', ["$scope", "$window", "$http", "$location", "$anchorScroll", "$timeout", "swaggerClient", "swaggerModules", "swaggerTranslator", function($scope, $window, $http, $location, $anchorScroll, $timeout, swaggerClient, swaggerModules, swaggerTranslator) {
 
 		var swagger;
 
@@ -139,7 +139,7 @@ angular
 					if ($scope.permalinks) {
 						$timeout(function() {
 							$anchorScroll();
-						}, 100);
+						}, 200);
 					}
 				})
 				.catch(onError);
@@ -233,13 +233,13 @@ angular
 			}
 		};
 
-		$scope.permalink = function(name) {
+		$window.swaggerlink = $scope.permalink = function(name) {
 			if ($scope.permalinks) {
 				$location.hash(name);
-				$timeout(function() {
-					$anchorScroll();
-				}, 50);
 			}
+			$timeout(function() {
+				$anchorScroll(name);
+			}, 50);
 		};
 
 		/**
@@ -313,7 +313,7 @@ angular
 		};
 	});
 /*
- * Orange angular-swagger-ui - v0.4.1
+ * Orange angular-swagger-ui - v0.4.2
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -322,7 +322,7 @@ angular
 
 angular
 	.module('swaggerUi')
-	.service('swaggerClient', ["$q", "$http", "swaggerModules", function($q, $http, swaggerModules) {
+	.service('swaggerClient', ["$q", "$http", "$httpParamSerializer", "swaggerModules", function($q, $http, $httpParamSerializer, swaggerModules) {
 
 		/**
 		 * format API explorer response before display
@@ -359,6 +359,7 @@ angular
 				query = {},
 				headers = {},
 				path = operation.path,
+				urlEncoded = values.contentType === 'application/x-www-form-urlencoded',
 				body;
 
 			// build request parameters
@@ -382,12 +383,16 @@ angular
 						}
 						break;
 					case 'formData':
-						body = body || new FormData();
+						body = body || (urlEncoded ? {} : new FormData());
 						if (!!value) {
 							if (param.type === 'file') {
 								values.contentType = undefined; // make browser defining it by himself
 							}
-							body.append(param.name, value);
+							if (urlEncoded) {
+								body[param.name] = value;
+							} else {
+								body.append(param.name, value);
+							}
 						}
 						break;
 					case 'body':
@@ -432,16 +437,16 @@ angular
 					method: operation.httpMethod,
 					url: baseUrl + path,
 					headers: headers,
-					data: body,
+					data: urlEncoded ? $httpParamSerializer(body) : body,
 					params: query
 				},
-				callback = function(response) {
+				callback = function(result) {
 					// execute modules
 					var response = {
-						data: response.data,
-						status: response.status,
-						headers: response.headers,
-						config: response.config
+						data: result.data,
+						status: result.status,
+						headers: result.headers,
+						config: result.config
 					};
 					swaggerModules
 						.execute(swaggerModules.AFTER_EXPLORER_LOAD, response)
@@ -466,7 +471,7 @@ angular
 	}]);
 
 /*
- * Orange angular-swagger-ui - v0.4.1
+ * Orange angular-swagger-ui - v0.4.2
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -480,12 +485,7 @@ angular
 		/**
 		 * sample object cache to avoid generating the same one multiple times
 		 */
-		var objCache = {};
-
-		/**
-		 * model cache to avoid generating the same one multiple times
-		 */
-		var modelCache = {};
+		var sampleCache = {};
 
 		/**
 		 * retrieves object definition
@@ -516,14 +516,6 @@ angular
 			}
 			return format || item.type;
 		};
-
-		/**
-		 * retrieves object class name based on $ref
-		 */
-		function getClassName(item) {
-			var parts = item.$ref.split('/');
-			return parts[parts.length - 1];
-		}
 
 		/**
 		 * handles allOf property of a schema
@@ -564,12 +556,12 @@ angular
 				// complex object
 				def = resolveReference(swagger, schema);
 				if (def) {
-					if (!objCache[schema.$ref] && !currentGenerated[schema.$ref]) {
+					if (!sampleCache[schema.$ref] && !currentGenerated[schema.$ref]) {
 						// object not in cache
 						currentGenerated[schema.$ref] = true;
-						objCache[schema.$ref] = getSampleObj(swagger, def, currentGenerated);
+						sampleCache[schema.$ref] = getSampleObj(swagger, def, currentGenerated);
 					}
-					sample = objCache[schema.$ref] || {};
+					sample = sampleCache[schema.$ref] || {};
 				} else {
 					console.warn('schema not found', schema.$ref);
 					sample = schema.$ref;
@@ -637,146 +629,206 @@ angular
 		};
 
 		/**
-		 * inline model counter
+		 * retrieves object class name based on $ref
 		 */
-		var countInLine = 0;
+		function getClassName(schema) {
+			var parts = schema.$ref.split('/');
+			return parts[parts.length - 1];
+		}
 
 		/**
-		 * generates object's model
+		 * inline model counter
 		 */
-		var generateModel = this.generateModel = function(swagger, schema, modelName, currentGenerated) {
-			var model = '',
-				buffer,
-				submodels,
-				propertyName,
-				property,
-				hasProperties = false,
-				name,
-				className,
-				def,
-				sub;
+		var countInLineModels = 1;
 
-			currentGenerated = currentGenerated || {}; // used to handle circular references
+		/**
+		 * is model attribute required ?
+		 */
+		function isRequired(item, name) {
+			return item.required && item.required.indexOf(name) !== -1;
+		}
 
-			function isRequired(item, name) {
-				return item.required && item.required.indexOf(name) !== -1;
+		/**
+		 * generates new inline model name
+		 */
+		function getInlineModelName() {
+			var name = 'InlineModel' + (countInLineModels++);
+			return name;
+		}
+
+		/**
+		 * generate a model and its submodels from schema
+		 */
+		this.generateModel = function(swagger, schema, operationId) {
+			schema = resolveAllOf(swagger, schema);
+			var model = [],
+				subModelIds = {},
+				subModels = {};
+
+			if (schema.properties) {
+				subModels[getInlineModelName()] = schema;
+				subModels = angular.merge(subModels, findAllModels(swagger, schema, subModelIds));
+			} else {
+				subModels = findAllModels(swagger, schema, subModelIds);
 			}
 
-			function getInlineModelName() {
-				var n = 'Inline Model';
-				if (countInLine > 0) {
-					n += countInLine;
+			if (!schema.$ref && !schema.properties) {
+				model.push('<strong>', getModelProperty(schema, subModels, subModelIds, operationId), '</strong><br><br>');
+			}
+			angular.forEach(subModels, function(schema, modelName) {
+				model.push(getModel(swagger, schema, modelName, subModels, subModelIds, operationId));
+			});
+			return model.join('');
+		};
+
+		/**
+		 * find all models to generate
+		 */
+		function findAllModels(swagger, schema, subModelIds, modelName, onGoing) {
+			var models = {};
+			if (modelName) {
+				onGoing = onGoing || {}; // used to handle circular definitions
+				if (onGoing[modelName]) {
+					return models;
 				}
-				countInLine++;
-				return n;
+				onGoing[modelName] = true;
 			}
-
 			schema = resolveAllOf(swagger, schema);
 			if (schema.properties) {
-				modelName = modelName || getInlineModelName();
-				currentGenerated[modelName] = true;
-				buffer = ['<div><strong>' + modelName + ' {</strong>'];
-				submodels = [];
-				for (propertyName in schema.properties) {
+				angular.forEach(schema.properties, function(property) {
+					inspectSubModel(swagger, property, models, subModelIds, onGoing);
+				});
+			} else if (schema.schema || schema.$ref) {
+				var subSchema = schema.schema || schema,
+					def = resolveReference(swagger, subSchema),
+					subPropertyModelName = getClassName(subSchema);
+
+				models[subPropertyModelName] = def;
+				subModelIds[subPropertyModelName] = countModel++;
+				angular.merge(models, findAllModels(swagger, def, subModelIds, subPropertyModelName, onGoing));
+			} else if (schema.type === 'array') {
+				inspectSubModel(swagger, schema.items, models, subModelIds, onGoing);
+			} else if (schema.additionalProperties) {
+				// this is a map/dictionary
+				inspectSubModel(swagger, schema.additionalProperties, models, subModelIds, onGoing);
+			}
+			return models;
+		}
+
+		/**
+		 * look for submodels
+		 */
+		function inspectSubModel(swagger, schema, models, subModelIds, onGoing) {
+			var inlineModelName = generateInlineModel(schema, models, subModelIds);
+			angular.merge(models, findAllModels(swagger, schema, subModelIds, inlineModelName, onGoing));
+		}
+
+		/**
+		 * generates an inline model if needed
+		 */
+		function generateInlineModel(subProperty, models, subModelIds) {
+			var subModelName;
+			if (subProperty.properties) {
+				subModelName = getInlineModelName();
+				subProperty.modelName = subModelName;
+				subModelIds[subModelName] = countModel++;
+				models[subModelName] = subProperty;
+			}
+			return subModelName;
+		}
+
+		/**
+		 * generates an HTML link to a submodel
+		 */
+		function getSubModelLink(operationId, modelId, name) {
+			return ['<a class="model-link type" onclick="swaggerlink(\'', operationId, '-model-', modelId, '\')">', name, '</a>'].join('');
+		}
+
+		/**
+		 * model counter
+		 */
+		var countModel = 0;
+
+		/**
+		 * generates a single model in HTML
+		 */
+		function getModel(swagger, schema, modelName, subModels, subModelIds, operationId) {
+			var buffer = ['<div class="model" id="', operationId, '-model-', subModelIds[modelName], '">'];
+			if (schema.properties) {
+				buffer.push('<div><strong>' + modelName + ' {</strong></div>');
+				var hasProperties = false;
+				angular.forEach(schema.properties, function(property, propertyName) {
 					hasProperties = true;
-					property = schema.properties[propertyName];
 					buffer.push('<div class="pad"><strong>', propertyName, '</strong> (<span class="type">');
-					// build type
-					if (property.properties) {
-						name = getInlineModelName();
-						buffer.push(name);
-						submodels.push(generateModel(swagger, property, name, currentGenerated));
-					} else if (property.schema || property.$ref) {
-						buffer.push(getClassName(property.schema || property));
-						submodels.push(generateModel(swagger, property.schema || property, null, currentGenerated));
-					} else if (property.type === 'array') {
-						buffer.push('Array[');
-						if (property.items.properties) {
-							name = getInlineModelName();
-							buffer.push(name);
-							submodels.push(generateModel(swagger, property, name, currentGenerated));
-						} else if (property.items.$ref) {
-							buffer.push(getClassName(property.items));
-							submodels.push(generateModel(swagger, property.items, null, currentGenerated));
-						} else {
-							buffer.push(getType(property.items));
-						}
-						buffer.push(']');
-					} else {
-						buffer.push(getType(property));
-					}
+					buffer.push(getModelProperty(property, subModels, subModelIds, operationId));
 					buffer.push('</span>');
-					// is required ?
 					if (!isRequired(schema, propertyName)) {
 						buffer.push(', ', '<em>' + swaggerTranslator.translate('modelOptional') + '</em>');
 					}
 					buffer.push(')');
-					// has description
 					if (property.description) {
 						buffer.push(': ', property.description);
 					}
-					// is enum
 					if (property.enum) {
 						buffer.push(' = ', angular.toJson(property.enum).replace(/,/g, swaggerTranslator.translate('modelOr')));
 					}
 					buffer.push(',</div>');
-				}
+				});
 				if (hasProperties) {
 					buffer.pop();
 					buffer.push('</div>');
 				}
 				buffer.push('<div><strong>}</strong></div>');
-				buffer.push(submodels.join(''), '</div>');
-				model = buffer.join('');
-			} else if (schema.additionalProperties) {
-				//TODO ??
-			} else if (schema.$ref) {
-				className = getClassName(schema);
-				def = resolveReference(swagger, schema);
-				if (currentGenerated[className]) {
-					return ''; // already generated
-				}
-				if (def) {
-					if (!modelCache[schema.$ref]) {
-						// cache generated object
-						modelCache[schema.$ref] = generateModel(swagger, def, className, currentGenerated);
-					}
-					currentGenerated[className] = true;
-					model = modelCache[schema.$ref];
-				}
-			} else if (schema.type === 'array') {
-				buffer = ['<strong>Array ['];
-				sub = '';
-				if (schema.items.properties) {
-					name = getInlineModelName();
-					buffer.push(name);
-					sub = generateModel(swagger, schema.items, name, currentGenerated);
-				} else if (schema.items.$ref) {
-					buffer.push(getClassName(schema.items));
-					sub = generateModel(swagger, schema.items, null, currentGenerated);
-				} else {
-					buffer.push(getType(schema.items));
-				}
-				buffer.push(']</strong><br><br>', sub);
-				model = buffer.join('');
+			} else if (schema.type === 'array' || schema.additionalProperties) {
+				buffer.push(getModelProperty(schema, subModels, subModelIds, operationId));
 			} else if (schema.type === 'object') {
-				name = modelName || getInlineModelName();
-				model = '<strong>' + name + ' {<br>}</strong>';
+				buffer.push('<strong>', modelName || getInlineModelName(), ' {<br>}</strong>');
+			} else if (schema.type) {
+				buffer.push('<strong>', getType(schema), '</strong>');
 			}
-			return model;
-		};
+			buffer.push('</div>');
+			return buffer.join('');
+		}
 
 		/**
-		 * clears generated models cache
+		 * retrieves model property class
+		 */
+		function getModelProperty(property, subModels, subModelIds, operationId) {
+			var modelName, buffer = [];
+			if (property.modelName) {
+				buffer.push(getSubModelLink(operationId, subModelIds[property.modelName], property.modelName));
+			} else if (property.schema || property.$ref) {
+				modelName = getClassName(property.schema || property);
+				buffer.push(getSubModelLink(operationId, subModelIds[modelName], modelName));
+			} else if (property.type === 'array') {
+				buffer.push('Array[');
+				buffer.push(getModelProperty(property.items, subModels, subModelIds, operationId));
+				buffer.push(']');
+			} else if (property.properties) {
+				buffer.push(getSubModelLink(operationId, subModelIds[property.modelName], modelName));
+			} else if (property.additionalProperties) {
+				// this is a map/dictionary
+				buffer.push('Map&lt;string, ');
+				buffer.push(getModelProperty(property.additionalProperties, subModels, subModelIds, operationId));
+				buffer.push('&gt;');
+			} else {
+				buffer.push(getType(property));
+			}
+			return buffer.join('');
+		}
+
+		/**
+		 * clears generated samples cache
 		 */
 		this.clearCache = function() {
-			objCache = {};
-			modelCache = {};
+			sampleCache = {};
+			countModel = 0;
+			countInLineModels = 1;
 		};
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.4.1
+ * Orange angular-swagger-ui - v0.4.2
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -844,7 +896,7 @@ angular
 	}]);
 
 /*
- * Orange angular-swagger-ui - v0.4.1
+ * Orange angular-swagger-ui - v0.4.2
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -954,7 +1006,8 @@ angular
 				httpMethod,
 				operation,
 				tag,
-				resource;
+				resource,
+				openModel;
 
 			for (path in swagger.paths) {
 				pathObject = swagger.paths[path];
@@ -970,8 +1023,10 @@ angular
 					operation.httpMethod = httpMethod;
 					operation.path = path;
 					operation.security = operation.security || swagger.security;
-					parseParameters(swagger, operation, pathParameters, form, defaultContentType);
-					parseResponses(swagger, operation);
+					openModel = openPath && openPath.match(new RegExp(operation.operationId + '-model-.*'));
+					openModel = openModel && openModel[0];
+					parseParameters(swagger, operation, pathParameters, form, defaultContentType, openModel);
+					parseResponses(swagger, operation, openModel);
 					operation.tags = operation.tags || ['default'];
 					// map operation to resources
 					for (i = 0; i < operation.tags.length; i++) {
@@ -985,7 +1040,7 @@ angular
 						resource = resources[map[tag]];
 						resource.operations = resource.operations || [];
 						operation.id = operationId++;
-						operation.open = openPath && openPath === operation.operationId || openPath === resource.name + '*';
+						operation.open = openPath && (openPath.match(new RegExp(operation.operationId + '$|' + resource.name + '\\*$')) || openModel);
 						resource.operations.push(angular.copy(operation));
 						if (operation.open) {
 							resource.open = true;
@@ -1029,9 +1084,10 @@ angular
 		/**
 		 * parse operation parameters
 		 */
-		function parseParameters(swagger, operation, pathParameters, form, defaultContentType) {
+		function parseParameters(swagger, operation, pathParameters, form, defaultContentType, openModel) {
 			var i, l,
 				param,
+				model,
 				parameters = operation.parameters = computeParameters(swagger, pathParameters, operation);
 
 			for (i = 0, l = parameters.length; i < l; i++) {
@@ -1049,13 +1105,18 @@ angular
 				// put param into form scope
 				form[operationId][param.name] = param.default || '';
 				if (param.schema) {
-					param.schema.display = 1; // display schema
 					param.schema.json = swaggerModel.generateSampleJson(swagger, param.schema);
-					param.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, param.schema));
+					model = swaggerModel.generateModel(swagger, param.schema, operation.operationId);
+					param.schema.model = $sce.trustAsHtml(model);
+					param.schema.display = openModel && model.match(new RegExp(openModel)) ? 0 : 1;
 				}
-				if (param.in === 'body' || param.in === 'formData') {
-					operation.consumes = operation.consumes || swagger.consumes;
-					form[operationId].contentType = operation.consumes && operation.consumes[0] || defaultContentType;
+				// fix consumes
+				if (param.in === 'body') {
+					operation.consumes = operation.consumes || swagger.consumes || [defaultContentType];
+					form[operationId].contentType = operation.consumes && operation.consumes[0];
+				} else if (param.in === 'formData') {
+					operation.consumes = operation.consumes || [param.subtype === 'file' ? 'multipart/form-data' : 'application/x-www-form-urlencoded'];
+					form[operationId].contentType = operation.consumes && operation.consumes[0];
 				}
 				paramId++;
 			}
@@ -1064,8 +1125,9 @@ angular
 		/**
 		 * parse operation responses
 		 */
-		function parseResponses(swagger, operation) {
+		function parseResponses(swagger, operation, openModel) {
 			var code,
+				model,
 				response,
 				sampleJson;
 
@@ -1080,15 +1142,12 @@ angular
 							sampleJson = swaggerModel.generateSampleJson(swagger, response.schema);
 						}
 						response.schema.json = sampleJson;
-						if (response.schema.type === 'object' || response.schema.type === 'array' || response.schema.$ref) {
-							response.display = 1; // display schema
-							response.schema.model = $sce.trustAsHtml(swaggerModel.generateModel(swagger, response.schema));
-						} else if (response.schema.type === 'string') {
-							delete response.schema;
-						}
+						model = swaggerModel.generateModel(swagger, response.schema, operation.operationId);
+						response.display = openModel && model.match(new RegExp(openModel)) ? 0 : 1;
+						response.schema.model = $sce.trustAsHtml(model);
 						if (code === '200' || code === '201') {
 							operation.responseClass = response;
-							operation.responseClass.display = 1;
+							operation.responseClass.display = response.display;
 							operation.responseClass.status = code;
 							parseHeaders(swagger, operation, response);
 							delete operation.responses[code];
@@ -1169,7 +1228,7 @@ angular
 		swaggerModules.add(swaggerModules.PARSE, swaggerParser);
 	}]);
 /*
- * Orange angular-swagger-ui - v0.4.1
+ * Orange angular-swagger-ui - v0.4.2
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -1262,7 +1321,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.4.1
+ * Orange angular-swagger-ui - v0.4.2
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
