@@ -204,8 +204,8 @@ angular
 						ref = prop.items.type || prop.items.$ref;
 						if (swagger1.models && ref && swagger1.models[ref]) {
 							prop.items.$ref = '#/definitions/' + ref;
+							delete prop.items.type;
 						}
-						delete prop.items.type;
 					}
 					if (prop.enum) {
 						prop.type = 'string';
