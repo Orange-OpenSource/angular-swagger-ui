@@ -187,6 +187,12 @@ angular
 		}
 
 		/**
+		 * model object caches to avoid generating the same one multiple times
+		 */
+		var modelCache = {};
+		var modelCacheIds = {};
+
+		/**
 		 * generate a model and its submodels from schema
 		 */
 		this.generateModel = function(swagger, schema, operationId) {
@@ -208,7 +214,7 @@ angular
 				model.push('<strong>', getModelProperty(schema, subModels, subModelIds, operationId), '</strong><br><br>');
 			}
 			angular.forEach(subModels, function(schema, modelName) {
-				model.push(getModel(swagger, schema, modelName, subModels, subModelIds, operationId));
+				model.push(getModelMaybeFromCache(swagger, schema, modelName, subModels, subModelIds, operationId));
 			});
 			return model.join('');
 		};
@@ -269,6 +275,34 @@ angular
 				models[subModelName] = subProperty;
 			}
 			return subModelName;
+		}
+
+		/**
+		 * get model from cache or generate it
+		 */
+		function getModelMaybeFromCache(swagger, schema, modelName, subModels, subModelIds, operationId) {
+			var model,
+				useCache = false;
+
+			if (modelName.indexOf(INLINE_MODEL_NAME) === -1) {
+				// inline models are not cached
+				useCache = true;
+			}
+			if (useCache) {
+				if (modelCache[modelName]) {
+					model = modelCache[modelName];
+					// substitute moel IDs
+					angular.forEach(modelCacheIds, function(id, subName) {
+						model = model.replace(id, operationId + '-model-' + subModelIds[subName]);
+					});
+				} else {
+					model = modelCache[modelName] = getModel(swagger, schema, modelName, subModels, subModelIds, operationId);
+					modelCacheIds[modelName] = operationId + '-model-' + subModelIds[modelName];
+				}
+			} else {
+				model = getModel(swagger, schema, modelName, subModels, subModelIds, operationId);
+			}
+			return model;
 		}
 
 		/**
@@ -355,6 +389,8 @@ angular
 		 */
 		this.clearCache = function() {
 			sampleCache = {};
+			modelCache = {};
+			modelCacheIds = {};
 			countModel = 0;
 			countInLineModels = 1;
 		};
