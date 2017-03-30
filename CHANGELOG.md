@@ -1,3 +1,9 @@
+### 0.4.3 (2017-03-30)
+
+ * Fix module swagger1-to-swagger2-converter: losing array items type
+ * Optimize model generation
+ * Add support for map/dictionary in module swagger1-to-swagger2-converter
+
 ### 0.4.2 (2017-03-15)
 
  * Fix POST/PUT with content type 'x-www-form-urlencoded'
