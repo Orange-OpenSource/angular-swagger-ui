@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.4.2
+ * Orange angular-swagger-ui - v0.4.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -313,7 +313,7 @@ angular
 		};
 	});
 /*
- * Orange angular-swagger-ui - v0.4.2
+ * Orange angular-swagger-ui - v0.4.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -471,7 +471,7 @@ angular
 	}]);
 
 /*
- * Orange angular-swagger-ui - v0.4.2
+ * Orange angular-swagger-ui - v0.4.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -481,6 +481,8 @@ angular
 angular
 	.module('swaggerUi')
 	.service('swaggerModel', ["swaggerTranslator", function(swaggerTranslator) {
+
+		var INLINE_MODEL_NAME = 'InlineModel';
 
 		/**
 		 * sample object cache to avoid generating the same one multiple times
@@ -652,9 +654,15 @@ angular
 		 * generates new inline model name
 		 */
 		function getInlineModelName() {
-			var name = 'InlineModel' + (countInLineModels++);
+			var name = INLINE_MODEL_NAME + (countInLineModels++);
 			return name;
 		}
+
+		/**
+		 * model object caches to avoid generating the same one multiple times
+		 */
+		var modelCache = {};
+		var modelCacheIds = {};
 
 		/**
 		 * generate a model and its submodels from schema
@@ -666,6 +674,7 @@ angular
 				subModels = {};
 
 			if (schema.properties) {
+				// if inline model
 				subModels[getInlineModelName()] = schema;
 				subModels = angular.merge(subModels, findAllModels(swagger, schema, subModelIds));
 			} else {
@@ -673,10 +682,11 @@ angular
 			}
 
 			if (!schema.$ref && !schema.properties) {
+				// if array or map/dictionary or simple type
 				model.push('<strong>', getModelProperty(schema, subModels, subModelIds, operationId), '</strong><br><br>');
 			}
 			angular.forEach(subModels, function(schema, modelName) {
-				model.push(getModel(swagger, schema, modelName, subModels, subModelIds, operationId));
+				model.push(getModelMaybeFromCache(swagger, schema, modelName, subModels, subModelIds, operationId));
 			});
 			return model.join('');
 		};
@@ -703,9 +713,11 @@ angular
 					def = resolveReference(swagger, subSchema),
 					subPropertyModelName = getClassName(subSchema);
 
-				models[subPropertyModelName] = def;
-				subModelIds[subPropertyModelName] = countModel++;
-				angular.merge(models, findAllModels(swagger, def, subModelIds, subPropertyModelName, onGoing));
+				if (def) {
+					models[subPropertyModelName] = def;
+					subModelIds[subPropertyModelName] = countModel++;
+					angular.merge(models, findAllModels(swagger, def, subModelIds, subPropertyModelName, onGoing));
+				}
 			} else if (schema.type === 'array') {
 				inspectSubModel(swagger, schema.items, models, subModelIds, onGoing);
 			} else if (schema.additionalProperties) {
@@ -738,6 +750,34 @@ angular
 		}
 
 		/**
+		 * get model from cache or generate it
+		 */
+		function getModelMaybeFromCache(swagger, schema, modelName, subModels, subModelIds, operationId) {
+			var model,
+				useCache = false;
+
+			if (modelName.indexOf(INLINE_MODEL_NAME) === -1) {
+				// inline models are not cached
+				useCache = true;
+			}
+			if (useCache) {
+				if (modelCache[modelName]) {
+					model = modelCache[modelName];
+					// substitute moel IDs
+					angular.forEach(modelCacheIds, function(id, subName) {
+						model = model.replace(id, operationId + '-model-' + subModelIds[subName]);
+					});
+				} else {
+					model = modelCache[modelName] = getModel(swagger, schema, modelName, subModels, subModelIds, operationId);
+					modelCacheIds[modelName] = operationId + '-model-' + subModelIds[modelName];
+				}
+			} else {
+				model = getModel(swagger, schema, modelName, subModels, subModelIds, operationId);
+			}
+			return model;
+		}
+
+		/**
 		 * generates an HTML link to a submodel
 		 */
 		function getSubModelLink(operationId, modelId, name) {
@@ -753,7 +793,7 @@ angular
 		 * generates a single model in HTML
 		 */
 		function getModel(swagger, schema, modelName, subModels, subModelIds, operationId) {
-			var buffer = ['<div class="model" id="', operationId, '-model-', subModelIds[modelName], '">'];
+			var buffer = ['<div class="model" id="', operationId + '-model-' + subModelIds[modelName], '">'];
 			if (schema.properties) {
 				buffer.push('<div><strong>' + modelName + ' {</strong></div>');
 				var hasProperties = false;
@@ -786,7 +826,6 @@ angular
 			} else if (schema.type) {
 				buffer.push('<strong>', getType(schema), '</strong>');
 			}
-			buffer.push('</div>');
 			return buffer.join('');
 		}
 
@@ -822,13 +861,15 @@ angular
 		 */
 		this.clearCache = function() {
 			sampleCache = {};
+			modelCache = {};
+			modelCacheIds = {};
 			countModel = 0;
 			countInLineModels = 1;
 		};
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.4.2
+ * Orange angular-swagger-ui - v0.4.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -896,7 +937,7 @@ angular
 	}]);
 
 /*
- * Orange angular-swagger-ui - v0.4.2
+ * Orange angular-swagger-ui - v0.4.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -1228,7 +1269,7 @@ angular
 		swaggerModules.add(swaggerModules.PARSE, swaggerParser);
 	}]);
 /*
- * Orange angular-swagger-ui - v0.4.2
+ * Orange angular-swagger-ui - v0.4.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -1321,7 +1362,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.4.2
+ * Orange angular-swagger-ui - v0.4.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
