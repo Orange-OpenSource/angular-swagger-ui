@@ -30,10 +30,6 @@
         		<pre class="model" ng-if="op.responseClass.display==0" ng-bind-html="op.responseClass.schema.model"></pre>
         		<pre class="model-schema" ng-if="op.responseClass.display==1" ng-bind="op.responseClass.schema.json"></pre>
     		</div>
-    		<div ng-if="op.produces" class="content-type">
-    			<label for="responseContentType{{op.id}}" swagger-translate="responseContentType"></label>
-    			<select ng-model="form[op.id].responseType" ng-options="item for item in op.produces track by item" id="responseContentType{{op.id}}" name="responseContentType{{op.id}}" required></select>
-    		</div>
     	</div>
         <div ng-if="op.headers" class="table-responsive">
             <h5 swagger-translate="headers"></h5>
@@ -71,6 +67,10 @@
     			</tbody>
     		</table>
 		</div>
+        <div ng-if="op.produces" class="content-type">
+            <label for="responseContentType{{op.id}}" swagger-translate="responseContentType"></label>
+            <select ng-model="form[op.id].responseType" ng-options="item for item in op.produces track by item" id="responseContentType{{op.id}}" name="responseContentType{{op.id}}" required></select>
+        </div>
     	<div class="table-responsive" ng-if="op.hasResponses">
     		<h5 swagger-translate="responses"></h5>
     		<table class="table responses">
