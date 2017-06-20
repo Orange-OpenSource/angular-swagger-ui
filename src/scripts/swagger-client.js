@@ -61,7 +61,7 @@ angular
 						}
 						break;
 					case 'path':
-						path = path.replace('{' + param.name + '}', encodeURIComponent(value));
+						path = path.replace(new RegExp('{' + param.name + '[^}]*}'), encodeURIComponent(value));
 						break;
 					case 'header':
 						if (!!value) {
