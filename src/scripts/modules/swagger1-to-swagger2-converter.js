@@ -114,7 +114,7 @@ angular
 				angular.forEach(subPath.operations, function(operation) {
 					responses = {};
 					path[operation.method.toLowerCase()] = {
-						deprecated: operation.deprecated,
+						deprecated: angular.isString(operation.deprecated) ? operation.deprecated === 'true' : operation.deprecated,
 						description: operation.notes,
 						summary: operation.summary,
 						operationId: operation.nickname,
