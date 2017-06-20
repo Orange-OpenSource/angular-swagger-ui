@@ -149,13 +149,19 @@ angular
 		 * generates a sample JSON string (request body or response body)
 		 */
 		this.generateSampleJson = function(swagger, schema) {
-			var json,
-				obj = getSampleObj(swagger, schema);
+			try {
+				var json,
+					obj = getSampleObj(swagger, schema);
 
-			if (obj) {
-				json = angular.toJson(obj, true);
+				if (obj) {
+					json = angular.toJson(obj, true);
+				}
+				return json;
+
+			} catch (ex) {
+				console.error('failed to generate sample json', schema, ex);
+				return 'failed to generate sample json';
 			}
-			return json;
 		};
 
 		/**
@@ -196,27 +202,33 @@ angular
 		 * generate a model and its submodels from schema
 		 */
 		this.generateModel = function(swagger, schema, operationId) {
-			schema = resolveAllOf(swagger, schema);
-			var model = [],
-				subModelIds = {},
-				subModels = {};
+			try {
+				schema = resolveAllOf(swagger, schema);
+				var model = [],
+					subModelIds = {},
+					subModels = {};
 
-			if (schema.properties) {
-				// if inline model
-				subModels[getInlineModelName()] = schema;
-				subModels = angular.merge(subModels, findAllModels(swagger, schema, subModelIds));
-			} else {
-				subModels = findAllModels(swagger, schema, subModelIds);
-			}
+				if (schema.properties) {
+					// if inline model
+					subModels[getInlineModelName()] = schema;
+					subModels = angular.merge(subModels, findAllModels(swagger, schema, subModelIds));
+				} else {
+					subModels = findAllModels(swagger, schema, subModelIds);
+				}
 
-			if (!schema.$ref && !schema.properties) {
-				// if array or map/dictionary or simple type
-				model.push('<strong>', getModelProperty(schema, subModels, subModelIds, operationId), '</strong><br><br>');
+				if (!schema.$ref && !schema.properties) {
+					// if array or map/dictionary or simple type
+					model.push('<strong>', getModelProperty(schema, subModels, subModelIds, operationId), '</strong><br><br>');
+				}
+				angular.forEach(subModels, function(schema, modelName) {
+					model.push(getModelMaybeFromCache(swagger, schema, modelName, subModels, subModelIds, operationId));
+				});
+				return model.join('');
+
+			} catch (ex) {
+				console.error('failed to generate model', schema, ex);
+				return 'failed to generate model';
 			}
-			angular.forEach(subModels, function(schema, modelName) {
-				model.push(getModelMaybeFromCache(swagger, schema, modelName, subModels, subModelIds, operationId));
-			});
-			return model.join('');
 		};
 
 		/**
