@@ -1,3 +1,10 @@
+### 0.4.4 (2017-06-22)
+
+ * Fix #76: paths with regexp
+ * Catch exceptions when generating models (partially fixes #77)
+ * Fix module swagger1-to-swagger2-converter: deprecated attr is a string
+ * Always display response Content-Type select box
+
 ### 0.4.3 (2017-03-30)
 
  * Fix module swagger1-to-swagger2-converter: losing array items type
