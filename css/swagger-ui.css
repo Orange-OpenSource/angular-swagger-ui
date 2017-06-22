@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.4.3
+ * Orange angular-swagger-ui - v0.4.4
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -78,9 +78,6 @@
 .swagger-ui .operation .description {
   margin: 2px 10px 0 0;
 }
-.swagger-ui .operation .content-type label {
-  margin-right: 5px;
-}
 .swagger-ui .operation .auth-required {
   background: #d9534f;
   color: #fff;
@@ -101,6 +98,10 @@
 .swagger-ui .operation .content {
   padding: 10px;
   border-top: 0 !important;
+}
+.swagger-ui .operation .content .content-type label {
+  margin-right: 5px;
+  font-weight: bold;
 }
 .swagger-ui .operation .content h5,
 .swagger-ui .operation .content .h5 {
