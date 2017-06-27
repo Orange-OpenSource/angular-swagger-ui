@@ -53,7 +53,8 @@ angular
 			// prepare swagger2 objects
 			var swagger2 = swaggerData,
 				info = swagger2.info || (swagger2.info = {}),
-				promises = [];
+				promises = [],
+				swaggerResourceName;
 
 			info.contact = {
 				email: info.contact
@@ -68,7 +69,7 @@ angular
 			swagger2.tags = [];
 
 			// load files
-			angular.forEach(swagger2.apis, function(api) {
+			angular.forEach(swaggerData.apis, function(api) {
 				promises.push(get(swaggerUrl + api.path));
 			});
 
@@ -77,9 +78,11 @@ angular
 					swaggerModules
 						.execute(swaggerModules.BEFORE_CONVERT, results)
 						.then(function() {
-							angular.forEach(results, function(response) {
-								convertInfos(response.data, swagger2);
-								convertOperations(response.data, swagger2);
+							angular.forEach(results, function(response, i) {
+								swaggerResourceName = swaggerData.apis[i].path;
+								swaggerResourceName = swaggerResourceName.substring(swaggerResourceName.lastIndexOf('/') + 1);
+								convertInfos(response.data, swagger2, swaggerResourceName);
+								convertOperations(response.data, swagger2, swaggerResourceName);
 								convertModels(response.data, swagger2);
 							});
 							swagger2.swagger = '2.0';
@@ -93,7 +96,7 @@ angular
 		/**
 		 * convert main infos and tags
 		 */
-		function convertInfos(swagger1, swagger2) {
+		function convertInfos(swagger1, swagger2, swaggerResourceName) {
 			swagger2.info.version = swagger2.info.version || swagger1.apiVersion;
 			swagger2.basePath = swagger2.basePath || swagger1.basePath;
 			if (swagger2.basePath.indexOf('http') === 0) {
@@ -103,11 +106,11 @@ angular
 				swagger2.basePath = a.pathname;
 			}
 			swagger2.tags.push({
-				name: swagger1.resourcePath.substring(swagger1.resourcePath.lastIndexOf('/') + 1)
+				name: swaggerResourceName
 			});
 		}
 
-		function convertOperations(swagger1, swagger2) {
+		function convertOperations(swagger1, swagger2, swaggerResourceName) {
 			var path, responses;
 			angular.forEach(swagger1.apis, function(subPath) {
 				path = swagger2.paths[subPath.path] = swagger2.paths[subPath.path] || {};
@@ -122,7 +125,7 @@ angular
 						consumes: operation.consumes || swagger1.consumes,
 						parameters: operation.parameters,
 						responses: responses,
-						tags: [swagger1.resourcePath.substring(swagger1.resourcePath.lastIndexOf('/') + 1)]
+						tags: [swaggerResourceName]
 					};
 					convertParameters(swagger1, operation);
 					convertResponses(swagger1, operation, responses);
