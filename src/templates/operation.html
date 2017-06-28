@@ -1,4 +1,4 @@
-<div id="{{op.operationId}}" class="heading">
+<div id="{{op.operationId}}" class="heading" ng-class="{deprecated:op.deprecated}">
     <a ng-click="op.open=!op.open;permalink(op.operationId)">
         <div class="clearfix">
             <span class="http-method text-uppercase" ng-bind="op.httpMethod"></span>
