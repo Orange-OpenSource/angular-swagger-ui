@@ -303,10 +303,6 @@ angular
 			if (useCache) {
 				if (modelCache[modelName]) {
 					model = modelCache[modelName];
-					// substitute moel IDs
-					angular.forEach(modelCacheIds, function(id, subName) {
-						model = model.replace(id, operationId + '-model-' + subModelIds[subName]);
-					});
 				} else {
 					model = modelCache[modelName] = getModel(swagger, schema, modelName, subModels, subModelIds, operationId);
 					modelCacheIds[modelName] = operationId + '-model-' + subModelIds[modelName];
@@ -314,6 +310,10 @@ angular
 			} else {
 				model = getModel(swagger, schema, modelName, subModels, subModelIds, operationId);
 			}
+			// substitute moel IDs
+			angular.forEach(modelCacheIds, function(id, subName) {
+				model = model.replace(id, operationId + '-model-' + subModelIds[subName]);
+			});
 			return model;
 		}
 
@@ -321,7 +321,8 @@ angular
 		 * generates an HTML link to a submodel
 		 */
 		function getSubModelLink(operationId, modelId, name) {
-			return ['<a class="model-link type" onclick="swaggerlink(\'', operationId, '-model-', modelId, '\')">', name, '</a>'].join('');
+			var linkModelId = modelCacheIds[name] || operationId + '-model-' + modelId;
+			return ['<a class="model-link type" onclick="swaggerlink(\'', linkModelId, '\')">', name, '</a>'].join('');
 		}
 
 		/**
