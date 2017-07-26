@@ -214,9 +214,9 @@ angular
 							subtype = subtype.match(arrayRegExp)[1];
 							prop.type = 'object';
 							prop.additionalProperties = {
-								type: 'array'
+								type: 'array',
+								items: generateProperty(subtype, swagger1)
 							};
-							prop.additionalProperties.items = generateProperty(subtype, swagger1);
 						} else {
 							prop.type = 'object';
 							prop.additionalProperties = generateProperty(subtype, swagger1);
