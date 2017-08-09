@@ -184,21 +184,13 @@ angular
 		function convertModels(swagger1, swagger2) {
 			var subModel,
 				mapRegExp = new RegExp('Map\\[string,(.*)\\]'),
-				arrayRegExp = new RegExp('List\\[(.*)\\]');
+				arrayRegExp = new RegExp('List\\[(.*)\\]'),
+				polymorphicModels = [];
 
 			angular.forEach(swagger1.models, function(model, name) {
 				swagger2.definitions[name] = model;
 				if (model.subTypes) {
-					angular.forEach(model.subTypes, function(subType) {
-						subModel = swagger1.models && swagger1.models[subType];
-						if (subModel) {
-							model.required = (model.required || []).concat(subModel.required || []);
-							angular.forEach(subModel.properties, function(property, name) {
-								model.properties[name] = property;
-							});
-						}
-					});
-					delete model.subTypes;
+					polymorphicModels.push(name);
 				}
 				angular.forEach(model.properties, function(prop) {
 					var ref = prop.type || prop.$ref;
@@ -232,6 +224,21 @@ angular
 						delete prop.$ref;
 					}
 				});
+			});
+			// polymorphic models
+			angular.forEach(polymorphicModels, function(name) {
+				var model = swagger2.definitions[name];
+				angular.forEach(model.subTypes, function(subType) {
+					subModel = swagger2.definitions[subType];
+					if (subModel) {
+						swagger2.definitions[subType] = {
+							allOf: [{
+								$ref: getModelReference(name)
+							}, subModel]
+						};
+					}
+				});
+				delete model.subTypes;
 			});
 		}
 

@@ -264,6 +264,21 @@ angular
 				// this is a map/dictionary
 				inspectSubModel(swagger, schema.additionalProperties, models, subModelIds, onGoing);
 			}
+			if (schema.discriminator) {
+				// find subclasses
+				angular.forEach(swagger.definitions, function(subSchema, subModelName) {
+					if (subSchema.allOf) {
+						angular.forEach(subSchema.allOf, function(parent) {
+							if (parent.$ref && modelName === getClassName(parent)) {
+								subSchema.parentModel = modelName;
+								models[subModelName] = subSchema;
+								subModelIds[subModelName] = countModel++;
+								angular.merge(models, findAllModels(swagger, subSchema, subModelIds, subModelName, onGoing));
+							}
+						});
+					}
+				});
+			}
 			return models;
 		}
 
@@ -335,8 +350,13 @@ angular
 		 */
 		function getModel(swagger, schema, modelName, subModels, subModelIds, operationId) {
 			var buffer = ['<div class="model" id="', operationId + '-model-' + subModelIds[modelName], '">'];
+			schema = resolveAllOf(swagger, schema);
 			if (schema.properties) {
-				buffer.push('<div><strong>' + modelName + ' {</strong></div>');
+				buffer.push('<div><strong>', modelName);
+				if (schema.parentModel) {
+					buffer.push('</strong> extends <strong>', schema.parentModel);
+				}
+				buffer.push(' {</strong></div>');
 				var hasProperties = false;
 				angular.forEach(schema.properties, function(property, propertyName) {
 					hasProperties = true;
