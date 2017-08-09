@@ -190,6 +190,13 @@
                 overflow: auto;
                 font-size: .9em;
                 word-wrap: initial;
+
+                &.model-schema,
+                &.explorer-body{
+                    resize: vertical;
+                    height: 200px;
+                    max-height: initial;
+                }
             }
 
             input,
@@ -199,7 +206,7 @@
 
             textarea{
                 height: 100px;
-                resize: none;
+                resize: vertical;
                 font-family: @font-family-monospace;
                 font-size: .9em;
             }
@@ -262,7 +269,7 @@
             .headers,
             .parameters{
 
-                .model-schema pre{
+                .model-schema{
 
                     cursor: pointer;
 
