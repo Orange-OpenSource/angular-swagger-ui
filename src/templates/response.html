@@ -6,5 +6,5 @@
 		<li><a ng-click="resp.display=1" ng-class="{active:resp.display==1}" swagger-translate="responseSchema"></a></li>
 	</ul>
 	<pre class="model" ng-if="resp.display==0&&resp.schema&&resp.schema.model" ng-bind-html="resp.schema.model"></pre>
-	<pre class="model-schema" ng-if="resp.display==1&&resp.schema&&resp.schema.json" ng-bind="resp.schema.json"></pre>
+	<pre select-on-db-click class="model-schema" ng-if="resp.display==1&&resp.schema&&resp.schema.json" ng-bind="resp.schema.json"></pre>
 </td>

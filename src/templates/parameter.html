@@ -41,8 +41,8 @@
 		<li><a ng-click="param.schema.display=1" ng-class="{active:param.schema.display==1}" swagger-translate="parameterSchema"></a></li>
 	</ul>
 	<pre class="model" ng-if="param.schema.display==0&&param.schema.model" ng-bind-html="param.schema.model"></pre>
-	<div class="model-schema" ng-if="param.schema.display==1&&param.schema.json">
-		<pre ng-bind="param.schema.json" ng-click="form[op.id][param.name]=param.schema.json" aria-described-by="help-{{param.id}}"></pre>
+	<div ng-if="param.schema.display==1&&param.schema.json">
+		<pre select-on-db-click class="model-schema" ng-bind="param.schema.json" ng-click="form[op.id][param.name]=param.schema.json" aria-described-by="help-{{param.id}}"></pre>
 		<div id="help-{{param.id}}" swagger-translate="parameterSetValue"></div>
 	</div>
 </td>
