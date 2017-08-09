@@ -1,14 +1,14 @@
 # angular-swagger-ui
 
-`angular-swagger-ui` is an angularJS implementation of [Swagger UI](http://swagger.io)
+`angular-swagger-ui` is an angularJS implementation of OpenAPI UI
 
-Swagger helps you documenting your RESTful API.
+[OpenAPI](https://www.openapis.org) (aka [Swagger](https://swagger.io)) helps you documenting your RESTful API.
 
-Swagger UI helps developers discovering your RESTful API by providing an online documentation with an integrated API explorer.
+OpenAPI UI helps developers discovering your RESTful API by providing an online documentation with an integrated API explorer.
 
 ### Warning 
-> By default, only JSON Swagger 2.0 is supported.
-To handle Swagger 1.2 please add module `swagger1-to-swagger2-converter` see [Enable Swagger 1.2](#enable-swagger-12).
+> By default, only OpenAPI 2.0 is supported.
+To handle OpenAPI 1.2 please add module `swagger1-to-swagger2-converter` see [Enable OpenAPI 1.2](#enable-openapi-12).
 To handle YAML please add module `swagger-yaml-parser` see [Enable YAML](#enable-yaml)
 
 > By default, Authorization is not supported.
@@ -41,10 +41,10 @@ See LICENSE file for copyright details.
 
 Include `angular-swagger-ui` as a dependency into your application
 
-As some properties of Swagger specifications can be formatted as HTML:
+As some properties of OpenAPI specifications can be formatted as HTML:
 
-* You **SHOULD** include `ngSanitize` as a dependency into your application (avoids JS injection) if Swagger specifications are loaded from **untrusted** sources (see `dist/index.html` as an example)
-* You **CAN** add `trusted-sources="true"` as directive parameter (avoids embedding `ngSanitize`) if Swagger specifications are loaded from **trusted** sources (see `src/index.html` as an example)
+* You **SHOULD** include `ngSanitize` as a dependency into your application (avoids JS injection) if OpenAPI specifications are loaded from **untrusted** sources (see `dist/index.html` as an example)
+* You **CAN** add `trusted-sources="true"` as directive parameter (avoids embedding `ngSanitize`) if OpenAPI specifications are loaded from **trusted** sources (see `src/index.html` as an example)
 * You **MUST** at least choose one of the two previous solutions
 
 ```html
@@ -59,7 +59,7 @@ As some properties of Swagger specifications can be formatted as HTML:
 ```
 Create an HTML element in your angularJS application's template or in your HTML page
 ```html
-<div swagger-ui url="URLToYourSwaggerSpecification" api-explorer="true"></div>
+<div swagger-ui url="URLToYourOpenAPISpecification" api-explorer="true"></div>
 ```
 Add `swagger-ui.min.js` and `angular.min.js` at the end of the body
 ```html
@@ -87,20 +87,20 @@ Add `swagger-ui.min.css` and `bootstrap.min.css` to the head of the HTML page.
 #### API explorer
 Display or not API explorer, default is `false`
 ```html
-<div swagger-ui url="URLToYourSwaggerSpecification" api-explorer="true/false"></div>
+<div swagger-ui url="URLToYourOpenAPISpecification" api-explorer="true/false"></div>
 ```
 
-#### Swagger specification loading indicator
-`yourScopeVariable` will be assigned to `true` or `false` depending on Swagger specification loading status
+#### OpenAPI specification loading indicator
+`yourScopeVariable` will be assigned to `true` or `false` depending on OpenAPI specification loading status
 ```html
 <div ng-show="yourScopeVariable">loading ...</div>
-<div swagger-ui url="URLToYourSwaggerSpecification" loading="yourScopeVariable"></div>
+<div swagger-ui url="URLToYourOpenAPISpecification" loading="yourScopeVariable"></div>
 ```
 
 #### Error handler
 Define an error handler to catch errors, if none defined `console.error` is used
 ```html
-<div swagger-ui url="URLToYourSwaggerSpecification" error-handler="yourErrorHandler"></div>
+<div swagger-ui url="URLToYourOpenAPISpecification" error-handler="yourErrorHandler"></div>
 ```
 ```js
 $scope.yourErrorHandler = function(/*String or Object*/ message, /*Integer*/ code){
@@ -111,41 +111,41 @@ $scope.yourErrorHandler = function(/*String or Object*/ message, /*Integer*/ cod
 #### Permalinks
 Allows having a URL direct access to a group of operations or to an operation and making it unfolded at startup
 ```html
-<div swagger-ui url="URLToYourSwaggerSpecification" permalinks="true/false"></div>
+<div swagger-ui url="URLToYourOpenAPISpecification" permalinks="true/false"></div>
 ```
 
-#### Swagger validator
-Disable Swagger validator or define a custom Swagger validator.
+#### OpenAPI validator
+Disable OpenAPI validator or define a custom OpenAPI validator.
 If parameter not defined, the validator will be 'http://online.swagger.io/validator'
 ```html
-<div swagger-ui url="URLToYourSwaggerSpecification" validator-url="false or URL"></div>
+<div swagger-ui url="URLToYourOpenAPISpecification" validator-url="false or URL"></div>
 ```
 
 #### Parser type
-Swagger specification parser is chosen depending on the `Content-Type` of the specification response. If host serving your Swagger specification does not send `Content-Type: application/json` then you can force the parser to JSON:
+OpenAPI specification parser is chosen depending on the `Content-Type` of the specification response. If host serving your OpenAPI specification does not send `Content-Type: application/json` then you can force the parser to JSON:
 ```html
-<div swagger-ui url="URLToYourSwaggerSpecification" parser="json"></div>
+<div swagger-ui url="URLToYourOpenAPISpecification" parser="json"></div>
 ```
 
 #### Template URL
-Define a custom template to be used by SwaggerUI
+Define a custom template to be used by OpenAPIUI
 ```html
-<div swagger-ui url="URLToYourSwaggerSpecification" template-url="yourTemplatePath"></div>
+<div swagger-ui url="URLToYourOpenAPISpecification" template-url="yourTemplatePath"></div>
 ```
 
 #### Input type and input
-##### Render a Swagger specification from JSON object
+##### Render a OpenAPI specification from JSON object
 ```html
 <div swagger-ui input-type="json" input="yourJsonObject"></div>
 ```
 
-##### Render a Swagger specification from YAML string
+##### Render a OpenAPI specification from YAML string
 Make sure to use module `swagger-yaml-parser`, see [Enable YAML](#enable-yaml)
 ```html
 <div swagger-ui input-type="yaml" input="yourYamlString"></div>
 ```
 
-##### Render a Swagger specification from URL (same behavior as using "url" parameter)
+##### Render a OpenAPI specification from URL (same behavior as using "url" parameter)
 ```html
 <div swagger-ui input-type="url" input="yourURL"></div>
 ```
@@ -251,7 +251,7 @@ Add `swagger-auth.min.js` at the end of the body
 </body>
 ```
 
-#### Enable Swagger 1.2
+#### Enable OpenAPI 1.2
 Add `swagger1-to-swagger2-converter.min.js` at the end of the body
 ```html
 <body>
@@ -262,8 +262,8 @@ Add `swagger1-to-swagger2-converter.min.js` at the end of the body
 </body>
 ```
 
-#### Enable Swagger external references
-See [Swagger 2.0 spec](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#relative-schema-file-example).
+#### Enable OpenAPI external references
+See [OpenAPI 2.0 spec](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#relative-schema-file-example).
 Add `swagger-external-references.min.js` at the end of the body
 ```html
 <body>
@@ -317,10 +317,10 @@ A module is an object (can be a service) having a function `execute` which must 
 
 You can make your module modifying behaviours at different phases:
 
-* `BEFORE_LOAD`: allows modifying Swagger specification request before it is sent
-* `BEFORE_PARSE`: allows modifying Swagger specification after it has been loaded
-* `PARSE`: allows adding a Swagger parser for content types other than JSON
-* `BEFORE_DISPLAY`: allows modifying internal parsed Swagger specification before it is displayed
+* `BEFORE_LOAD`: allows modifying OpenAPI specification request before it is sent
+* `BEFORE_PARSE`: allows modifying OpenAPI specification after it has been loaded
+* `PARSE`: allows adding a OpenAPI parser for content types other than JSON
+* `BEFORE_DISPLAY`: allows modifying internal parsed OpenAPI specification before it is displayed
 * `BEFORE_EXPLORER_LOAD`: allows modifying API explorer request before it is sent
 * `AFTER_EXPLORER_LOAD`: allows modifying API explorer response before it is displayed
 
