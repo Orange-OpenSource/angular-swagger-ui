@@ -8,7 +8,8 @@ OpenAPI UI helps developers discovering your RESTful API by providing an online 
 
 ### Warning 
 > By default, only OpenAPI 2.0 is supported.
-To handle OpenAPI 1.2 please add module `swagger1-to-swagger2-converter` see [Enable OpenAPI 1.2](#enable-openapi-12).
+To handle OpenAPI 3.0.0 please add module `openapi3-converter` see [Enable OpenAPI 3.0.0](#enable-openapi-300).
+To handle OpenAPI 1.2 please add module `swagger1-converter` see [Enable OpenAPI 1.2](#enable-openapi-12).
 To handle YAML please add module `swagger-yaml-parser` see [Enable YAML](#enable-yaml)
 
 > By default, Authorization is not supported.
@@ -134,18 +135,18 @@ Define a custom template to be used by OpenAPIUI
 ```
 
 #### Input type and input
-##### Render a OpenAPI specification from JSON object
+##### Render an OpenAPI specification from JSON object
 ```html
 <div swagger-ui input-type="json" input="yourJsonObject"></div>
 ```
 
-##### Render a OpenAPI specification from YAML string
+##### Render an OpenAPI specification from YAML string
 Make sure to use module `swagger-yaml-parser`, see [Enable YAML](#enable-yaml)
 ```html
 <div swagger-ui input-type="yaml" input="yourYamlString"></div>
 ```
 
-##### Render a OpenAPI specification from URL (same behavior as using "url" parameter)
+##### Render an OpenAPI specification from URL (same behavior as using "url" parameter)
 ```html
 <div swagger-ui input-type="url" input="yourURL"></div>
 ```
@@ -231,6 +232,18 @@ You can also use `swaggerTranslator` to internationalize your app by using a ser
 
 ## Customization
 
+#### Enable OpenAPI 3.0.0
+See [OpenAPI 3.0.0 spec](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md).
+Add `openapi3-converter.min.js` at the end of the body
+```html
+<body>
+ 	...
+ 	<script src="yourPathToAngularJS/angular.min.js"></script>
+ 	<script src="yourPathToAngularSwaggerUI/dist/scripts/swagger-ui.min.js"></script>
+ 	<script src="yourPathToAngularSwaggerUI/dist/scripts/modules/openapi3-converter.min.js"></script>
+</body>
+```
+
 #### Enable authorization
 `oauth` is not implemented, only `basic` and `API key` authorizations are implemented.
 Add `swagger-auth.min.js` at the end of the body
@@ -251,14 +264,15 @@ Add `swagger-auth.min.js` at the end of the body
 </body>
 ```
 
-#### Enable OpenAPI 1.2
-Add `swagger1-to-swagger2-converter.min.js` at the end of the body
+#### Enable OpenAPI [aka Swagger] 1.2
+See [OpenAPI 1.2 spec](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/1.2.md).
+Add `swagger1-converter.min.js` at the end of the body
 ```html
 <body>
  	...
  	<script src="yourPathToAngularJS/angular.min.js"></script>
  	<script src="yourPathToAngularSwaggerUI/dist/scripts/swagger-ui.min.js"></script>
- 	<script src="yourPathToAngularSwaggerUI/dist/scripts/modules/swagger1-to-swagger2-converter.min.js"></script>
+ 	<script src="yourPathToAngularSwaggerUI/dist/scripts/modules/swagger1-converter.min.js"></script>
 </body>
 ```
 
@@ -319,7 +333,7 @@ You can make your module modifying behaviours at different phases:
 
 * `BEFORE_LOAD`: allows modifying OpenAPI specification request before it is sent
 * `BEFORE_PARSE`: allows modifying OpenAPI specification after it has been loaded
-* `PARSE`: allows adding a OpenAPI parser for content types other than JSON
+* `PARSE`: allows adding an OpenAPI parser for content types other than JSON
 * `BEFORE_DISPLAY`: allows modifying internal parsed OpenAPI specification before it is displayed
 * `BEFORE_EXPLORER_LOAD`: allows modifying API explorer request before it is sent
 * `AFTER_EXPLORER_LOAD`: allows modifying API explorer response before it is displayed
@@ -339,7 +353,9 @@ angular
 
 	})
 	.run(function(swaggerModules, myModule){
-		swaggerModules.add(swaggerModules.BEFORE_LOAD, myModule);
+		// default priority is 1
+		// higher is the priority, sooner the module is executed at the specified phase
+		swaggerModules.add(swaggerModules.BEFORE_LOAD, myModule, priority);
 	})
 	...
 

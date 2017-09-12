@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.4.4
+ * Orange angular-swagger-ui - v0.5.0
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -12,14 +12,14 @@ angular
 
 		var url,
 			deferred,
-			swagger;
+			openApiSpec;
 
 		/**
 		 * Module entry point
 		 */
-		this.execute = function(swaggerUrl, swaggerData) {
-			url = swaggerUrl;
-			swagger = swaggerData;
+		this.execute = function(data) {
+			url = data.url;
+			openApiSpec = data.openApiSpec;
 			deferred = $q.defer();
 			loadExternalReferences();
 			return deferred.promise;
@@ -73,15 +73,17 @@ angular
 		 */
 		function getExternalUrl($ref) {
 			var parts = $ref.split('#/'),
-				externalUrl = parts[0];
+				externalUrl = parts[0],
+				swaggerUrlParts,
+				pos;
 
 			if (externalUrl.indexOf('http') !== 0 && externalUrl.indexOf('https') !== 0) {
 				// relative url
 				if (externalUrl.indexOf('/') === 0) {
-					var swaggerUrlParts = URL.parse(url);
+					swaggerUrlParts = URL.parse(url);
 					externalUrl = swaggerUrlParts.protocol + '//' + swaggerUrlParts.host + externalUrl;
 				} else {
-					var pos = url.lastIndexOf('/');
+					pos = url.lastIndexOf('/');
 					externalUrl = url.substring(0, pos) + '/' + externalUrl;
 				}
 			}
@@ -92,15 +94,14 @@ angular
 		 * Find and resolve external definitions
 		 */
 		function loadExternalReferences() {
-
-			var loading = 0;
+			var loading = 0, key, pathName, path;
 
 			function loadOperations(path) {
 				loading++;
 				get(getExternalUrl(path.$ref), function(json) {
 					loading--;
 					delete path.$ref;
-					for (var key in json) {
+					for (key in json) {
 						path[key] = json[key];
 					}
 					if (loading === 0) {
@@ -109,8 +110,8 @@ angular
 				});
 			}
 
-			for (var pathName in swagger.paths) {
-				var path = swagger.paths[pathName];
+			for (pathName in openApiSpec.paths) {
+				path = openApiSpec.paths[pathName];
 				if (isExternal(path)) {
 					loadOperations(path);
 				}
@@ -127,10 +128,11 @@ angular
 
 		function loadExternalDefinitions() {
 			var loading = 0,
-				loadingUrls = {};
+				loadingUrls = {},
+				path, operations, httpMethod;
 
 			function loadDefinitions(item) {
-				var matches = item.$ref.match(/(.*)#\/(.*)\/(.*)/),
+				var key, matches = item.$ref.match(/(.*)#\/(.*)\/(.*)/),
 					prefix = matches[1],
 					section = matches[2],
 					externalUrl = getExternalUrl(item.$ref);
@@ -142,8 +144,8 @@ angular
 					loading++;
 					loadingUrls[externalUrl] = true;
 					get(externalUrl, function(json) {
-						for (var key in json) {
-							swagger[section][prefix] = json[key];
+						for (key in json) {
+							openApiSpec[section][prefix] = json[key];
 						}
 						loading--;
 						if (loading === 0) {
@@ -163,23 +165,24 @@ angular
 			}
 
 			function checkOperationDefinitions(operation) {
+				var j, params, k, code;
 				// check if operation params or responses have external references
-				for (var j = 0, params = operation.parameters || [], k = params.length; j < k; j++) {
+				for (j = 0, params = operation.parameters || [], k = params.length; j < k; j++) {
 					if (params[j].schema) {
 						checkDefinitions(params[j].schema);
 					}
 				}
-				for (var code in (operation.responses || {})) {
+				for (code in (operation.responses || {})) {
 					if (operation.responses[code].schema) {
 						checkDefinitions(operation.responses[code].schema);
 					}
 				}
 			}
 
-			for (var path in swagger.paths) {
-				var operations = swagger.paths[path];
+			for (path in openApiSpec.paths) {
+				operations = openApiSpec.paths[path];
 				//TODO manage path parameters
-				for (var httpMethod in operations) {
+				for (httpMethod in operations) {
 					checkOperationDefinitions(operations[httpMethod]);
 				}
 			}
@@ -191,5 +194,5 @@ angular
 
 	})
 	.run(function(swaggerModules, swaggerUiExternalReferences) {
-		swaggerModules.add(swaggerModules.BEFORE_PARSE, swaggerUiExternalReferences);
+		swaggerModules.add(swaggerModules.BEFORE_PARSE, swaggerUiExternalReferences, 1);
 	});

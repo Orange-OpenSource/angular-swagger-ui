@@ -20,7 +20,7 @@ module.exports = {
 			}]
 		},
 		files: {
-			'./': ['bower.json', 'package.json']
+			'./': ['package.json']
 		}
 	}
 }

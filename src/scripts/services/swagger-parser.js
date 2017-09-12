@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.4.4
+ * Orange angular-swagger-ui - v0.5.0
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -10,19 +10,20 @@ angular
 	.module('swaggerUi')
 	.service('swaggerParser', function($q, $sce, $location, swaggerModel, swaggerTranslator) {
 
-		var trustedSources,
+		var HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'],
+			trustedSources,
 			operationId,
 			paramId;
 
 		/**
 		 * Module entry point
 		 */
-		this.execute = function(parserType, url, contentType, data, isTrustedSources, parseResult) {
+		this.execute = function(data) {
 			var deferred = $q.defer();
-			if (data.swagger === '2.0' && (parserType === 'json' || (parserType === 'auto' && contentType === 'application/json'))) {
-				trustedSources = isTrustedSources;
+			if (data.openApiSpec && data.openApiSpec.swagger === '2.0' && (data.parser === 'json' || (data.parser === 'auto' && data.contentType === 'application/json'))) {
+				trustedSources = data.trustedSources;
 				try {
-					parseSwagger2Json(data, url, deferred, parseResult);
+					parseSwagger2Json(deferred, data);
 				} catch (e) {
 					deferred.reject({
 						code: 500,
@@ -38,60 +39,62 @@ angular
 		/**
 		 * parse swagger description to ease HTML generation
 		 */
-		function parseSwagger2Json(swagger, url, deferred, parseResult) {
+		function parseSwagger2Json(deferred, data) {
 			var map = {},
 				form = {},
 				resources = [],
-				infos = swagger.info,
+				infos = data.openApiSpec.info,
 				openPath = $location.hash(),
 				defaultContentType = 'application/json',
-				sortResources = !swagger.tags;
+				sortResources = !data.openApiSpec.tags;
 
 			operationId = 0;
 			paramId = 0;
-			parseInfos(swagger, url, infos, defaultContentType);
-			parseTags(swagger, resources, map);
-			parseOperations(swagger, resources, form, map, defaultContentType, openPath);
+			parseInfos(data.openApiSpec, data.url, infos, defaultContentType);
+			parseTags(data.openApiSpec, resources, map);
+			parseOperations(data.openApiSpec, resources, form, map, defaultContentType, openPath);
 			cleanUp(resources, openPath, sortResources);
 			// prepare result
-			parseResult.infos = infos;
-			parseResult.resources = resources;
-			parseResult.form = form;
+			data.ui = {
+				infos: infos,
+				form: form,
+				resources: resources
+			};
 			deferred.resolve(true);
 		}
 
 		/**
 		 * parse main infos
 		 */
-		function parseInfos(swagger, url, infos, defaultContentType) {
+		function parseInfos(openApiSpec, url, infos, defaultContentType) {
 			// build URL params
 			var a = angular.element('<a href="' + url + '"></a>')[0];
-			swagger.schemes = [swagger.schemes && swagger.schemes[0] || a.protocol.replace(':', '')];
-			swagger.host = swagger.host || a.host;
-			swagger.consumes = swagger.consumes || [defaultContentType];
-			swagger.produces = swagger.produces || [defaultContentType];
+			openApiSpec.schemes = [openApiSpec.schemes && openApiSpec.schemes[0] || a.protocol.replace(':', '')];
+			openApiSpec.host = openApiSpec.host || a.host;
+			openApiSpec.consumes = openApiSpec.consumes || [defaultContentType];
+			openApiSpec.produces = openApiSpec.produces || [defaultContentType];
 			// build main infos
-			infos.scheme = swagger.schemes[0];
-			infos.basePath = swagger.basePath;
-			infos.host = swagger.host;
+			infos.scheme = openApiSpec.schemes[0];
+			infos.basePath = openApiSpec.basePath;
+			infos.host = openApiSpec.host;
 			infos.description = trustHtml(infos.description);
-			infos.externalDocs = swagger.externalDocs;
+			infos.externalDocs = openApiSpec.externalDocs;
 		}
 
 		/**
 		 * parse tags
 		 */
-		function parseTags(swagger, resources, map) {
+		function parseTags(openApiSpec, resources, map) {
 			var i, l, tag;
-			if (!swagger.tags) {
+			if (!openApiSpec.tags) {
 				resources.push({
 					name: 'default',
 					open: true
 				});
 				map['default'] = 0;
 			} else {
-				for (i = 0, l = swagger.tags.length; i < l; i++) {
-					tag = swagger.tags[i];
+				for (i = 0, l = openApiSpec.tags.length; i < l; i++) {
+					tag = openApiSpec.tags[i];
 					resources.push(tag);
 					map[tag.name] = i;
 				}
@@ -101,7 +104,7 @@ angular
 		/**
 		 * parse operations
 		 */
-		function parseOperations(swagger, resources, form, map, defaultContentType, openPath) {
+		function parseOperations(openApiSpec, resources, form, map, defaultContentType, openPath) {
 			var i,
 				path,
 				pathObject,
@@ -112,41 +115,41 @@ angular
 				resource,
 				openModel;
 
-			for (path in swagger.paths) {
-				pathObject = swagger.paths[path];
+			for (path in openApiSpec.paths) {
+				pathObject = openApiSpec.paths[path] = swaggerModel.resolveReference(openApiSpec, openApiSpec.paths[path]);
 				pathParameters = pathObject.parameters || [];
 				delete pathObject.parameters;
 				for (httpMethod in pathObject) {
-					operation = pathObject[httpMethod];
-					operation.description = trustHtml(operation.description);
-					operation.produces = operation.produces || swagger.produces;
-					form[operationId] = {
-						responseType: operation.produces && operation.produces[0] || defaultContentType
-					};
-					operation.httpMethod = httpMethod;
-					operation.path = path;
-					operation.security = operation.security || swagger.security;
-					openModel = openPath && openPath.match(new RegExp(operation.operationId + '-model-.*'));
-					openModel = openModel && openModel[0];
-					parseParameters(swagger, operation, pathParameters, form, defaultContentType, openModel);
-					parseResponses(swagger, operation, openModel);
-					operation.tags = operation.tags || ['default'];
-					// map operation to resources
-					for (i = 0; i < operation.tags.length; i++) {
-						tag = operation.tags[i];
-						if (typeof map[tag] === 'undefined') {
-							map[tag] = resources.length;
-							resources.push({
-								name: tag
-							});
-						}
-						resource = resources[map[tag]];
-						resource.operations = resource.operations || [];
-						operation.id = operationId++;
-						operation.open = openPath && (openPath.match(new RegExp(operation.operationId + '$|' + resource.name + '\\*$')) || openModel);
-						resource.operations.push(angular.copy(operation));
-						if (operation.open) {
-							resource.open = true;
+					if (HTTP_METHODS.indexOf(httpMethod) >= 0) {
+						operation = pathObject[httpMethod];
+						operation.description = trustHtml(operation.description);
+						operation.produces = operation.produces || openApiSpec.produces;
+						form[operationId] = {
+							responseType: operation.produces && operation.produces[0] || defaultContentType
+						};
+						operation.httpMethod = httpMethod;
+						operation.path = path;
+						operation.security = operation.security || openApiSpec.security;
+						parseParameters(openApiSpec, operation, pathParameters, form, defaultContentType, openPath);
+						parseResponses(openApiSpec, operation, openPath);
+						operation.tags = operation.tags || ['default'];
+						// map operation to resources
+						for (i = 0; i < operation.tags.length; i++) {
+							tag = operation.tags[i];
+							if (typeof map[tag] === 'undefined') {
+								map[tag] = resources.length;
+								resources.push({
+									name: tag
+								});
+							}
+							resource = resources[map[tag]];
+							resource.operations = resource.operations || [];
+							operation.id = operationId++;
+							operation.open = openPath && (openPath.match(new RegExp(operation.operationId + '.*|' + resource.name + '\\*$')));
+							resource.operations.push(angular.copy(operation));
+							if (operation.open) {
+								resource.open = true;
+							}
 						}
 					}
 				}
@@ -156,7 +159,7 @@ angular
 		/**
 		 * compute path and operation parameters
 		 */
-		function computeParameters(swagger, pathParameters, operation) {
+		function computeParameters(openApiSpec, pathParameters, operation) {
 			var i, j, k, l,
 				operationParameters = operation.parameters || [],
 				parameters = [].concat(operationParameters),
@@ -166,10 +169,10 @@ angular
 
 			for (i = 0, l = pathParameters.length; i < l; i++) {
 				found = false;
-				pathParameter = swaggerModel.resolveReference(swagger, pathParameters[i]);
+				pathParameter = swaggerModel.resolveReference(openApiSpec, pathParameters[i]);
 
 				for (j = 0, k = operationParameters.length; j < k; j++) {
-					operationParameter = swaggerModel.resolveReference(swagger, operationParameters[j]);
+					operationParameter = swaggerModel.resolveReference(openApiSpec, operationParameters[j]);
 					if (pathParameter.name === operationParameter.name && pathParameter.in === operationParameter.in) {
 						// overriden parameter
 						found = true;
@@ -187,16 +190,17 @@ angular
 		/**
 		 * parse operation parameters
 		 */
-		function parseParameters(swagger, operation, pathParameters, form, defaultContentType, openModel) {
+		function parseParameters(openApiSpec, operation, pathParameters, form, defaultContentType, openPath) {
 			var i, l,
 				param,
 				model,
-				parameters = operation.parameters = computeParameters(swagger, pathParameters, operation);
+				openModel,
+				parameters = operation.parameters = computeParameters(openApiSpec, pathParameters, operation);
 
 			for (i = 0, l = parameters.length; i < l; i++) {
 				//TODO manage 'collectionFormat' (csv, multi etc.) ?
 				//TODO manage constraints (pattern, min, max etc.) ?
-				param = parameters[i] = swaggerModel.resolveReference(swagger, parameters[i]);
+				param = parameters[i] = swaggerModel.resolveReference(openApiSpec, parameters[i]);
 				param.id = paramId;
 				param.type = swaggerModel.getType(param);
 				param.description = trustHtml(param.description);
@@ -208,18 +212,19 @@ angular
 				// put param into form scope
 				form[operationId][param.name] = param.default || '';
 				if (param.schema) {
-					param.schema.json = swaggerModel.generateSampleJson(swagger, param.schema);
-					model = swaggerModel.generateModel(swagger, param.schema, operation.operationId);
-					param.schema.model = $sce.trustAsHtml(model);
-					param.schema.display = openModel && model.match(new RegExp(openModel)) ? 0 : 1;
+					openModel = openPath && openPath.match(new RegExp(operation.operationId + '-parameter-model-.*'));
+					param.schema.display = openModel ? 0 : 1;
 				}
 				// fix consumes
 				if (param.in === 'body') {
-					operation.consumes = operation.consumes || swagger.consumes || [defaultContentType];
+					operation.consumes = operation.consumes || openApiSpec.consumes || [defaultContentType];
 					form[operationId].contentType = operation.consumes && operation.consumes[0];
 				} else if (param.in === 'formData') {
 					operation.consumes = operation.consumes || [param.subtype === 'file' ? 'multipart/form-data' : 'application/x-www-form-urlencoded'];
 					form[operationId].contentType = operation.consumes && operation.consumes[0];
+				}
+				if (operation.consumes && operation.consumes.indexOf('application/xml') >= 0) {
+					param.schema.xml = swaggerModel.generateSampleXml(openApiSpec, param.schema);
 				}
 				paramId++;
 			}
@@ -228,33 +233,38 @@ angular
 		/**
 		 * parse operation responses
 		 */
-		function parseResponses(swagger, operation, openModel) {
+		function parseResponses(openApiSpec, operation, openPath) {
 			var code,
 				model,
 				response,
-				sampleJson;
+				sampleJson,
+				openModel;
 
 			if (operation.responses) {
 				for (code in operation.responses) {
-					response = operation.responses[code] = swaggerModel.resolveReference(swagger, operation.responses[code]);
+					response = operation.responses[code] = swaggerModel.resolveReference(openApiSpec, operation.responses[code]);
 					response.description = trustHtml(response.description);
 					if (response.schema) {
-						if (response.examples && response.examples[operation.produces[0]]) {
-							sampleJson = angular.toJson(response.examples[operation.produces[0]], true);
-						} else {
-							sampleJson = swaggerModel.generateSampleJson(swagger, response.schema);
-						}
-						response.schema.json = sampleJson;
-						model = swaggerModel.generateModel(swagger, response.schema, operation.operationId);
-						response.display = openModel && model.match(new RegExp(openModel)) ? 0 : 1;
-						response.schema.model = $sce.trustAsHtml(model);
+						// if (response.examples && response.examples[operation.produces[0]]) {
+						// 	sampleJson = angular.toJson(response.examples[operation.produces[0]], true);
+						// } else {
+						// 	sampleJson = swaggerModel.generateSampleJson(openApiSpec, response.schema);
+						// }
+						// response.schema.json = sampleJson;
+						// if (operation.produces && operation.produces.indexOf('application/xml') >= 0) {
+						// 	response.schema.xml = swaggerModel.generateSampleXml(openApiSpec, response.schema);
+						// }
+						// model = swaggerModel.generateModel(openApiSpec, response.schema, operation.operationId);
 						if (code === '200' || code === '201') {
 							operation.responseClass = response;
-							operation.responseClass.display = response.display;
+							openModel = openPath && openPath.match(new RegExp(operation.operationId + '-default-model-.*'));
+							operation.responseClass.display = openModel ? 0 : 1;
 							operation.responseClass.status = code;
-							parseHeaders(swagger, operation, response);
+							parseHeaders(openApiSpec, operation, response);
 							delete operation.responses[code];
 						} else {
+							openModel = openPath && openPath.match(new RegExp(operation.operationId + '-response-model-.*'));
+							response.display = openModel ? 0 : 1;
 							operation.hasResponses = true;
 						}
 					} else {
@@ -267,7 +277,7 @@ angular
 		/**
 		 * parse operation response headers
 		 */
-		function parseHeaders(swagger, operation, response) {
+		function parseHeaders(openApiSpec, operation, response) {
 			if (response.headers) {
 				operation.headers = response.headers;
 				for (var name in operation.headers) {
@@ -306,7 +316,6 @@ angular
 					return 0;
 				});
 			}
-			swaggerModel.clearCache();
 		}
 
 		function trustHtml(text) {
@@ -328,5 +337,5 @@ angular
 
 	})
 	.run(function(swaggerModules, swaggerParser) {
-		swaggerModules.add(swaggerModules.PARSE, swaggerParser);
+		swaggerModules.add(swaggerModules.PARSE, swaggerParser, 1);
 	});

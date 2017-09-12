@@ -12,15 +12,15 @@ module.exports = function(grunt) {
     grunt.log.writeln(' $ grunt $0:$1');
     grunt.log.writeln('');
     grunt.log.writeln(' $0');
-    grunt.log.writeln('     dev     develop swagger-ui');
-    grunt.log.writeln('     prod    build swagger-ui');
-    grunt.log.writeln('     version update version number');
+    grunt.log.writeln('     dev         develop swagger-ui with webserver on 127.0.0.1:9002');
+    grunt.log.writeln('     dist        build swagger-ui distribution');
+    grunt.log.writeln('     version     update version number');
     grunt.log.writeln('');
-    grunt.log.writeln(' $1 (optional) for dev & prod');
-    grunt.log.writeln('     server          webserver on 127.0.0.1');
+    grunt.log.writeln(' $1 (optional) for dist');
+    grunt.log.writeln('     server      swagger-ui distribution with webserver on 127.0.0.1:9003');
     grunt.log.writeln('');
     grunt.log.writeln(' $1 (required) for version');
-    grunt.log.writeln('     x.x.x           version will be replaced in all required files');
+    grunt.log.writeln('     x.x.x       version will be replaced in all required files');
     grunt.log.writeln('');
 
     /**
@@ -49,6 +49,9 @@ module.exports = function(grunt) {
 
     // Extend config with task options definitions
     grunt.util._.extend(config, loadTaskOptions('./grunt/options/'));
+
+    // force line endings LF
+    grunt.util.linefeed = '\n';
 
     grunt.initConfig(config);
 

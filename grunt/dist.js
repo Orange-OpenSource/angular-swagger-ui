@@ -3,7 +3,7 @@
 //
 module.exports = function(grunt) {
 
-    grunt.registerTask('prod', '', function(target) {
+    grunt.registerTask('dist', '', function(target) {
         var tasks = [
             'jshint:all',
             'clean:predist',

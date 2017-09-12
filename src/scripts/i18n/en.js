@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.4.4
+ * Orange angular-swagger-ui - v0.5.0
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -58,8 +58,8 @@ angular
 				explorerHeaders: 'Response headers',
 				explorerLoading: 'Loading...',
 				explorerTryIt: 'Try it out!',
-				errorNoParserFound: 'No parser found for Swagger specification of type {{type}} and version {{version}}',
-				errorParseFailed: 'Failed to parse Swagger specification: {{message}}',
+				errorNoParserFound: 'No parser found for OpenApi specification of type {{type}} and version {{version}}',
+				errorParseFailed: 'Failed to parse OpenApi specification: {{message}}',
 				errorJsonParse: 'Failed to parse JSON',
 				errorNoYamlParser: 'No YAML parser found, please make sure to include js-yaml library',
 				authRequired: 'Authorization required',

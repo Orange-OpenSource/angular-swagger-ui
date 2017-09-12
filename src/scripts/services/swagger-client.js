@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.4.4
+ * Orange angular-swagger-ui - v0.5.0
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -40,7 +40,7 @@ angular
 		/**
 		 * Send API explorer request
 		 */
-		this.send = function(swagger, operation, values) {
+		this.send = function(openApiSpec, operation, values) {
 			var deferred = $q.defer(),
 				query = {},
 				headers = {},
@@ -112,11 +112,11 @@ angular
 			headers['Content-Type'] = body ? values.contentType : 'text/plain';
 
 		    // build request
-			var basePath = swagger.basePath || '',
+			var basePath = openApiSpec.basePath || '',
 				baseUrl = [
-					swagger.schemes[0],
+					openApiSpec.schemes[0],
 					'://',
-					swagger.host,
+					openApiSpec.host,
 					basePath.length > 0 && basePath.substring(basePath.length - 1) === '/' ? basePath.slice(0, -1) : basePath
 				].join(''),
 				options = {

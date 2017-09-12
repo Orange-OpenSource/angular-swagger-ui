@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.4.4
+ * Orange angular-swagger-ui - v0.5.0
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -58,8 +58,8 @@ angular
 				explorerHeaders: 'レスポンス ヘダー',
 				explorerLoading: 'ロード中...',
 				explorerTryIt: '試してください!',
-				errorNoParserFound: 'No parser found for Swagger specification of type {{type}} and version {{version}}',
-				errorParseFailed: 'Swaggerスペッキをパース心配になりました : {{message}}',
+				errorNoParserFound: 'No parser found for OpenApi specification of type {{type}} and version {{version}}',
+				errorParseFailed: 'OpenApiスペッキをパース心配になりました : {{message}}',
 				errorJsonParse: 'JSONをパース心配なりました',
 				errorNoYamlParser: 'YAML パーサを見つかりませんでした、js-yaml libraryを追加お願いいたします',
 				authRequired: 'Authorization required',

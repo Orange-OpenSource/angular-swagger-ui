@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.4.4
+ * Orange angular-swagger-ui - v0.5.0
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -14,6 +14,7 @@ angular
 
 		this.AUTH = 'AUTH';
 		this.BEFORE_LOAD = 'BEFORE_LOAD';
+		this.AFTER_LOAD = 'AFTER_LOAD';
 		this.BEFORE_PARSE = 'BEFORE_PARSE';
 		this.PARSE = 'PARSE';
 		this.BEFORE_DISPLAY = 'BEFORE_DISPLAY';
@@ -24,13 +25,25 @@ angular
 		/**
 		 * Adds a new module to swagger-ui
 		 */
-		this.add = function(phase, module) {
+		this.add = function(phase, module, priority) {
 			if (!modules[phase]) {
 				modules[phase] = [];
 			}
+			if (!priority) {
+				priority = 1;
+			}
+			module.swaggerModulePriority = priority;
 			if (modules[phase].indexOf(module) < 0) {
 				modules[phase].push(module);
 			}
+			modules[phase].sort(function(obj1, obj2) {
+				if (obj1.swaggerModulePriority > obj2.swaggerModulePriority) {
+					return -1;
+				} else if (obj1.swaggerModulePriority < obj2.swaggerModulePriority) {
+					return 1;
+				}
+				return 0;
+			});
 		};
 
 		/**
@@ -40,7 +53,7 @@ angular
 			var module = phaseModules.shift();
 			if (module) {
 				module
-					.execute.apply(module, args)
+					.execute(args)
 					.then(function(executed) {
 						phaseExecuted = phaseExecuted || executed;
 						executeAll(deferred, phaseModules, args, phaseExecuted);
@@ -54,12 +67,13 @@ angular
 		/**
 		 * Executes modules' phase
 		 */
-		this.execute = function() {
-			var args = Array.prototype.slice.call(arguments), // get an Array from arguments
-				phase = args.splice(0, 1),
-				deferred = $q.defer(),
+		this.execute = function(phase, args) {
+			var deferred = $q.defer(),
 				phaseModules = modules[phase] || [];
 
+			if (!angular.isObject(args)) {
+				console.warn('argument should be an object!');
+			}
 			executeAll(deferred, [].concat(phaseModules), args);
 			return deferred.promise;
 		};

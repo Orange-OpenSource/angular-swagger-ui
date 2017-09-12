@@ -44,7 +44,7 @@ module.exports = {
 	},
 	'dist-auth-deps': {
 		options: {
-			base: 'bower_components/angular-ui-bootstrap',
+			base: 'node_modules/angular-ui-bootstrap',
 			module: 'swaggerUiAuthorization',
 			singleModule: true,
 			existingModule: true,
@@ -62,7 +62,7 @@ module.exports = {
 			}
 		},
 		files: [{
-			src: ['bower_components/angular-ui-bootstrap/template/modal/*.html'],
+			src: ['node_modules/angular-ui-bootstrap/template/modal/*.html'],
 			dest: 'dist/scripts/templates-auth-deps.js'
 		}]
 	}

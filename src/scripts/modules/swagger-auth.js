@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.4.4
+ * Orange angular-swagger-ui - v0.5.0
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -13,7 +13,7 @@ angular
 		/**
 		 * Module entry point
 		 */
-		this.execute = function(operation, auth) {
+		this.execute = function(data) {
 			var deferred = $q.defer(),
 				modalInstance = $uibModal.open({
 					templateUrl: 'templates/auth/modal-auth.html',
@@ -21,10 +21,10 @@ angular
 					backdrop: true,
 					resolve: {
 						auth: function() {
-							return auth;
+							return data.auth;
 						},
 						operation: function() {
-							return operation;
+							return data.operation;
 						}
 					}
 				});
@@ -93,5 +93,5 @@ angular
 
 	})
 	.run(function(swaggerModules, swaggerUiAuth) {
-		swaggerModules.add(swaggerModules.AUTH, swaggerUiAuth);
+		swaggerModules.add(swaggerModules.AUTH, swaggerUiAuth, 1);
 	});

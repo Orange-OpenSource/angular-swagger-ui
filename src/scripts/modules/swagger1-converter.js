@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.4.4
+ * Orange angular-swagger-ui - v0.5.0
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -8,17 +8,17 @@
 
 angular
 	.module('swaggerUi')
-	.service('swagger1ToSwagger2Converter', function($q, $http, swaggerModules) {
+	.service('swagger1Converter', function($q, $http, swaggerModules, swaggerLoader) {
 
 		/**
 		 * Module entry point
 		 */
-		this.execute = function(swaggerUrl, swaggerData) {
+		this.execute = function(data) {
 			var deferred = $q.defer(),
-				version = swaggerData.swaggerVersion;
+				version = data.openApiSpec && data.openApiSpec.swaggerVersion;
 
-			if (version && version.indexOf('1.') === 0) {
-				convert(deferred, swaggerUrl, swaggerData);
+			if (version === '1.2' && (data.parser === 'json' || (data.parser === 'auto' && data.contentType === 'application/json'))) {
+				convert(deferred, data);
 			} else {
 				deferred.resolve(false);
 			}
@@ -26,33 +26,10 @@ angular
 		};
 
 		/**
-		 * Load Swagger file
-		 */
-		function get(url) {
-			var deferred = $q.defer();
-			var options = {
-				method: 'GET',
-				url: url
-			};
-			swaggerModules
-				.execute(swaggerModules.BEFORE_LOAD, options)
-				.then(function() {
-					$http(options)
-						.then(deferred.resolve)
-						.catch(deferred.reject);
-				})
-				.catch(deferred.reject);
-
-			return deferred.promise;
-		}
-
-		/**
 		 * Transforms Swagger 1 to Swagger 2
 		 */
-		function convert(deferred, swaggerUrl, swaggerData) {
-			// prepare swagger2 objects
-			var swagger2 = swaggerData,
-				info = swagger2.info || (swagger2.info = {}),
+		function convert(deferred, data) {
+			var info = data.openApiSpec.info || {},
 				promises = [],
 				swaggerResourceName;
 
@@ -64,13 +41,18 @@ angular
 				url: info.licenseUrl
 			};
 			info.termsOfService = info.termsOfServiceUrl;
-			swagger2.paths = {};
-			swagger2.definitions = {};
-			swagger2.tags = [];
+
+			data.openApiSpec.info = info;
+			data.openApiSpec.paths = {};
+			data.openApiSpec.definitions = {};
+			data.openApiSpec.tags = [];
+			data.openApiSpec.swagger = '2.0';
 
 			// load files
-			angular.forEach(swaggerData.apis, function(api) {
-				promises.push(get(swaggerUrl + api.path));
+			angular.forEach(data.openApiSpec.apis, function(api) {
+				promises.push(swaggerLoader.get({
+					url: data.url + api.path
+				}));
 			});
 
 			$q.all(promises)
@@ -79,13 +61,12 @@ angular
 						.execute(swaggerModules.BEFORE_CONVERT, results)
 						.then(function() {
 							angular.forEach(results, function(response, i) {
-								swaggerResourceName = swaggerData.apis[i].path;
+								swaggerResourceName = data.openApiSpec.apis[i].path;
 								swaggerResourceName = swaggerResourceName.substring(swaggerResourceName.lastIndexOf('/') + 1);
-								convertInfos(response.data, swagger2, swaggerResourceName);
-								convertOperations(response.data, swagger2, swaggerResourceName);
-								convertModels(response.data, swagger2);
+								convertInfos(response.openApiSpec, data.openApiSpec, swaggerResourceName);
+								convertOperations(response.openApiSpec, data.openApiSpec, swaggerResourceName);
+								convertModels(response.openApiSpec, data.openApiSpec);
 							});
-							swagger2.swagger = '2.0';
 							deferred.resolve(true); // success
 						})
 						.catch(deferred.reject);
@@ -96,24 +77,24 @@ angular
 		/**
 		 * convert main infos and tags
 		 */
-		function convertInfos(swagger1, swagger2, swaggerResourceName) {
-			swagger2.info.version = swagger2.info.version || swagger1.apiVersion;
-			swagger2.basePath = swagger2.basePath || swagger1.basePath;
-			if (swagger2.basePath.indexOf('http') === 0) {
-				var a = angular.element('<a href="' + swagger2.basePath + '"></a>')[0];
-				swagger2.schemes = [a.protocol.replace(':', '')];
-				swagger2.host = a.host;
-				swagger2.basePath = a.pathname;
+		function convertInfos(swagger1, openApiSpec, swaggerResourceName) {
+			openApiSpec.info.version = openApiSpec.info.version || swagger1.apiVersion;
+			openApiSpec.basePath = openApiSpec.basePath || swagger1.basePath;
+			if (openApiSpec.basePath.indexOf('http') === 0) {
+				var a = angular.element('<a href="' + openApiSpec.basePath + '"></a>')[0];
+				openApiSpec.schemes = [a.protocol.replace(':', '')];
+				openApiSpec.host = a.host;
+				openApiSpec.basePath = a.pathname;
 			}
-			swagger2.tags.push({
+			openApiSpec.tags.push({
 				name: swaggerResourceName
 			});
 		}
 
-		function convertOperations(swagger1, swagger2, swaggerResourceName) {
+		function convertOperations(swagger1, openApiSpec, swaggerResourceName) {
 			var path, responses;
 			angular.forEach(swagger1.apis, function(subPath) {
-				path = swagger2.paths[subPath.path] = swagger2.paths[subPath.path] || {};
+				path = openApiSpec.paths[subPath.path] = openApiSpec.paths[subPath.path] || {};
 				angular.forEach(subPath.operations, function(operation) {
 					responses = {};
 					path[operation.method.toLowerCase()] = {
@@ -181,14 +162,14 @@ angular
 			});
 		}
 
-		function convertModels(swagger1, swagger2) {
+		function convertModels(swagger1, openApiSpec) {
 			var subModel,
 				mapRegExp = new RegExp('Map\\[string,(.*)\\]'),
 				arrayRegExp = new RegExp('List\\[(.*)\\]'),
 				polymorphicModels = [];
 
 			angular.forEach(swagger1.models, function(model, name) {
-				swagger2.definitions[name] = model;
+				openApiSpec.definitions[name] = model;
 				if (model.subTypes) {
 					polymorphicModels.push(name);
 				}
@@ -227,11 +208,11 @@ angular
 			});
 			// polymorphic models
 			angular.forEach(polymorphicModels, function(name) {
-				var model = swagger2.definitions[name];
+				var model = openApiSpec.definitions[name];
 				angular.forEach(model.subTypes, function(subType) {
-					subModel = swagger2.definitions[subType];
+					subModel = openApiSpec.definitions[subType];
 					if (subModel) {
-						swagger2.definitions[subType] = {
+						openApiSpec.definitions[subType] = {
 							allOf: [{
 								$ref: getModelReference(name)
 							}, subModel]
@@ -263,6 +244,6 @@ angular
 		}
 
 	})
-	.run(function(swaggerModules, swagger1ToSwagger2Converter) {
-		swaggerModules.add(swaggerModules.BEFORE_PARSE, swagger1ToSwagger2Converter);
+	.run(function(swaggerModules, swagger1Converter) {
+		swaggerModules.add(swaggerModules.BEFORE_PARSE, swagger1Converter, 10);
 	});

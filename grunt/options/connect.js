@@ -18,15 +18,16 @@ module.exports = {
             base: 'src',
             middleware: function(connect, options, middlewares) {
                 // configure & add middlewares:
+                var serveStatic = require('serve-static');
                 middlewares.unshift(
                     function(req, res, next) {
                         res.setHeader('Access-Control-Allow-Origin', '*');
                         res.setHeader('Access-Control-Allow-Methods', '*');
                         next();
                     }, 
-                    connect().use('/bower_components', connect.static('./bower_components')),
-                    connect().use('/uib/template', connect.static('./bower_components/angular-ui-bootstrap/template')),
-                    connect.static('src')
+                    connect().use('/node_modules', serveStatic('./node_modules')),
+                    connect().use('/uib/template', serveStatic('./node_modules/angular-ui-bootstrap/template')),
+                    serveStatic('src')
                 );
                 return middlewares;
             }

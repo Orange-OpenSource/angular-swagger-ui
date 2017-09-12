@@ -1,10 +1,10 @@
 .DS_Store
-.bowerrc
 node_modules
 npm-debug.log
 .tmp
 .sass-cache
-bower_components
 src/css
 *.iml
 .idea/
+todo.txt
+src/samples

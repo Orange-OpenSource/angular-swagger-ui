@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.4.4
+ * Orange angular-swagger-ui - v0.5.0
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -8,14 +8,14 @@
 
 angular
 	.module('swaggerUi')
-	.service('swaggerUiYamlParser', function($window, $q, swaggerParser, swaggerTranslator) {
+	.service('swaggerUiYamlParser', function($window, $q, swaggerModules, swaggerTranslator) {
 
 		/**
 		 * Module entry point
 		 */
-		this.execute = function(parserType, url, contentType, data, isTrustedSources, parseResult) {
+		this.execute = function(data) {
 			var deferred = $q.defer();
-			if (parserType === 'yaml' || (parserType === 'auto' && (contentType === 'application/yaml' || contentType === 'text/yaml'))) {
+			if (data.parser === 'yaml' || (data.parser === 'auto' && data.contentType.indexOf('/yaml') > 0)) {
 				var YAML = $window.jsyaml;
 				if (typeof YAML === 'undefined') {
 					deferred.reject({
@@ -24,14 +24,9 @@ angular
 					});
 				} else {
 					try {
-						var json = YAML.load(data);
-						swaggerParser
-							.execute('json', url, 'application/json', json, isTrustedSources, parseResult)
-							.then(function(executed) {
-								parseResult.transformSwagger = json;
-								deferred.resolve(executed);
-							})
-							.catch(deferred.reject);
+						data.openApiSpec = YAML.load(data.openApiSpec);
+						data.parser = 'json';
+						deferred.resolve(true);
 					} catch (e) {
 						deferred.reject({
 							code: 500,
@@ -47,5 +42,5 @@ angular
 
 	})
 	.run(function(swaggerModules, swaggerUiYamlParser) {
-		swaggerModules.add(swaggerModules.PARSE, swaggerUiYamlParser);
+		swaggerModules.add(swaggerModules.BEFORE_PARSE, swaggerUiYamlParser, 20);
 	});

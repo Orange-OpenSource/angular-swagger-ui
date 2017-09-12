@@ -27,8 +27,8 @@
         			<li><a ng-click="op.responseClass.display=0" ng-class="{active:op.responseClass.display==0}" swagger-translate="responseModel"></a></li>
         			<li><a ng-click="op.responseClass.display=1" ng-class="{active:op.responseClass.display==1}" swagger-translate="responseSchema"></a></li>
         		</ul>
-        		<pre class="model" ng-if="op.responseClass.display==0" ng-bind-html="op.responseClass.schema.model"></pre>
-        		<pre select-on-db-click class="model-schema" ng-if="op.responseClass.display==1" ng-bind="op.responseClass.schema.json"></pre>
+        		<pre class="model" ng-if="op.responseClass.display==0" ng-bind-html="getModel(op,op.responseClass,'default')"></pre>
+        		<pre select-on-db-click class="model-schema" ng-if="op.responseClass.display==1" ng-bind="getSample(op,op.responseClass,'default',ui.form[op.id].responseType)"></pre>
     		</div>
     	</div>
         <div ng-if="op.headers" class="table-responsive">
@@ -69,7 +69,7 @@
 		</div>
         <div ng-if="op.produces" class="content-type">
             <label for="responseContentType{{op.id}}" swagger-translate="responseContentType"></label>
-            <select ng-model="form[op.id].responseType" ng-options="item for item in op.produces track by item" id="responseContentType{{op.id}}" name="responseContentType{{op.id}}" required></select>
+            <select ng-model="ui.form[op.id].responseType" ng-options="item for item in op.produces track by item" id="responseContentType{{op.id}}" name="responseContentType{{op.id}}" required></select>
         </div>
     	<div class="table-responsive" ng-if="op.hasResponses">
     		<h5 swagger-translate="responses"></h5>

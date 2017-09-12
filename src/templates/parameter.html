@@ -4,18 +4,18 @@
 <td ng-class="{bold:param.required}" class="operation-parameter-value">
 	<div ng-if="apiExplorer">
 		<div ng-if="param.in!='body'" ng-switch="param.subtype">
-			<input ng-switch-when="file" type="file" file-input ng-model="form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?'parameterRequired':''|swaggerTranslate}}" ng-required="param.required" name="{{param.name}}">
-			<select ng-switch-when="enum" ng-model="form[op.id][param.name]" id="param{{param.id}}" name="{{param.name}}">
+			<input ng-switch-when="file" type="file" file-input ng-model="ui.form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?'parameterRequired':''|swaggerTranslate}}" ng-required="param.required" name="{{param.name}}">
+			<select ng-switch-when="enum" ng-model="ui.form[op.id][param.name]" id="param{{param.id}}" name="{{param.name}}">
 				<option ng-repeat="value in param.enum" value="{{value}}" ng-bind="value+(param.default==value?'parameterDefault':''|swaggerTranslate)" ng-selected="param.default==value"></option>
 			</select>
-			<input ng-switch-default type="text" ng-model="form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?'parameterRequired':''|swaggerTranslate}}" ng-required="param.required" name="{{param.name}}">
+			<input ng-switch-default type="text" ng-model="ui.form[op.id][param.name]" id="param{{param.id}}" placeholder="{{param.required?'parameterRequired':''|swaggerTranslate}}" ng-required="param.required" name="{{param.name}}">
 		</div>
 		<div ng-if="param.in=='body'">
-			<textarea id="param{{param.id}}" ng-model="form[op.id][param.name]" ng-required="param.required" name="{{param.name}}"></textarea>
+			<textarea id="param{{param.id}}" ng-model="ui.form[op.id][param.name]" ng-required="param.required" name="{{param.name}}"></textarea>
 			<br>
 			<div ng-if="op.consumes" class="content-type">
     			<label for="bodyContentType{{op.id}}" swagger-translate="parameterContentType"></label>
-    			<select ng-model="form[op.id].contentType" id="bodyContentType{{op.id}}" name="bodyContentType{{op.id}}" ng-options="item for item in op.consumes track by item"></select>
+    			<select ng-model="ui.form[op.id].contentType" id="bodyContentType{{op.id}}" name="bodyContentType{{op.id}}" ng-options="item for item in op.consumes track by item"></select>
     		</div>
 		</div>
 	</div>
@@ -40,9 +40,9 @@
 		<li><a ng-click="param.schema.display=0" ng-class="{active:param.schema.display==0}" swagger-translate="parameterModel"></a></li>
 		<li><a ng-click="param.schema.display=1" ng-class="{active:param.schema.display==1}" swagger-translate="parameterSchema"></a></li>
 	</ul>
-	<pre class="model" ng-if="param.schema.display==0&&param.schema.model" ng-bind-html="param.schema.model"></pre>
-	<div ng-if="param.schema.display==1&&param.schema.json">
-		<pre select-on-db-click class="model-schema" ng-bind="param.schema.json" ng-click="form[op.id][param.name]=param.schema.json" aria-described-by="help-{{param.id}}"></pre>
+	<pre class="model" ng-if="param.schema.display==0" ng-bind-html="getModel(op,param,'parameter')"></pre>
+	<div ng-if="param.schema.display==1">
+		<pre select-on-db-click class="model-schema" ng-bind="getSample(op,param,'parameters',ui.form[op.id].contentType)" ng-click="ui.form[op.id][param.name]=getSample(op,param,'parameter',ui.form[op.id].contentType)" aria-described-by="help-{{param.id}}"></pre>
 		<div id="help-{{param.id}}" swagger-translate="parameterSetValue"></div>
 	</div>
 </td>
