@@ -1,3 +1,12 @@
+### 0.5.0 (2017-10-xx)
+
+ * Add support for OpenApi 3.0.0 (beta) (#80)
+ * Add support for polymorphism
+ * Refactor modules (rename, add priority, change arguments)
+ * Generate models and samples only when required to make UI being displayed faster
+ * Make text areas resizable
+ * Get rid of bower
+
 ### 0.4.4 (2017-06-22)
 
  * Fix #76: paths with regexp
