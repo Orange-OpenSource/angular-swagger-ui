@@ -336,7 +336,7 @@ angular
 		 * generates an HTML link to a submodel
 		 */
 		function getSubModelLink(operationId, modelId, name) {
-			var linkModelId = modelCacheIds[name] || operationId + '-model-' + modelId;
+			var linkModelId = operationId + '-model-' + modelId;
 			return ['<a class="model-link type" onclick="swaggerlink(\'', linkModelId, '\')">', name, '</a>'].join('');
 		}
 
