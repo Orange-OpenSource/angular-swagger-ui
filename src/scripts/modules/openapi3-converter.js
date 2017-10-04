@@ -74,29 +74,41 @@ angular
 			var content, param;
 			operation.parameters = operation.parameters || [];
 			if (operation.requestBody) {
-				param = operation.requestBody;
+				param = swaggerModel.resolveReference(openApiSpec, operation.requestBody);
 				param.name = 'body';
-				content = swaggerModel.resolveReference(openApiSpec, operation.requestBody).content;
+				content = param.content;
 				if (content) {
 					delete param.content;
 					if (content['application/x-www-form-urlencoded']) {
-						param.in = 'body';
-						param.schema = content['application/x-www-form-urlencoded'].schema;
-					} else if (content['multipart/form-data']) {
 						param.in = 'formData';
 						param.schema = content['application/x-www-form-urlencoded'].schema;
+						param.schema = swaggerModel.resolveReference(openApiSpec, param.schema);
+						if (param.schema.type === 'object' && param.schema.properties) {
+							angular.forEach(param.schema.properties, function(prop, name) {
+								param = prop;
+								param.name = name;
+								param.in = 'formData';
+								operation.parameters.push(param);
+							});
+						} else {
+							operation.parameters.push(param);
+						}
+					} else if (content['multipart/form-data']) {
+						param.in = 'formData';
+						param.schema = content['multipart/form-data'].schema;
+						operation.parameters.push(param);
 					} else if (content['application/octet-stream']) {
-						param.in = 'file';
-						param.schema = content['application/octet-stream'].schema;
+						param.in = 'formData';
+						param.type = 'file';
+						param.name = param.name || 'file';
+						delete param.schema;
+						operation.parameters.push(param);
 					} else if (content['application/json']) {
 						param.in = 'body';
 						param.schema = content['application/json'].schema;
-					} else {
-						param = null;
-						console.warn('unsupported request body media type', operation.operationId, content);
-					}
-					if (param) {
 						operation.parameters.push(param);
+					} else {
+						console.warn('unsupported request body media type', operation.operationId, content);
 					}
 				}
 				delete operation.requestBody;
@@ -104,8 +116,8 @@ angular
 			angular.forEach(operation.parameters, function(param, i) {
 				param = operation.parameters[i] = swaggerModel.resolveReference(openApiSpec, param);
 				copySchemaProperties(param);
-				copyArrayProperties(param);
-				if (!param.schema.$ref) {
+				if (param.in !== 'body') {
+					copyArrayProperties(param);
 					delete param.schema;
 				}
 			});

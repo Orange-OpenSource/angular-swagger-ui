@@ -6,13 +6,9 @@ module.exports = {
 		files: {
 			'dist/scripts/swagger-ui.js': [
 				'dist/scripts/swagger-ui.js',
-				'dist/scripts/controllers/swagger-ui-controller.js',
-				'dist/scripts/services/swagger-client.js',
-				'dist/scripts/services/swagger-model.js',
-				'dist/scripts/services/swagger-modules.js',
-				'dist/scripts/services/swagger-parser.js',
-				'dist/scripts/services/swagger-loader.js',
-				'dist/scripts/services/swagger-i18n.js',
+				'dist/scripts/controllers/*.js',
+				'dist/scripts/directives/*.js',
+				'dist/scripts/services/*.js',
 				'dist/scripts/i18n/en.js',
 				'dist/scripts/templates.js'
 			],

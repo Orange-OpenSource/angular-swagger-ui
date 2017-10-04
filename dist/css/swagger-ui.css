@@ -136,6 +136,7 @@
 .swagger-ui .operation .content pre.model-schema,
 .swagger-ui .operation .content pre.explorer-body {
   resize: vertical;
+  min-height: 100px;
   height: 100px;
   max-height: initial;
 }

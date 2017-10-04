@@ -58,7 +58,7 @@ angular
 				explorerHeaders: 'Response headers',
 				explorerLoading: 'Loading...',
 				explorerTryIt: 'Try it out!',
-				errorNoParserFound: 'No parser found for OpenApi specification of type {{type}} and version {{version}}',
+				errorNoParserFound: 'No parser found for OpenApi specification of type {{type}}',
 				errorParseFailed: 'Failed to parse OpenApi specification: {{message}}',
 				errorJsonParse: 'Failed to parse JSON',
 				errorNoYamlParser: 'No YAML parser found, please make sure to include js-yaml library',

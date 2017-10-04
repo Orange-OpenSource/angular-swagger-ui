@@ -58,7 +58,7 @@ angular
 				explorerHeaders: 'Entêtes de la réponse',
 				explorerLoading: 'En cours ...',
 				explorerTryIt: 'Essayer !',
-				errorNoParserFound: 'Aucun parseur trouvé pour la spécification OpenApi au format {{type}} et version {{version}}',
+				errorNoParserFound: 'Aucun parseur trouvé pour la spécification OpenApi au format {{type}}',
 				errorParseFailed: 'Impossible de parser la spécification OpenApi : {{message}}',
 				errorJsonParse: 'Impossible de parser le JSON',
 				errorNoYamlParser: 'Aucun parseur YAML trouvé, veuillez vérifier que la librairie js-yaml est bien chargée',

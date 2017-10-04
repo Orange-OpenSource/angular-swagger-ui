@@ -58,7 +58,7 @@ angular
 				explorerHeaders: 'レスポンス ヘダー',
 				explorerLoading: 'ロード中...',
 				explorerTryIt: '試してください!',
-				errorNoParserFound: 'No parser found for OpenApi specification of type {{type}} and version {{version}}',
+				errorNoParserFound: 'No parser found for OpenApi specification of type {{type}}',
 				errorParseFailed: 'OpenApiスペッキをパース心配になりました : {{message}}',
 				errorJsonParse: 'JSONをパース心配なりました',
 				errorNoYamlParser: 'YAML パーサを見つかりませんでした、js-yaml libraryを追加お願いいたします',

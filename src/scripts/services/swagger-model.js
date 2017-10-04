@@ -21,14 +21,15 @@ angular
 		 * retrieves object definition
 		 */
 		var resolveReference = this.resolveReference = function(openApiSpec, object) {
+			var result = object;
 			if (object.$ref) {
 				var parts = object.$ref.replace('#/', '').split('/');
-				object = openApiSpec;
+				result = openApiSpec;
 				for (var i = 0, j = parts.length; i < j; i++) {
-					object = object[parts[i]];
+					result = result[parts[i]];
 				}
 			}
-			return object;
+			return angular.copy(result);
 		};
 
 		/**
@@ -148,10 +149,10 @@ angular
 		/**
 		 * generates a sample JSON string (request body or response body)
 		 */
-		this.generateSampleJson = function(openApiSpec, schema) {
+		this.generateSampleJson = function(openApiSpec, schema, example) {
 			var obj, json;
 			try {
-				obj = getSampleObj(openApiSpec, schema);
+				obj = example || getSampleObj(openApiSpec, schema);
 				if (obj) {
 					json = angular.toJson(obj, true);
 				}
@@ -166,7 +167,7 @@ angular
 		/**
 		 * generates a sample XML string (request body or response body)
 		 */
-		this.generateSampleXml = function(openApiSpec, schema) {
+		this.generateSampleXml = function(openApiSpec, schema, example) {
 			//TODO
 			return '<?xml version="1.0" encoding="UTF-8"?>\n<!-- XML example cannot be generated -->';
 		};
@@ -397,6 +398,6 @@ angular
 			sampleCache = {};
 			countModel = 0;
 			countInLineModels = 1;
-		};
+		}
 
 	});

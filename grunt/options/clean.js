@@ -16,12 +16,9 @@ module.exports = {
 		files: [{
 			dot: true,
 			src: [
-				'dist/scripts/services/swagger-client.js',
-				'dist/scripts/services/swagger-model.js',
-				'dist/scripts/services/swagger-modules.js',
-				'dist/scripts/services/swagger-parser.js',
-				'dist/scripts/services/swagger-loader.js',
-				'dist/scripts/services/swagger-i18n.js',
+				'dist/scripts/controllers/',
+				'dist/scripts/directives/',
+				'dist/scripts/services/',
 				'dist/scripts/modules/swagger-external-references.js',
 				'dist/scripts/modules/swagger-xml-formatter.js',
 				'dist/scripts/modules/swagger1-converter.js',

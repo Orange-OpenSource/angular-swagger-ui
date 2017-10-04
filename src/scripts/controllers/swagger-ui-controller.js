@@ -27,8 +27,7 @@ angular
 						onError({
 							code: 415,
 							message: swaggerTranslator.translate('errorNoParserFound', {
-								type: data.contentType,
-								version: data.openApiSpec
+								type: data.contentType
 							})
 						});
 					}
@@ -57,7 +56,7 @@ angular
 		}
 
 		function onError(error) {
-			console.error(error.code, 'AngularSwaggerUI: ' + error.message);
+			console.error('AngularSwaggerUI', error);
 			$scope.loading = false;
 			if (typeof $scope.errorHandler === 'function') {
 				$scope.errorHandler(error.message, error.code);
@@ -230,11 +229,7 @@ angular
 			var id = operation.operationId + '-' + section;
 			samples[id] = samples[id] || {};
 			if (obj.schema && !samples[id][contentType]) {
-				if (obj.examples && obj.examples[contentType]) {
-					samples[id][contentType] = angular.toJson(obj.examples[contentType], true);
-				} else {
-					samples[id][contentType] = swaggerModel[contentType.indexOf('/xml') >= 0 ? 'generateSampleXml' : 'generateSampleJson'](openApiSpec, obj.schema);
-				}
+				samples[id][contentType] = swaggerModel[contentType.indexOf('/xml') >= 0 ? 'generateSampleXml' : 'generateSampleJson'](openApiSpec, obj.schema, obj.examples && obj.examples[contentType]);
 			}
 			return samples[id][contentType];
 		};

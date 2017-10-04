@@ -112,8 +112,7 @@ angular
 				httpMethod,
 				operation,
 				tag,
-				resource,
-				openModel;
+				resource;
 
 			for (path in openApiSpec.paths) {
 				pathObject = openApiSpec.paths[path] = swaggerModel.resolveReference(openApiSpec, openApiSpec.paths[path]);
@@ -193,7 +192,6 @@ angular
 		function parseParameters(openApiSpec, operation, pathParameters, form, defaultContentType, openPath) {
 			var i, l,
 				param,
-				model,
 				openModel,
 				parameters = operation.parameters = computeParameters(openApiSpec, pathParameters, operation);
 
@@ -235,9 +233,7 @@ angular
 		 */
 		function parseResponses(openApiSpec, operation, openPath) {
 			var code,
-				model,
 				response,
-				sampleJson,
 				openModel;
 
 			if (operation.responses) {

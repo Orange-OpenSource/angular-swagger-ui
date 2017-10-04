@@ -1,4 +1,4 @@
-### 0.5.0 (2017-10-xx)
+### 0.5.0 (2017-10-30)
 
  * Add support for OpenApi 3.0.0 (beta) (#80)
  * Add support for polymorphism

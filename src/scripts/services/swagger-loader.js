@@ -24,7 +24,7 @@ angular
 				})
 				.then(function(response) {
 					data.openApiSpec = response.data;
-					data.contentType = response.headers()['content-type'] || 'application/json';
+					data.contentType = (response.headers()['content-type'] || 'application/json').split(';')[0];
 					return swaggerModules.execute(swaggerModules.AFTER_LOAD, data);
 				})
 				.then(function() {
