@@ -25,7 +25,7 @@ http://orange-opensource.github.io/angular-swagger-ui
 
 ### Install
 
-`bower install angular-swagger-ui --save`
+`npm install angular-swagger-ui --save`
 
 ### Dependencies
 
