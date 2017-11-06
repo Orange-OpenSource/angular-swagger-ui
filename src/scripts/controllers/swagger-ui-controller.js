@@ -164,7 +164,7 @@ angular
 		$scope.submitExplorer = function(operation) {
 			operation.loading = true;
 			swaggerClient
-				.send(openApiSpec, operation, $scope.form[operation.id])
+				.send(openApiSpec, operation, $scope.ui.form[operation.id])
 				.then(function(result) {
 					operation.loading = false;
 					operation.explorerResult = result;
