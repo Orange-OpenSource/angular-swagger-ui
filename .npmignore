@@ -1,2 +1,6 @@
 src
 grunt
+*.iml
+Gruntfile.js
+todo.txt
+copyright.txt
