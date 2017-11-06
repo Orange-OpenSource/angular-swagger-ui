@@ -25,7 +25,7 @@ http://orange-opensource.github.io/angular-swagger-ui
 
 ### Install
 
-`npm install angular-swagger-ui --save`
+`npm install angular-swagger-ui`
 
 ### Dependencies
 
@@ -343,7 +343,7 @@ angular
 	.module('myApp', ['swaggerUi'])
 	.service('myModule', function($q) {
 
-		this.execute = function() {
+		this.execute = function(data) {
 			var deferred = $q.defer();
 			// if nothing done: call deferred.resolve(false);
 			// if success: call deferred.resolve(true);
