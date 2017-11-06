@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.5.0
+ * Orange angular-swagger-ui - v0.5.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -65,7 +65,7 @@ angular
 		};
 	}]);
 /*
- * Orange angular-swagger-ui - v0.5.0
+ * Orange angular-swagger-ui - v0.5.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -230,7 +230,7 @@ angular
 		$scope.submitExplorer = function(operation) {
 			operation.loading = true;
 			swaggerClient
-				.send(openApiSpec, operation, $scope.form[operation.id])
+				.send(openApiSpec, operation, $scope.ui.form[operation.id])
 				.then(function(result) {
 					operation.loading = false;
 					operation.explorerResult = result;
@@ -302,7 +302,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.5.0
+ * Orange angular-swagger-ui - v0.5.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -327,7 +327,7 @@ angular
 		};
 	});
 /*
- * Orange angular-swagger-ui - v0.5.0
+ * Orange angular-swagger-ui - v0.5.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -353,7 +353,7 @@ angular
 		};
 	}]);
 /*
- * Orange angular-swagger-ui - v0.5.0
+ * Orange angular-swagger-ui - v0.5.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -511,7 +511,7 @@ angular
 	}]);
 
 /*
- * Orange angular-swagger-ui - v0.5.0
+ * Orange angular-swagger-ui - v0.5.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -604,7 +604,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.5.0
+ * Orange angular-swagger-ui - v0.5.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -650,7 +650,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.5.0
+ * Orange angular-swagger-ui - v0.5.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -1053,7 +1053,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.5.0
+ * Orange angular-swagger-ui - v0.5.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -1135,7 +1135,7 @@ angular
 	}]);
 
 /*
- * Orange angular-swagger-ui - v0.5.0
+ * Orange angular-swagger-ui - v0.5.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -1472,7 +1472,7 @@ angular
 		swaggerModules.add(swaggerModules.PARSE, swaggerParser, 1);
 	}]);
 /*
- * Orange angular-swagger-ui - v0.5.0
+ * Orange angular-swagger-ui - v0.5.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed

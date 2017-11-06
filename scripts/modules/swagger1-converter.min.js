@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.5.0
+ * Orange angular-swagger-ui - v0.5.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
