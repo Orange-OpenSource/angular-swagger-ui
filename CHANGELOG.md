@@ -1,3 +1,7 @@
+### 0.5.2 (2017-11-07)
+
+ * Force re-publish on npm
+
 ### 0.5.1 (2017-11-06)
 
  * Fix API explorer
