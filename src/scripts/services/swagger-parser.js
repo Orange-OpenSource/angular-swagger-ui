@@ -79,6 +79,9 @@ angular
 			infos.host = openApiSpec.host;
 			infos.description = trustHtml(infos.description);
 			infos.externalDocs = openApiSpec.externalDocs;
+			if (infos.externalDocs) {
+				infos.externalDocs.description = trustHtml(infos.externalDocs.description);
+			}
 		}
 
 		/**
