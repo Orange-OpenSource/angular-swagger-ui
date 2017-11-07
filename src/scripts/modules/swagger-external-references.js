@@ -57,7 +57,9 @@ angular
 				.execute(swaggerModules.BEFORE_LOAD, options)
 				.then(function() {
 					$http(options)
-						.then(callback)
+						.then(function(response) {
+							callback(response.data);
+						})
 						.catch(function(response) {
 							onError({
 								message: response.data,
@@ -150,6 +152,7 @@ angular
 						loading--;
 						if (loading === 0) {
 							deferred.resolve(true);
+							console.log(openApiSpec)
 						}
 					}, prefix);
 				}
