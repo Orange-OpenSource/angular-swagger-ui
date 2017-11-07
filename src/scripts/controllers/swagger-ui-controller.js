@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi')
-	.controller('swaggerUiController', function($scope, $window, $http, $location, $anchorScroll, $timeout, $sce, swaggerClient, swaggerModules, swaggerTranslator, swaggerLoader, swaggerModel) {
+	.controller('swaggerUiController', function($scope, $window, $location, $anchorScroll, $timeout, $sce, swaggerClient, swaggerModules, swaggerTranslator, swaggerLoader, swaggerModel) {
 
 		var openApiSpec;
 

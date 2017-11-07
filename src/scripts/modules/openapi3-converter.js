@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi')
-	.service('openApi3Converter', function($q, $http, swaggerModules, swaggerModel) {
+	.service('openApi3Converter', function($q, swaggerModules, swaggerModel) {
 
 		var HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'],
 			SCHEMA_PROPERTIES = ['format', 'minimum', 'maximum', 'exclusiveMinimum', 'exclusiveMaximum', 'minLength', 'maxLength', 'multipleOf', 'minItems', 'maxItems', 'uniqueItems', 'minProperties', 'maxProperties', 'additionalProperties', 'pattern', 'enum', 'default'],

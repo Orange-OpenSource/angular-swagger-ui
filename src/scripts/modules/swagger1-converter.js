@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi')
-	.service('swagger1Converter', function($q, $http, swaggerModules, swaggerLoader) {
+	.service('swagger1Converter', function($q, swaggerModules, swaggerLoader) {
 
 		/**
 		 * Module entry point
