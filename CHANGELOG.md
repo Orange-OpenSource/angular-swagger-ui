@@ -1,4 +1,4 @@
-### 0.5.3 (2017-11-??)
+### 0.5.3 (2017-11-13)
 
  * Allow displaying a link to download swagger spec
  * Fix error if ng-sanitize not used
