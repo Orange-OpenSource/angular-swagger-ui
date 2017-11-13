@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.5.2
+ * Orange angular-swagger-ui - v0.5.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -70,7 +70,7 @@ angular
 		};
 	}]);
 /*
- * Orange angular-swagger-ui - v0.5.2
+ * Orange angular-swagger-ui - v0.5.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -307,7 +307,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.5.2
+ * Orange angular-swagger-ui - v0.5.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -332,7 +332,7 @@ angular
 		};
 	});
 /*
- * Orange angular-swagger-ui - v0.5.2
+ * Orange angular-swagger-ui - v0.5.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -358,7 +358,7 @@ angular
 		};
 	}]);
 /*
- * Orange angular-swagger-ui - v0.5.2
+ * Orange angular-swagger-ui - v0.5.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -516,7 +516,7 @@ angular
 	}]);
 
 /*
- * Orange angular-swagger-ui - v0.5.2
+ * Orange angular-swagger-ui - v0.5.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -609,7 +609,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.5.2
+ * Orange angular-swagger-ui - v0.5.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -655,7 +655,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.5.2
+ * Orange angular-swagger-ui - v0.5.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -1058,7 +1058,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.5.2
+ * Orange angular-swagger-ui - v0.5.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -1140,7 +1140,7 @@ angular
 	}]);
 
 /*
- * Orange angular-swagger-ui - v0.5.2
+ * Orange angular-swagger-ui - v0.5.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -1480,7 +1480,7 @@ angular
 		swaggerModules.add(swaggerModules.PARSE, swaggerParser, 1);
 	}]);
 /*
- * Orange angular-swagger-ui - v0.5.2
+ * Orange angular-swagger-ui - v0.5.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
