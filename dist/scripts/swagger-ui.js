@@ -31,6 +31,8 @@ angular
 				loading: '=?',
 				// Use permalinks? (boolean, optional, default = false)
 				permalinks: '=?',
+				// Display link to download swagger file (empty or i18n label, default = null)
+				download: '@?',
 				// Display API explorer (boolean, optional, default = false)
 				apiExplorer: '=?',
 				// Error handler (function, optional)
@@ -61,6 +63,9 @@ angular
 				if (scope.validatorUrl === undefined) {
 					scope.validatorUrl = 'http://online.swagger.io/validator';
 				}
+				if (typeof scope.download === 'undefined') {
+					scope.download = null;
+				}
 			}
 		};
 	}]);
@@ -74,7 +79,7 @@ angular
 
 angular
 	.module('swaggerUi')
-	.controller('swaggerUiController', ["$scope", "$window", "$http", "$location", "$anchorScroll", "$timeout", "$sce", "swaggerClient", "swaggerModules", "swaggerTranslator", "swaggerLoader", "swaggerModel", function($scope, $window, $http, $location, $anchorScroll, $timeout, $sce, swaggerClient, swaggerModules, swaggerTranslator, swaggerLoader, swaggerModel) {
+	.controller('swaggerUiController', ["$scope", "$window", "$location", "$anchorScroll", "$timeout", "$sce", "swaggerClient", "swaggerModules", "swaggerTranslator", "swaggerLoader", "swaggerModel", function($scope, $window, $location, $anchorScroll, $timeout, $sce, swaggerClient, swaggerModules, swaggerTranslator, swaggerLoader, swaggerModel) {
 
 		var openApiSpec;
 
@@ -1215,6 +1220,9 @@ angular
 			infos.host = openApiSpec.host;
 			infos.description = trustHtml(infos.description);
 			infos.externalDocs = openApiSpec.externalDocs;
+			if (infos.externalDocs) {
+				infos.externalDocs.description = trustHtml(infos.externalDocs.description);
+			}
 		}
 
 		/**
@@ -1565,5 +1573,5 @@ angular.module('swaggerUi').run(['$templateCache', function($templateCache) {
   $templateCache.put('templates/response.html',
     '<td ng-bind="code" class="operation-response-code"></td> <td ng-bind-html="resp.description" class="operation-response-description"></td> <td class="operation-response-model"> <ul ng-if="resp.schema" class="list-inline schema"> <li><a ng-click="resp.display=0" ng-class="{active:resp.display==0}" swagger-translate="responseModel"></a></li> <li><a ng-click="resp.display=1" ng-class="{active:resp.display==1}" swagger-translate="responseSchema"></a></li> </ul> <pre class="model" ng-if="resp.display==0&&resp.schema" ng-bind-html="getModel(op,resp,\'responses\')"></pre> <pre select-on-db-click class="model-schema" ng-if="resp.display==1&&resp.schema" ng-bind="getSample(op,resp,\'responses\',ui.form[op.id].responseType)"></pre> ');
   $templateCache.put('templates/swagger-ui.html',
-    '<div class="swagger-ui" aria-live="polite" aria-relevant="additions removals"> <div class="api-name"> <h3 ng-bind="ui.infos.title"></h3> </div> <div class="api-description" ng-bind-html="ui.infos.description"></div> <div class="external-docs" ng-if="ui.infos.externalDocs"> <span ng-bind-html="ui.infos.externalDocs.description"></span> <a target="_blank" ng-href="{{ui.infos.externalDocs.url}}">{{ui.infos.externalDocs.url}}</a> </div> <div class="api-infos"> <div class="api-infos-contact" ng-if="ui.infos.contact"> <div ng-if="ui.infos.contact.name" class="api-infos-contact-name"><span swagger-translate="infoContactCreatedBy" swagger-translate-value="ui.infos.contact"></span></div> <div ng-if="ui.infos.contact.url" class="api-infos-contact-url"><span swagger-translate="infoContactUrl"></span> <a ng-href="{{ui.infos.contact.url}}" ng-bind="ui.infos.contact.url"></a></div> <a ng-if="ui.infos.contact.email" class="api-infos-contact-url" ng-href="mailto:{{ui.infos.contact.email}}?subject={{ui.infos.title}}" swagger-translate="infoContactEmail"></a> </div> <div class="api-infos-license" ng-if="ui.infos.license"> <span swagger-translate="infoLicense"></span><a ng-href="{{ui.infos.license.url}}" ng-bind="ui.infos.license.name"></a> </div> </div> <ul class="list-unstyled endpoints"> <li ng-repeat="api in ui.resources track by $index" class="endpoint" ng-class="{active:api.open}" ng-include="\'templates/endpoint.html\'"></li> </ul> <div class="api-version clearfix" ng-if="ui.infos"> [<span swagger-translate="infoBaseUrl"></span>: <span class="h4" ng-bind="ui.infos.basePath"></span>, <span swagger-translate="infoApiVersion"></span>: <span class="h4" ng-bind="ui.infos.version"></span>, <span swagger-translate="infoHost"></span>: <span class="h4" ng-bind="ui.infos.scheme"></span>://<span class="h4" ng-bind="ui.infos.host"></span>] <a ng-if="validatorUrl!=\'false\'" target="_blank" ng-href="{{validatorUrl}}/debug?url={{url}}"><img class="pull-right swagger-validator" ng-src="{{validatorUrl}}?url={{url}}"></a> </div> </div>');
+    '<div class="swagger-ui" aria-live="polite" aria-relevant="additions removals"> <div class="api-name"> <h3 ng-bind="ui.infos.title"></h3> </div> <div ng-if="download!==null" class="download"> <a ng-href="url" target="_blank" swagger-translate="{{download.length===0?url:download}}"></a> </div> <div class="api-description" ng-bind-html="ui.infos.description"></div> <div class="external-docs" ng-if="ui.infos.externalDocs"> <span ng-bind-html="ui.infos.externalDocs.description"></span> <a target="_blank" ng-href="{{ui.infos.externalDocs.url}}">{{ui.infos.externalDocs.url}}</a> </div> <div class="api-infos"> <div class="api-infos-contact" ng-if="ui.infos.contact"> <div ng-if="ui.infos.contact.name" class="api-infos-contact-name"><span swagger-translate="infoContactCreatedBy" swagger-translate-value="ui.infos.contact"></span></div> <div ng-if="ui.infos.contact.url" class="api-infos-contact-url"><span swagger-translate="infoContactUrl"></span> <a ng-href="{{ui.infos.contact.url}}" ng-bind="ui.infos.contact.url"></a></div> <a ng-if="ui.infos.contact.email" class="api-infos-contact-url" ng-href="mailto:{{ui.infos.contact.email}}?subject={{ui.infos.title}}" swagger-translate="infoContactEmail"></a> </div> <div class="api-infos-license" ng-if="ui.infos.license"> <span swagger-translate="infoLicense"></span><a ng-href="{{ui.infos.license.url}}" ng-bind="ui.infos.license.name"></a> </div> </div> <ul class="list-unstyled endpoints"> <li ng-repeat="api in ui.resources track by $index" class="endpoint" ng-class="{active:api.open}" ng-include="\'templates/endpoint.html\'"></li> </ul> <div class="api-version clearfix" ng-if="ui.infos"> [<span swagger-translate="infoBaseUrl"></span>: <span class="h4" ng-bind="ui.infos.basePath"></span>, <span swagger-translate="infoApiVersion"></span>: <span class="h4" ng-bind="ui.infos.version"></span>, <span swagger-translate="infoHost"></span>: <span class="h4" ng-bind="ui.infos.scheme"></span>://<span class="h4" ng-bind="ui.infos.host"></span>] <a ng-if="validatorUrl!=\'false\'" target="_blank" ng-href="{{validatorUrl}}/debug?url={{url}}"><img class="pull-right swagger-validator" ng-src="{{validatorUrl}}?url={{url}}"></a> </div> </div>');
 }]);
