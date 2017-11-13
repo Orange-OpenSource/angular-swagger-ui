@@ -115,6 +115,17 @@ Allows having a URL direct access to a group of operations or to an operation an
 <div swagger-ui url="URLToYourOpenAPISpecification" permalinks="true/false"></div>
 ```
 
+#### download
+Display or not a link to download swagger file. 
+
+```html
+<!-- display link with url label -->
+<div swagger-ui url="URLToYourOpenAPISpecification" download></div>
+
+<!-- display link with specific key enter in swaggerTranslatorProvider -->
+<div swagger-ui url="URLToYourOpenAPISpecification" download="downloadLabel"></div>
+```
+
 #### OpenAPI validator
 Disable OpenAPI validator or define a custom OpenAPI validator.
 If parameter not defined, the validator will be 'http://online.swagger.io/validator'

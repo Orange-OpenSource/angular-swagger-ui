@@ -25,7 +25,7 @@
             </button>
         </form>
         <h3 ng-show="isLoading" swagger-translate="loading"></h3>
-        <div swagger-ui url="swaggerUrl" loading="isLoading" api-explorer="true" trusted-sources="true" error-handler="myErrorHandler" permalinks="true"></div>
+        <div swagger-ui url="swaggerUrl" loading="isLoading" api-explorer="true" trusted-sources="true" error-handler="myErrorHandler" permalinks="true" download="downloadLabel"></div>
     </div>
 
     <!-- dependencies -->
@@ -71,7 +71,8 @@
                         loading: 'loading...',
                         error: 'Failed to generate Swagger-UI: {{code}} {{message}}',
                         french: 'french',
-                        english: 'english'
+                        english: 'english',
+                        downloadLabel: 'download it!'
                     })
                     .addTranslations('fr', {
                         appTitle: 'angular-swagger-ui',
@@ -79,7 +80,8 @@
                         loading: 'Chargement ...',
                         error: 'Impossible de générer Swagger-UI: {{code}} {{message}}',
                         french: 'français',
-                        english: 'anglais'
+                        english: 'anglais',
+                        downloadLabel: 'Téléchargez le !'
                     });
             })
             .controller('MyCtrl', function($scope, swaggerTranslator) {

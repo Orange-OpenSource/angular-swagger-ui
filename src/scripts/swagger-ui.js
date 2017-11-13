@@ -31,6 +31,8 @@ angular
 				loading: '=?',
 				// Use permalinks? (boolean, optional, default = false)
 				permalinks: '=?',
+				// Display link to download swagger file (empty or i18n label, default = null)
+				download: '@?',
 				// Display API explorer (boolean, optional, default = false)
 				apiExplorer: '=?',
 				// Error handler (function, optional)
@@ -60,6 +62,9 @@ angular
 				}
 				if (scope.validatorUrl === undefined) {
 					scope.validatorUrl = 'http://online.swagger.io/validator';
+				}
+				if (typeof scope.download === 'undefined') {
+					scope.download = null;
 				}
 			}
 		};
