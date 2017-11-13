@@ -1,3 +1,10 @@
+### 0.5.3 (2017-11-??)
+
+ * Allow displaying a link to download swagger spec
+ * Fix error if ng-sanitize not used
+ * Fix module external-references
+ * Allow node version > 7 (#85)
+
 ### 0.5.2 (2017-11-07)
 
  * Force re-publish on npm
