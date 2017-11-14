@@ -152,7 +152,6 @@ angular
 						loading--;
 						if (loading === 0) {
 							deferred.resolve(true);
-							console.log(openApiSpec)
 						}
 					}, prefix);
 				}
