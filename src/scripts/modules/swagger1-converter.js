@@ -50,8 +50,14 @@ angular
 
 			// load files
 			angular.forEach(data.openApiSpec.apis, function(api) {
+				var url = data.url;
+				if (url.match(/(.*)\?(.*)/)) {
+					url = url.replace(/(.*)\?(.*)/, '$1' + api.path + '?$2');
+				} else {
+					url += api.path;
+				}
 				promises.push(swaggerLoader.get({
-					url: data.url + api.path
+					url: url
 				}));
 			});
 
