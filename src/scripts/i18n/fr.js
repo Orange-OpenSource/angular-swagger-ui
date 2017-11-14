@@ -78,7 +78,11 @@ angular
 				authTokenUrl: 'URL du jeton',
 				authScopes: 'Scopes',
 				authCancel: 'Annuler',
-				authAuthorize: 'Valider'
+				authAuthorize: 'Valider',
+				authClientId: 'Client ID',
+				authClientSecret: 'Client secret',
+				authLogout: 'Déconnexion',
+				authLogged: 'Vous êtes actuellement authentifié'
 			});
 
 	});

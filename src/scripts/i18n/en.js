@@ -78,7 +78,11 @@ angular
 				authTokenUrl: 'Token URL',
 				authScopes: 'Scopes',
 				authCancel: 'Cancel',
-				authAuthorize: 'Authorize'
+				authAuthorize: 'Authorize',
+				authClientId: 'Client ID',
+				authClientSecret: 'Client secret',
+				authLogout: 'Logout',
+				authLogged: 'You\'re currently logged in'
 			});
 
 	});

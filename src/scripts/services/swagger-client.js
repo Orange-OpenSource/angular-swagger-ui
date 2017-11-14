@@ -107,8 +107,10 @@ angular
 								break;
 						}
 						break;
-					case 'basic':
-						headers.Authorization = 'Basic ' + btoa(authParams.login + ':' + authParams.password);
+					default:
+						if (authParams.token_type && authParams.access_token) {
+							headers.Authorization = authParams.token_type + ' ' + authParams.access_token;
+						}
 						break;
 				}
 			}
@@ -117,7 +119,7 @@ angular
 			headers.Accept = values.responseType;
 			headers['Content-Type'] = body ? values.contentType : 'text/plain';
 
-		    // build request
+			// build request
 			var basePath = openApiSpec.basePath || '',
 				baseUrl = [
 					openApiSpec.schemes[0],
