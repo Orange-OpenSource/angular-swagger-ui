@@ -48,6 +48,12 @@ angular
 				urlEncoded = values.contentType === 'application/x-www-form-urlencoded',
 				body;
 
+			// in case path contains request URI template (RFC-6570 https://tools.ietf.org/html/rfc6570)
+			if (path.match(/.*\?.*({(\?|&).*})/)) {
+				path = path.split('?')[0];
+			} else if (path.match(/.*({(\?).*})/)) {
+				path = path.split('{?')[0];
+			}
 			// build request parameters
 			for (var i = 0, params = operation.parameters || [], l = params.length; i < l; i++) {
 				//TODO manage 'collectionFormat' (csv etc.) !!
