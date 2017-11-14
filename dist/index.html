@@ -44,6 +44,9 @@
     <script type="text/javascript">
         angular
             .module('myApp', ['ngSanitize', 'swaggerUi', 'swaggerUiAuthorization'])
+            .config(function($anchorScrollProvider) {
+                $anchorScrollProvider.disableAutoScrolling();
+            })
             .config(function(swaggerTranslatorProvider) {
                 swaggerTranslatorProvider
                     .setLanguage('en')

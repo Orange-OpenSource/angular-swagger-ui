@@ -151,11 +151,10 @@ angular
 
 		$window.swaggerlink = $scope.permalink = function(name) {
 			if ($scope.permalinks) {
-				$location.hash(name);
+				$timeout(function() {
+					$location.hash(name);
+				}, 50);
 			}
-			$timeout(function() {
-				$anchorScroll(name);
-			}, 50);
 		};
 
 		/**

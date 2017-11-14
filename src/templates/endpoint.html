@@ -2,20 +2,20 @@
     <ul id="{{api.name}}*" class="list-inline pull-left endpoint-heading">
         <li>
             <h4>
-                <a ng-click="api.open=!api.open;permalink(api.name)" ng-bind="api.name"></a>
+                <a ng-click="api.open=!api.open;api.open?permalink(api.name):'';" ng-bind="api.name"></a>
                 <span ng-if="api.description"> : <span ng-bind="api.description"></span></span>
             </h4>
         </li>
     </ul>
     <ul class="list-inline pull-right endpoint-actions">
         <li>
-            <a ng-click="api.open=!api.open;permalink(api.name)" swagger-translate="endPointToggleOperations"></a>
+            <a ng-click="api.open=!api.open;api.open?permalink(api.name):'';" swagger-translate="endPointToggleOperations"></a>
         </li>
         <li>
-            <a ng-click="expand(api);permalink(api.name)" swagger-translate="endPointListOperations"></a>
+            <a ng-click="expand(api);api.open?permalink(api.name):'';" swagger-translate="endPointListOperations"></a>
         </li>
         <li>
-            <a ng-click="expand(api,true);permalink(api.name+'*')" swagger-translate="endPointExpandOperations"></a>
+            <a ng-click="expand(api,true);api.open?permalink(api.name+'*'):'';" swagger-translate="endPointExpandOperations"></a>
         </li>
     </ul>
 </div>
