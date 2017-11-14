@@ -17,15 +17,15 @@
             queryParams = location.search.substring(1);
         }
 
-        array = queryParams.split('&')
-        array.forEach(function (v,i,_array) { _array[i] = '"' + v.replace('=', '":"') + '"';})
+        array = queryParams.split('&');
+        array.forEach(function (v,i,_array) { _array[i] = '"' + v.replace('=', '":"') + '"';});
         queryParams = queryParams ? JSON.parse('{' + array.join() + '}',
                 function (key, value) {
                     return key === '' ? value : decodeURIComponent(value)
                 }
-        ) : {}
+        ) : {};
 
-        isValid = queryParams.state === sentState
+        isValid = queryParams.state === sentState;
 
         if (oauth2.flow === 'accessCode' || oauth2.flow === 'authorizationCode') {
             if (!isValid) {

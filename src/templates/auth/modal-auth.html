@@ -72,7 +72,7 @@
 					<input class="form-control col-xs-9" id="clientId" name="clientId" type="text" ng-model="form.clientId" autocomplete="off">
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group" ng-if="authByClientSecret">
 				<label class="control-label col-xs-3" for="clientSecret" swagger-translate="authClientSecret"></label>
 				<div class="col-xs-9">
 					<input class="form-control col-xs-9" id="clientSecret" name="clientSecret" type="text" ng-model="form.clientSecret" autocomplete="off">

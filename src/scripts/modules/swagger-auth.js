@@ -8,44 +8,51 @@
 
 angular
 	.module('swaggerUiAuthorization', ['swaggerUi', 'ui.bootstrap.modal'])
-	.service('swaggerUiAuth', function($q, $uibModal) {
+	.provider('swaggerUiAuth', function() {
 
 		var credentials;
 
-		/**
-		 * Module entry point
-		 */
-		this.execute = function(data) {
-			var deferred = $q.defer(),
-				modalInstance = $uibModal.open({
-					templateUrl: 'templates/auth/modal-auth.html',
-					controller: 'SwaggerUiModalAuthCtrl',
-					backdrop: 'static',
-					resolve: {
-						auth: function() {
-							return data.auth;
-						},
-						operation: function() {
-							return data.operation;
-						},
-						credentials: function() {
-							return credentials;
-						}
-					}
-				});
-
-			modalInstance.result.then(function() {
-				// validated, do nothing
-			}, function() {
-				// dismissed, do nothing
-			});
-
-			deferred.resolve(true);
-			return deferred.promise;
-		};
-
 		this.credentials = function(creds) {
 			credentials = creds;
+		};
+
+		this.$get = function($q, $uibModal) {
+
+			return {
+
+				/**
+				 * Module entry point
+				 */
+				execute : function(data) {
+					var deferred = $q.defer(),
+						modalInstance = $uibModal.open({
+							templateUrl: 'templates/auth/modal-auth.html',
+							controller: 'SwaggerUiModalAuthCtrl',
+							backdrop: 'static',
+							resolve: {
+								auth: function() {
+									return data.auth;
+								},
+								operation: function() {
+									return data.operation;
+								},
+								credentials: function() {
+									return credentials;
+								}
+							}
+						});
+
+					modalInstance.result.then(function() {
+						// validated, do nothing
+					}, function() {
+						// dismissed, do nothing
+					});
+
+					deferred.resolve(true);
+					return deferred.promise;
+				}
+
+			};
 		};
 
 	})
@@ -92,7 +99,8 @@ angular
 			$scope.tab = index;
 			var authParams = auth[index];
 			$scope.authByLogin = authParams.type === 'basic' || (authParams.type === 'oauth2' && authParams.flow === 'password');
-			$scope.authByClientId = authParams.type === 'oauth2' && ['application', 'clientCredentials', 'accessCode'].indexOf(authParams.flow) > -1;
+			$scope.authByClientId = authParams.type === 'oauth2' && ['application', 'clientCredentials', 'accessCode', 'implicit'].indexOf(authParams.flow) > -1;
+			$scope.authByClientSecret = $scope.authByClientId && authParams.flow !== 'implicit' ? true : false;
 		};
 
 		$scope.logout = function() {

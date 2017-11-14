@@ -66,16 +66,17 @@
                         japanese: 'japanese'
                     });
             })
-            .controller('MyCtrl', function($scope, swaggerTranslator, swaggerUiAuth) {
-                // init form
-                $scope.isLoading = false;
-                $scope.url = $scope.swaggerUrl = 'http://petstore.swagger.io/v2/swagger.json';
-                // init auth
-                swaggerUiAuth.credentials({
+            .config(function(swaggerUiAuthProvider) {
+                swaggerUiAuthProvider.credentials({
                     oauth2: {
                         redirectUrl: 'http://orange-opensource.github.io/angular-swagger-ui/oauth2-redirect.html'
                     }
                 });
+            })
+            .controller('MyCtrl', function($scope, swaggerTranslator, swaggerUiAuth) {
+                // init form
+                $scope.isLoading = false;
+                $scope.url = $scope.swaggerUrl = 'http://petstore.swagger.io/v2/swagger.json';
                 // error management
                 $scope.myErrorHandler = function(message, code){
                     alert(swaggerTranslator.translate('error', {
