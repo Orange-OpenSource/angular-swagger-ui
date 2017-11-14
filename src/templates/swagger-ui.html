@@ -2,8 +2,8 @@
 	<div class="api-name">
 		<h3 ng-bind="ui.infos.title"></h3>
 	</div>
-	<div ng-if="download!==null" class="download">
-		<a ng-href="url" target="_blank" swagger-translate="{{download.length===0?url:download}}"></a>
+	<div ng-if="download!=null" class="download">
+		<a ng-href="{{url}}" target="_blank" swagger-translate="{{download.length==0?url:download}}"></a>
 	</div>
 	<div class="api-description" ng-bind-html="ui.infos.description"></div>
 	<div class="external-docs" ng-if="ui.infos.externalDocs">
