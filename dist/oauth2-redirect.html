@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en-US">
+<body onload="run()">
+</body>
+</html>
+<script>
+    'use strict';
+    function run () {
+        var oauth2 = window.opener.redirectOauth2,
+            sentState = oauth2.state,
+            redirectUrl = oauth2.redirectUrl,
+            isValid, queryParams, array;
+
+        if (/code|token|error/.test(window.location.hash)) {
+            queryParams = window.location.hash.substring(1);
+        } else {
+            queryParams = location.search.substring(1);
+        }
+
+        array = queryParams.split('&');
+        array.forEach(function (v,i,_array) { _array[i] = '"' + v.replace('=', '":"') + '"';});
+        queryParams = queryParams ? JSON.parse('{' + array.join() + '}',
+                function (key, value) {
+                    return key === '' ? value : decodeURIComponent(value)
+                }
+        ) : {};
+
+        isValid = queryParams.state === sentState;
+
+        if (oauth2.flow === 'accessCode' || oauth2.flow === 'authorizationCode') {
+            if (!isValid) {
+                oauth2.error({
+                    level: 'warning',
+                    message: 'Authorization may be unsafe, passed state was changed in server passed state wasn\'t returned from auth server'
+                });
+            }
+            if (queryParams.code) {
+                oauth2.callback({code: queryParams.code, redirectUrl: redirectUrl});
+            } else {
+                oauth2.error({
+                    level: 'error',
+                    message: 'Authorization failed: no accessCode received from the server'
+                });
+            }
+        } else if (oauth2.flow === 'implicit') {
+            if (!isValid) {
+                oauth2.error({
+                    level: 'warning',
+                    message: 'Authorization may be unsafe, passed state was changed in server passed state wasn\'t returned from auth server'
+                });
+            }
+            if (queryParams.token_type &&queryParams.access_token ) {
+                oauth2.callback({token_type: queryParams.token_type, access_token: queryParams.access_token});
+            } else {
+                oauth2.error({
+                    level: 'error',
+                    message: 'Authorization failed: no accessToken received from the server'
+                });
+            }
+        } else {
+            oauth2.error({
+                level: 'error',
+                message: 'Authorization failed'
+            });
+        }
+        window.close();
+    }
+</script>
