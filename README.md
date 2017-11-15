@@ -10,10 +10,8 @@ OpenAPI UI helps developers discovering your RESTful API by providing an online 
 > By default, only OpenAPI 2.0 is supported.
 To handle OpenAPI 3.0.0 please add module `openapi3-converter` see [Enable OpenAPI 3.0.0](#enable-openapi-300).
 To handle OpenAPI 1.2 please add module `swagger1-converter` see [Enable OpenAPI 1.2](#enable-openapi-12).
+To handle authorization please add module `swagger-auth` see [Enable authorization](#enable-authorization)
 To handle YAML please add module `swagger-yaml-parser` see [Enable YAML](#enable-yaml)
-
-> By default, Authorization is not supported.
-To handle authorization (oauth2 is not implemented) please add module `swagger-auth` see [Enable authorization](#enable-authorization)
 
 ## Demo
 
@@ -270,6 +268,19 @@ Add `swagger-auth.min.js` at the end of the body
 	<script type="text/javascript">
 		angular
 			.module('yourApp', ['swaggerUi', 'swaggerUiAuthorization'])
+			// what is below is required for oauth2 flows 'implicit' and 'accessCode' (ie. authorizationCode)
+            .config(function(swaggerUiAuthProvider) {
+                swaggerUiAuthProvider.credentials({
+                    oauth2: {
+                    	clientId: 'yourClientId', // optional, can be used to initialize oauth2 credentials
+                    	clientSecret: 'yourClientSecret', // optional, can be used to initialize oauth2 credentials
+                    	login: 'yourLogin', // optional, can be used to initialize oauth2 or basic credentials
+                    	password: 'yourPassword', // optional, can be used to initialize oauth2 or basic credentials
+                    	apiKey: 'yourApiKey', // optional, can be used to initialize API key credentials
+                        redirectUrl: 'yourPathToAngularSwaggerUI/oauth2-redirect.html' // required for oauth2 flow 'implicit' and 'accessCode' (ie. authorizationCode)
+                    }
+                });
+            })
 			...
 	</script>
 </body>
