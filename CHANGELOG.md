@@ -1,3 +1,9 @@
+### 0.5.4 (2017-11-16)
+
+ * Implement oauth2 authorizations
+ * Fix module swagger1-converter
+ * add support for RFC-6570 concerning query params
+
 ### 0.5.3 (2017-11-13)
 
  * Allow displaying a link to download swagger spec
