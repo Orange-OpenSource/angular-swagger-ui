@@ -224,7 +224,7 @@ angular
 					operation.consumes = operation.consumes || [param.subtype === 'file' ? 'multipart/form-data' : 'application/x-www-form-urlencoded'];
 					form[operationId].contentType = operation.consumes && operation.consumes[0];
 				}
-				if (operation.consumes && operation.consumes.indexOf('application/xml') >= 0) {
+				if (param.schema && operation.consumes && operation.consumes.indexOf('application/xml') >= 0) {
 					param.schema.xml = swaggerModel.generateSampleXml(openApiSpec, param.schema);
 				}
 				paramId++;
