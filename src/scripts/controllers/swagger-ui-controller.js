@@ -64,9 +64,10 @@ angular
 		}
 
 		function watchData() {
-			$scope.$watch('input', function(spec) {
+			return $scope.$watch('input', function(spec) {
 				reset();
 				if (spec) {
+					$scope.loading = true;
 					swaggerLoaded(null, {
 						openApiSpec: angular.copy(spec),
 						parser: $scope.parser || $scope.inputType || 'json',
@@ -77,7 +78,7 @@ angular
 		}
 
 		function watchUrl(key) {
-			$scope.$watch(key, function(url) {
+			return $scope.$watch(key, function(url) {
 				reset();
 				if (url && url !== '') {
 					if ($scope.loading) {
@@ -89,6 +90,7 @@ angular
 						return;
 					}
 					// load OpenApi specification
+					$scope.loading = true;
 					var data = {
 						url: url,
 						parser: $scope.parser || 'auto',
@@ -116,19 +118,30 @@ angular
 			openApiSpec = null;
 		}
 
-		switch ($scope.inputType) {
-			case 'json':
-			case 'yaml':
-				$scope.validatorUrl = false; // disable validator
-				watchData();
-				break;
-			case 'url':
-				watchUrl('input');
-				break;
-			default:
-				watchUrl('url');
-				break;
+		function watchInputType() {
+			var unwatch;
+			$scope.$watch('inputType', function(inputType) {
+				reset();
+				if (unwatch) {
+					unwatch();
+				}
+				switch (inputType) {
+					case 'json':
+					case 'yaml':
+						$scope.validatorUrl = false; // disable validator
+						unwatch = watchData();
+						break;
+					case 'url':
+						unwatch = watchUrl('input');
+						break;
+					default:
+						unwatch = watchUrl('url');
+						break;
+				}
+			});
 		}
+
+		watchInputType();
 
 		/**
 		 * transform a relative URL to an absolute URL
