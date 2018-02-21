@@ -77,7 +77,7 @@ angular
 				authFlow: 'Séquence',
 				authTokenUrl: 'URL du jeton',
 				authScopes: 'Scopes',
-				authCancel: 'Annuler',
+				authDone: 'Fermer',
 				authAuthorize: 'Valider',
 				authClientId: 'Client ID',
 				authClientSecret: 'Client secret',

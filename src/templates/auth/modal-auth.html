@@ -1,103 +1,100 @@
 <div class="swagger-auth-modal">
-	<h2 swagger-translate="authAvailable"></h2>
-	<ul class="list-inline">
-		<li ng-repeat="item in auth" ng-class="{active:tab==$index}">
-			<a ng-click="setTab($index)" ng-bind="item.type|swaggerTranslate"></a>
-		</li>
-	</ul>
-	<form ng-if="auth[tab].valid" role="form" name="logoutForm" class="form-horizontal" ng-submit="logout()">
-		<div swagger-translate="authLogged"></div>
-		<div class="form-group buttons">
-			<button class="btn btn-primary" type="submit" swagger-translate="authLogout"></button>
-		</div>
-	</form>
-	<form ng-if="!auth[tab].valid" role="form" name="authForm" class="form-horizontal" ng-submit="authForm.$valid&&authorize()" autocomplete="off">
-		<div ng-if="auth[tab].type=='apiKey'">
-			<div class="form-group">
-				<label class="control-label col-xs-3" swagger-translate="authParamName"></label>
-				<div class="col-xs-9">
-					<span class="form-control" ng-bind="auth[tab].name"></span>
+	<h3 swagger-translate="authAvailable"></h3>
+	<div ng-repeat="(key,item) in securityDefinitions">
+		<hr/>
+		<h4 ng-if="item.name"><span ng-bind="item.name"></span> (<span ng-bind="item.type"></span>)</h4>
+		<h4 ng-if="!item.name" ng-bind="item.type|swaggerTranslate"></h4>
+		<form role="form" name="authForm" class="form-horizontal" ng-submit="authForm.$valid&&authorize(key)" autocomplete="off">
+			<div ng-if="item.type=='apiKey'">
+				<div class="form-group">
+					<label class="control-label col-xs-3" swagger-translate="authParamName"></label>
+					<div class="col-xs-9">
+						<span class="form-control" ng-bind="item.name"></span>
+					</div>
 				</div>
-			</div>
-			<div class="form-group">
-				<label class="control-label col-xs-3" swagger-translate="authParamType"></label>
-				<div class="col-xs-9">
-					<span class="form-control" ng-bind="auth[tab].in"></span>
+				<div class="form-group">
+					<label class="control-label col-xs-3" swagger-translate="authParamType"></label>
+					<div class="col-xs-9">
+						<span class="form-control" ng-bind="item.in"></span>
+					</div>
 				</div>
-			</div>
-			<div class="form-group">
-				<label class="control-label col-xs-3" for="apiKey" swagger-translate="authParamValue"></label>
-				<div class="col-xs-9">
-					<input class="form-control" id="apiKey" name="apiKey" type="text" ng-model="form.apiKey" autocomplete="off">
-				</div>
-			</div>
-		</div>
-		<div ng-if="authByLogin">
-			<div class="form-group">
-				<label class="control-label col-xs-3" for="login" swagger-translate="authLogin"></label>
-				<div class="col-xs-9">
-					<input class="form-control col-xs-9" id="login" name="login" type="text" ng-model="form.login" autocomplete="off">
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="control-label col-xs-3" for="password" swagger-translate="authPassword"></label>
-				<div class="col-xs-9">
-					<input class="form-control col-xs-9" id="password" name="password" type="password" ng-model="form.password" autocomplete="off">
-				</div>
-			</div>
-		</div>
-		<div ng-if="authByClientId">
-			<p ng-if="auth[tab].scopes.length>0" swagger-translate="authOAuthDesc"></p>
-			<div class="form-group" ng-if="auth[tab].authorizationUrl">
-				<label class="control-label col-xs-3" swagger-translate="authAuthorizationUrl"></label>
-				<div class="col-xs-9">
-					<span class="form-control text" ng-bind="auth[tab].authorizationUrl"></span>
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="control-label col-xs-3" swagger-translate="authFlow"></label>
-				<div class="col-xs-9">
-					<span class="form-control text" ng-bind="auth[tab].flow"></span>
-				</div>
-			</div>
-			<div class="form-group" ng-if="auth[tab].tokenUrl">
-				<label class="control-label col-xs-3" swagger-translate="authTokenUrl"></label>
-				<div class="col-xs-9">
-					<span class="form-control text" ng-bind="auth[tab].tokenUrl"></span>
-				</div>
-			</div>
-			<div class="form-group">
-				<label class="control-label col-xs-3" for="clientId" swagger-translate="authClientId"></label>
-				<div class="col-xs-9">
-					<input class="form-control col-xs-9" id="clientId" name="clientId" type="text" ng-model="form.clientId" autocomplete="off">
-				</div>
-			</div>
-			<div class="form-group" ng-if="authByClientSecret">
-				<label class="control-label col-xs-3" for="clientSecret" swagger-translate="authClientSecret"></label>
-				<div class="col-xs-9">
-					<input class="form-control col-xs-9" id="clientSecret" name="clientSecret" type="text" ng-model="form.clientSecret" autocomplete="off">
-				</div>
-			</div>
-			<div ng-if="auth[tab].scopes" class="form-group">
-				<label class="control-label col-xs-3" swagger-translate="authScopes"></label>
-				<div class="col-xs-9">
-					<div class="checkbox" ng-repeat="(name,desc) in auth[tab].scopes">
-						<label for="scope_{{name}}" class="control-label">
-							<input type="checkbox"
-								id="scope_{{name}}" 
-								name="scope_{{name}}" 
-								ng-model="form.selectedScopes[name]">
-							<span ng-bind="name"></span>
-						</label>
-						<div class="scope-desc" ng-bind="desc"></div>
+				<div class="form-group">
+					<label class="control-label col-xs-3" for="apiKey{{$index}}" swagger-translate="authParamValue"></label>
+					<div class="col-xs-9">
+						<input class="form-control" id="apiKey{{$index}}" name="apiKey{{$index}}" type="{{item.valid?'password':'text'}}" ng-model="form[key].apiKey" autocomplete="off" required ng-read-only="item.valid">
 					</div>
 				</div>
 			</div>
-		</div>
-		<p ng-if="error" class="text-danger" ng-bind="error"></p>
-		<div class="form-group buttons">
-			<button class="btn btn-default" type="button" ng-disabled="inProgress" ng-click="$close()" swagger-translate="authCancel"></button>
-			<button class="btn btn-primary" type="submit" ng-disabled="inProgress" swagger-translate="authAuthorize"></button>
-		</div>
-	</form>
+			<div ng-if="item.authByLogin">
+				<div class="form-group">
+					<label class="control-label col-xs-3" for="login{{$index}}" swagger-translate="authLogin"></label>
+					<div class="col-xs-9">
+						<input class="form-control col-xs-9" id="login{{$index}}" name="login{{$index}}" type="text" ng-model="form[key].login" autocomplete="off" required ng-read-only="item.valid">
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-3" for="password{{$index}}" swagger-translate="authPassword"></label>
+					<div class="col-xs-9">
+						<input class="form-control col-xs-9" id="password{{$index}}" name="password{{$index}}" type="password" ng-model="form[key].password" autocomplete="off" required ng-read-only="item.valid">
+					</div>
+				</div>
+			</div>
+			<div ng-if="item.authByClientId">
+				<p ng-if="item.scopes.length>0" swagger-translate="authOAuthDesc"></p>
+				<p ng-if="item.description" ng-bind="item.description"></p>
+				<div class="form-group" ng-if="item.authorizationUrl">
+					<label class="control-label col-xs-3" swagger-translate="authAuthorizationUrl"></label>
+					<div class="col-xs-9">
+						<span class="form-control text" ng-bind="item.authorizationUrl"></span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-3" swagger-translate="authFlow"></label>
+					<div class="col-xs-9">
+						<span class="form-control text" ng-bind="item.flow"></span>
+					</div>
+				</div>
+				<div class="form-group" ng-if="item.tokenUrl">
+					<label class="control-label col-xs-3" swagger-translate="authTokenUrl"></label>
+					<div class="col-xs-9">
+						<span class="form-control text" ng-bind="item.tokenUrl"></span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-xs-3" for="clientId{{$index}}" swagger-translate="authClientId"></label>
+					<div class="col-xs-9">
+						<input class="form-control col-xs-9" id="clientId{{$index}}" name="clientId{{$index}}" type="text" ng-model="form[key].clientId" autocomplete="off" ng-read-only="item.valid">
+					</div>
+				</div>
+				<div class="form-group" ng-if="item.authByClientSecret">
+					<label class="control-label col-xs-3" for="clientSecret{{$index}}" swagger-translate="authClientSecret"></label>
+					<div class="col-xs-9">
+						<input class="form-control col-xs-9" id="clientSecret{{$index}}" name="clientSecret{{$index}}" type="text" ng-model="form[key].clientSecret" autocomplete="off" ng-read-only="item.valid">
+					</div>
+				</div>
+				<div ng-if="item.scopes" class="form-group">
+					<label class="control-label col-xs-3" swagger-translate="authScopes"></label>
+					<div class="col-xs-9">
+						<div class="checkbox" ng-repeat="(name,desc) in item.scopes">
+							<label for="scope{{$index}}_{{name}}" class="control-label">
+								<input type="checkbox"
+									id="scope{{$index}}_{{name}}" 
+									name="scope{{$index}}_{{name}}" 
+									ng-disabled="item.valid"
+									ng-model="form[key].selectedScopes[name]">
+								<span ng-bind="name"></span>
+							</label>
+							<div class="scope-desc" ng-bind="desc"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<p ng-if="error[key]" class="text-danger" ng-bind="error[key]"></p>
+			<div class="form-group buttons">
+				<button class="btn btn-default" type="button" ng-disabled="inProgress" ng-click="$close()" swagger-translate="authDone"></button>
+				<button class="btn btn-primary" type="submit" ng-disabled="inProgress" ng-if="!item.valid" swagger-translate="authAuthorize"></button>
+				<button class="btn btn-primary" type="button" ng-if="item.valid" ng-click="logout(key)" swagger-translate="authLogout"></button>
+			</div>
+		</form>
+	</div>
 </div>

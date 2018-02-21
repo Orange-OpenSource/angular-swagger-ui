@@ -40,7 +40,7 @@ angular
 		/**
 		 * Send API explorer request
 		 */
-		this.send = function(openApiSpec, operation, values) {
+		this.send = function(openApiSpec, operation, values, securityDefinitions) {
 			var deferred = $q.defer(),
 				query = {},
 				headers = {},
@@ -93,27 +93,28 @@ angular
 				}
 			}
 
-			// authorization
-			var authParams = operation.authParams;
-			if (authParams) {
-				switch (authParams.type) {
-					case 'apiKey':
-						switch (authParams.in) {
-							case 'header':
-								headers[authParams.name] = authParams.apiKey;
-								break;
-							case 'query':
-								query[authParams.name] = authParams.apiKey;
-								break;
-						}
-						break;
-					default:
-						if (authParams.token_type && authParams.access_token) {
-							headers.Authorization = authParams.token_type + ' ' + authParams.access_token;
-						}
-						break;
+			// authorizations
+			angular.forEach(securityDefinitions, function(security) {
+				if (security.valid) {
+					switch (security.type) {
+						case 'apiKey':
+							switch (security.in) {
+								case 'header':
+									headers[security.name] = security.apiKey;
+									break;
+								case 'query':
+									query[security.name] = security.apiKey;
+									break;
+							}
+							break;
+						default:
+							if (security.token_type && security.access_token) {
+								headers.Authorization = security.token_type + ' ' + security.access_token;
+							}
+							break;
+					}
 				}
-			}
+			});
 
 			// add headers
 			headers.Accept = values.responseType;

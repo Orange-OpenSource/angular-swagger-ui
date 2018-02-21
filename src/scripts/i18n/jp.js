@@ -77,7 +77,7 @@ angular
 				authFlow: 'Flow',
 				authTokenUrl: 'Token URL',
 				authScopes: 'Scopes',
-				authCancel: 'Cancel',
+				authDone: 'Done',
 				authAuthorize: 'Authorize',
 				authClientId: 'Client ID',
 				authClientSecret: 'Client secret',

@@ -176,31 +176,35 @@ angular
 		$scope.submitExplorer = function(operation) {
 			operation.loading = true;
 			swaggerClient
-				.send(openApiSpec, operation, $scope.ui.form[operation.id])
+				.send(openApiSpec, operation, $scope.ui.form[operation.id], getSecurityDefinitions(operation))
 				.then(function(result) {
 					operation.loading = false;
 					operation.explorerResult = result;
 				});
 		};
 
+		function getSecurityDefinitions(operation) {
+			var i = 0,
+				security, key,
+				operationSecurityDefinitions = {},
+				securities = operation.security || [];
+
+			for (; i < securities.length; i++) {
+				security = securities[i];
+				for (key in security) {
+					operationSecurityDefinitions[key] = openApiSpec.securityDefinitions[key];
+				}
+			}
+			return operationSecurityDefinitions;
+		}
+
 		/**
 		 * handle operation's authentication params
 		 */
 		$scope.auth = function(operation) {
-			var i = 0,
-				sec, key, auth = [],
-				security = operation.security;
-
-			for (; i < security.length; i++) {
-				sec = security[i];
-				for (key in sec) {
-					auth.push(openApiSpec.securityDefinitions[key]);
-				}
-			}
 			swaggerModules
 				.execute(swaggerModules.AUTH, {
-					operation: operation,
-					auth: auth
+					securityDefinitions: getSecurityDefinitions(operation)
 				})
 				.catch(onError);
 		};
@@ -209,22 +213,15 @@ angular
 		 * check if operation's authorization params are set
 		 */
 		$scope.authValid = function(operation) {
-			var i = 0,
-				sec, auth, key,
-				security = operation.security;
+			var key,
+				securityDefinitions = getSecurityDefinitions(operation);
 
-			for (; i < security.length; i++) {
-				sec = security[i];
-				for (key in sec) {
-					auth = openApiSpec.securityDefinitions[key];
-					if (auth.valid) {
-						operation.authParams = angular.copy(auth);
-						operation.authParams.scopes = sec[key];
-						return true;
-					}
+			for (key in securityDefinitions) {
+				if (!securityDefinitions[key].valid) {
+					return false;
 				}
 			}
-			return false;
+			return true;
 		};
 
 		var models = {};

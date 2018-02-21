@@ -20,21 +20,22 @@ angular
 
 			return {
 
+				credentials: function(creds) {
+					credentials = creds;
+				},
+
 				/**
 				 * Module entry point
 				 */
-				execute : function(data) {
+				execute: function(data) {
 					var deferred = $q.defer(),
 						modalInstance = $uibModal.open({
 							templateUrl: 'templates/auth/modal-auth.html',
 							controller: 'SwaggerUiModalAuthCtrl',
 							backdrop: 'static',
 							resolve: {
-								auth: function() {
-									return data.auth;
-								},
-								operation: function() {
-									return data.operation;
+								securityDefinitions: function() {
+									return data.securityDefinitions;
 								},
 								credentials: function() {
 									return credentials;
@@ -56,155 +57,140 @@ angular
 		};
 
 	})
-	.controller('SwaggerUiModalAuthCtrl', function($scope, $http, $window, operation, auth, credentials) {
+	.controller('SwaggerUiModalAuthCtrl', function($scope, $http, $window, securityDefinitions, credentials) {
 
 		$scope.form = {};
-		$scope.auth = auth;
-		$scope.error = false;
+		$scope.securityDefinitions = securityDefinitions;
+		$scope.error = {};
 
-		$scope.authorize = function() {
+		$scope.authorize = function(key) {
+			var security = securityDefinitions[key];
 			$scope.inProgress = true;
-			$scope.error = false;
-			var authParams = operation.authParams = auth[$scope.tab];
-			switch (authParams.type) {
+			$scope.error[key] = false;
+			switch (security.type) {
 				case 'apiKey':
-					authApiKey(authParams);
+					authApiKey(key);
 					break;
 				case 'basic':
-					authBasic(authParams);
+					authBasic(key);
 					break;
 				case 'oauth2':
-					switch (authParams.flow) {
+					switch (security.flow) {
 						case 'application':
 						case 'clientCredentials': // should not happen but it's the real oauth flow name
-							oauth2ClientCredentials(authParams);
+							oauth2ClientCredentials(key);
 							break;
 						case 'accessCode':
 						case 'authorizationCode': // should not happen but it's the real oauth flow name
-							oauth2AuthorizationCode(authParams);
+							oauth2AuthorizationCode(key);
 							break;
 						case 'implicit':
-							oauth2Implicit(authParams);
+							oauth2Implicit(key);
 							break;
 						case 'password':
-							oauth2PasswordCredentials(authParams);
+							oauth2PasswordCredentials(key);
 							break;
-
 					}
 					break;
 			}
 		};
 
-		$scope.setTab = function(index) {
-			$scope.tab = index;
-			var authParams = auth[index];
-			$scope.authByLogin = authParams.type === 'basic' || (authParams.type === 'oauth2' && authParams.flow === 'password');
-			$scope.authByClientId = authParams.type === 'oauth2' && ['application', 'clientCredentials', 'accessCode', 'implicit'].indexOf(authParams.flow) > -1;
-			$scope.authByClientSecret = $scope.authByClientId && authParams.flow !== 'implicit' ? true : false;
-		};
-
-		$scope.logout = function() {
-			var authParams = auth[$scope.tab];
+		$scope.logout = function(key) {
+			var security = securityDefinitions[key];
 			angular.forEach(['apiKey', 'clientId', 'clientSecret', 'login', 'password', 'selectedScopes', 'token_type', 'access_token'], function(key) {
-				delete authParams[key];
+				delete security[key];
 			});
-			authParams.valid = false;
+			security.valid = false;
+			$scope.form[key] = {};
+			$scope.error[key] = false;
 		};
 
 		function init() {
-			$scope.setTab(0);
-			var authParams = operation.authParams || auth[0];
-			if (authParams) {
-				var creds = credentials && credentials[authParams.type];
-				switch (authParams.type) {
+			angular.forEach(securityDefinitions, function(security, key) {
+				security.authByLogin = security.type === 'basic' || (security.type === 'oauth2' && security.flow === 'password');
+				security.authByClientId = security.type === 'oauth2' && ['application', 'clientCredentials', 'accessCode', 'implicit'].indexOf(security.flow) > -1;
+				security.authByClientSecret = security.authByClientId && security.flow !== 'implicit';
+				$scope.form[key] = $scope.form[key] || {};
+				var creds;
+				switch (security.type) {
 					case 'apiKey':
-						$scope.form.apiKey = authParams.apiKey || (creds && creds.apiKey);
+						creds = credentials && credentials.apiKey;
+						$scope.form[key].apiKey = security.apiKey || (creds && creds[key]);
 						break;
 					case 'oauth2':
-						$scope.form.clientId = authParams.clientId || (creds && creds.clientId);
-						$scope.form.clientSecret = authParams.clientSecret || (creds && creds.clientSecret);
-						$scope.form.selectedScopes = authParams.selectedScopes || angular.copy(authParams.scopes);
-						// fall through
+						creds = creds || credentials.oauth2;
+						$scope.form[key].clientId = security.clientId || (creds && creds.clientId);
+						$scope.form[key].clientSecret = security.clientSecret || (creds && creds.clientSecret);
+						$scope.form[key].selectedScopes = security.selectedScopes || angular.copy(security.scopes);
+						$scope.form[key].login = security.login || (creds && creds.login);
+						$scope.form[key].password = security.password || (creds && creds.password);
+						break;
 					case 'basic':
-						$scope.form.login = authParams.login || (creds && creds.login);
-						$scope.form.password = authParams.password || (creds && creds.password);
+						creds = creds || credentials.basic;
+						$scope.form[key].login = security.login || (creds && creds.login);
+						$scope.form[key].password = security.password || (creds && creds.password);
 						break;
 				}
-			}
-		}
-
-		function authApiKey(authParams) {
-			if ($scope.form.apiKey) {
-				authParams.apiKey = $scope.form.apiKey;
-				authParams.valid = true;
-			} else {
-				delete operation.authParams;
-				authParams.valid = false;
-			}
-			$scope.inProgress = false;
-			$scope.$close();
-		}
-
-		function authBasic(authParams) {
-			if ($scope.form.basicLogin === '' && $scope.form.basicPassword === '') {
-				delete operation.authParams;
-				authParams.valid = false;
-			} else {
-				authParams.login = $scope.form.basicLogin;
-				authParams.password = $scope.form.basicPassword;
-				authParams.token_type = 'Basic';
-				authParams.access_token = btoa(authParams.login + ':' + authParams.password);
-				authParams.valid = true;
-			}
-			$scope.inProgress = false;
-			$scope.$close();
-		}
-
-		function oauth2ClientCredentials(authParams) {
-			if ($scope.form.clientId === '' && $scope.form.clientSecret === '') {
-				delete operation.authParams;
-				authParams.valid = false;
-			} else {
-				authParams.clientId = $scope.form.clientId;
-				authParams.clientSecret = $scope.form.clientSecret;
-				getToken(authParams, 'grant_type=client_credentials', authParams.clientId, authParams.clientSecret);
-			}
-		}
-
-		function oauth2AuthorizationCode(authParams) {
-			oauth(authParams, 'code', function(data) {
-				authParams.clientId = $scope.form.clientId;
-				authParams.clientSecret = $scope.form.clientSecret;
-				getToken(authParams, 'grant_type=authorization_code&code=' + data.code + '&redirect_uri=' + data.redirectUrl, authParams.clientId, authParams.clientSecret);
 			});
 		}
 
-		function oauth2Implicit(authParams) {
-			oauth(authParams, 'token', function(data) {
-				authParams.token_type = data.token_type;
-				authParams.access_token = data.access_token;
-				authParams.valid = true;
+		function authApiKey(key) {
+			var security = securityDefinitions[key];
+			security.apiKey = $scope.form[key].apiKey;
+			security.valid = true;
+			$scope.inProgress = false;
+		}
+
+		function authBasic(key) {
+			var security = securityDefinitions[key];
+			security.login = $scope.form[key].login;
+			security.password = $scope.form[key].password;
+			security.token_type = 'Basic';
+			security.access_token = btoa(security.login + ':' + security.password);
+			security.valid = true;
+			$scope.inProgress = false;
+		}
+
+		function oauth2ClientCredentials(key) {
+			var security = securityDefinitions[key];
+			security.clientId = $scope.form[key].clientId;
+			security.clientSecret = $scope.form[key].clientSecret;
+			getToken(key, 'grant_type=client_credentials', security.clientId, security.clientSecret);
+		}
+
+		function oauth2AuthorizationCode(key) {
+			var security = securityDefinitions[key];
+			oauth(security, 'code', function(data) {
+				security.clientId = $scope.form[key].clientId;
+				security.clientSecret = $scope.form[key].clientSecret;
+				getToken(key, 'grant_type=authorization_code&code=' + data.code + '&redirect_uri=' + data.redirectUrl, security.clientId, security.clientSecret);
+			});
+		}
+
+		function oauth2Implicit(key) {
+			var security = securityDefinitions[key];
+			oauth(key, 'token', function(data) {
+				security.token_type = data.token_type;
+				security.access_token = data.access_token;
+				security.valid = true;
 				$scope.inProgress = false;
-				$scope.$close();
 			});
 		}
 
-		function oauth2PasswordCredentials(authParams) {
-			if ($scope.form.login === '' && $scope.form.password === '') {
-				delete operation.authParams;
-				authParams.valid = false;
-			} else {
-				authParams.login = $scope.form.login;
-				authParams.password = $scope.form.password;
-				getToken(authParams, 'grant_type=password', authParams.login, authParams.password);
-			}
+		function oauth2PasswordCredentials(key) {
+			var security = securityDefinitions[key];
+			security.login = $scope.form[key].login;
+			security.password = $scope.form[key].password;
+			getToken(key, 'grant_type=password', security.login, security.password);
 		}
 
-		function getToken(authParams, body, id, secret) {
-			var creds = credentials && credentials.oauth2;
+		function getToken(key, body, id, secret) {
+			var security = securityDefinitions[key],
+				creds = credentials && credentials.oauth2;
+
 			$http({
 					method: 'POST',
-					url: auth[$scope.tab].tokenUrl,
+					url: security.tokenUrl,
 					headers: {
 						Authorization: 'Basic ' + btoa(id + ':' + secret),
 						'Content-Type': 'application/x-www-form-urlencoded'
@@ -213,19 +199,19 @@ angular
 					params: creds && creds.queryParams
 				})
 				.then(function(resp) {
-					authParams.token_type = resp.data.token_type;
-					authParams.access_token = resp.data.access_token;
-					authParams.valid = true;
-					$scope.$close();
+					security.token_type = resp.data.token_type;
+					security.access_token = resp.data.access_token;
+					security.valid = true;
 				})
 				.catch(function(error) {
 					$scope.inProgress = false;
-					$scope.error = 'failed to get oauth access token: ' + (error.message || error.status);
+					$scope.error[key] = 'failed to get oauth access token: ' + (error.message || error.status);
 				});
 		}
 
-		function oauth(authParams, responseType, callback) {
+		function oauth(key, responseType, callback) {
 			var query = [],
+				security = securityDefinitions[key],
 				creds = credentials && credentials.oauth2,
 				state = btoa(new Date());
 
@@ -233,15 +219,15 @@ angular
 			if (creds && creds.redirectUrl) {
 				query.push('redirect_uri=' + encodeURIComponent(creds.redirectUrl));
 			} else {
-				$scope.error = 'No redirect URI defined';
+				$scope.error[key] = 'No redirect URI defined';
 				return;
 			}
-			if ($scope.form.clientId) {
-				query.push('client_id=' + encodeURIComponent($scope.form.clientId));
+			if ($scope.form[key].clientId) {
+				query.push('client_id=' + encodeURIComponent($scope.form[key].clientId));
 			}
-			if ($scope.form.selectedScopes) {
+			if ($scope.form[key].selectedScopes) {
 				var scopes = [];
-				angular.forEach($scope.form.selectedScopes, function(selected, name) {
+				angular.forEach($scope.form[key].selectedScopes, function(selected, name) {
 					if (selected === true) {
 						scopes.push(name);
 					}
@@ -255,13 +241,13 @@ angular
 			$window.redirectOauth2 = {
 				state: state,
 				redirectUrl: creds.redirectUrl,
-				flow: authParams.flow,
+				flow: security.flow,
 				callback: callback,
 				error: function(error) {
-					$scope.error = error.message;
+					$scope.error[key] = error.message;
 				}
 			};
-			$window.open(authParams.authorizationUrl + '?' + query.join('&'));
+			$window.open(security.authorizationUrl + '?' + query.join('&'));
 		}
 
 		init();

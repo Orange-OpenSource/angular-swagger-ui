@@ -61,6 +61,8 @@ angular
 				}));
 			});
 
+			convertSecurityDefinitions(data.openApiSpec);
+
 			$q.all(promises)
 				.then(function(results) {
 					swaggerModules
@@ -78,6 +80,39 @@ angular
 						.catch(deferred.reject);
 				})
 				.catch(deferred.reject);
+		}
+
+		function convertSecurityDefinitions(openApiSpec) {
+			var securityDefinitions = {};
+			openApiSpec.securityDefinitions = securityDefinitions;
+			angular.forEach(openApiSpec.authorizations, function(auth, key) {
+				var def = securityDefinitions[key] = {
+					type: auth.type === 'basicAuth' ? 'basic' : auth.type,
+					in: auth.passAs,
+					name: auth.keyname,
+					scopes: []
+				};
+				if (auth.type === 'oauth2') {
+					angular.forEach(auth.scopes, function(s) {
+						def.scopes.push({
+							name: s.scope,
+							description: s.description
+						});
+					});
+					var flow = Object.keys(auth.grantTypes)[0],
+						grantType = auth.grantTypes[flow];
+
+					if (flow === 'implicit') {
+						def.flow = 'implicit';
+						def.authorizationUrl = grantType.loginEndpoint.url;
+					} else if (flow === 'authorization_code') {
+						def.flow = 'accessCode';
+						def.authorizationUrl = grantType.tokenRequestEndpoint.url;
+						def.tokenUrl = grantType.tokenEndpoint.url;
+					}
+				}
+			});
+			delete openApiSpec.authorizations;
 		}
 
 		/**
@@ -115,7 +150,9 @@ angular
 						tags: [swaggerResourceName]
 					};
 					convertParameters(swagger1, operation);
+					convertSecurity(swagger1, operation);
 					convertResponses(swagger1, operation, responses);
+					delete operation.authorizations;
 				});
 			});
 		}
@@ -132,6 +169,21 @@ angular
 					delete param.type;
 				}
 			});
+		}
+
+		function convertSecurity(swagger1, operation) {
+			if (operation.authorizations) {
+				operation.security = [];
+				angular.forEach(operation.authorizations, function(scopes, name) {
+					var sec = {};
+					sec[name] = [];
+					angular.forEach(scopes, function(s) {
+						sec[name].push(s.scope);
+					});
+					operation.security.push(sec);
+				});
+			}
+			delete operation.authorizations;
 		}
 
 		function convertResponses(swagger1, operation, responses) {
