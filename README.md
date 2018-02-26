@@ -269,16 +269,27 @@ Add `swagger-auth.min.js` at the end of the body
 		angular
 			.module('yourApp', ['swaggerUi', 'swaggerUiAuthorization'])
 			// what is below is required for oauth2 flows 'implicit' and 'accessCode' (ie. authorizationCode)
+			// what is below can also be used to initialize apiKey or Basic authorizations
             .config(function(swaggerUiAuthProvider) {
                 swaggerUiAuthProvider.credentials({
+                    // optional
+                    apiKey: {
+                    	yourApiKeyName: 'yourApiKeyValue' // optional, can be used to initialize api key value
+                    },
+                    // optional
+                    basic: {
+                    	login: 'yourLogin', // optional, can be used to initialize basic login
+                    	password: 'yourPassword' // optional, can be used to initialize basic password
+                    },
+                    // what is below is required for oauth2 flows 'implicit' and 'accessCode' (ie. authorizationCode)
                     oauth2: {
                     	clientId: 'yourClientId', // optional, can be used to initialize oauth2 credentials
                     	clientSecret: 'yourClientSecret', // optional, can be used to initialize oauth2 credentials
                     	login: 'yourLogin', // optional, can be used to initialize oauth2 or basic credentials
                     	password: 'yourPassword', // optional, can be used to initialize oauth2 or basic credentials
                     	apiKey: 'yourApiKey', // optional, can be used to initialize API key credentials
-                        redirectUrl: 'yourPathToAngularSwaggerUI/oauth2-redirect.html' // required for oauth2 flow 'implicit' and 'accessCode' (ie. authorizationCode)
-                    }
+                    	redirectUrl: 'yourPathToAngularSwaggerUI/oauth2-redirect.html' // required for oauth2 flow 'implicit' and 'accessCode' (ie. authorizationCode)
+                    },
                 });
             })
 			...
