@@ -1,8 +1,13 @@
+### 0.5.5 (2018-02-26)
+
+ * Refactor module swagger-auth (beta) to be able to use multiple api keys (#86)
+ * Allow dynamic changes of inputType
+
 ### 0.5.4 (2017-11-22)
 
  * Implement oauth2 authorizations (beta)
  * Fix module swagger1-converter
- * add support for RFC-6570 concerning query params
+ * Add support for RFC-6570 concerning query params
 
 ### 0.5.3 (2017-11-13)
 
