@@ -20,5 +20,5 @@
     </ul>
 </div>
 <ul class="list-unstyled operations" ng-class="api.css" ng-if="api.open">
-    <li ng-repeat="op in api.operations track by $index" class="operation" ng-class="[op.httpMethod,op.css]" ng-include="'templates/operation.html'"></li>
+    <li ng-repeat="op in api.operations track by $index" class="operation" ng-class="[op.httpMethod,op.css,{'has-authorization':op.security.length}]" ng-include="'templates/operation.html'"></li>
 </ul>
