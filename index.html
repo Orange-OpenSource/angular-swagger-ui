@@ -11,7 +11,7 @@
 </head>
 <body>
     <div ng-controller="MyCtrl" class="container my-ctrl">
-        <h1><span swagger-translate="appTitle"></span> <span class="version">v0.5.4</span></h1>
+        <h1><span swagger-translate="appTitle"></span> <span class="version">v0.5.5</span></h1>
         <form name="urlForm" ng-submit="swaggerUrl=url" class="form-inline">
             <input type="text" placeholder="swagger URL" class="form-control" id="url" name="url" ng-model="url" required>
             <button type="submit" class="btn btn-primary" swagger-translate="explore"></button>
@@ -28,10 +28,10 @@
         <div swagger-ui url="swaggerUrl" loading="isLoading" api-explorer="true" trusted-sources="true" error-handler="myErrorHandler" permalinks="true"></div>
     </div>
     <!-- dependencies -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.5/angular-sanitize.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.9/angular.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.9/angular-sanitize.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.10.0/js-yaml.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.6/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/0.3.12/marked.min.js"></script>
     <!-- angular-swagger-ui -->
     <script src="scripts/swagger-ui.min.js"></script>
     <script src="scripts/modules/swagger-external-references.min.js"></script>
