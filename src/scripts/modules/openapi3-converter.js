@@ -108,7 +108,7 @@ angular
 						param.schema = content['application/json'].schema;
 						operation.parameters.push(param);
 					} else {
-						console.warn('unsupported request body media type', operation.operationId, content);
+						console.warn('AngularSwaggerUI: unsupported request body media type, unable to convert from openapi 3.0.x', operation.operationId, content);
 					}
 				}
 				delete operation.requestBody;

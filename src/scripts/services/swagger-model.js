@@ -94,7 +94,7 @@ angular
 					}
 					sample = sampleCache[schema.$ref] || {};
 				} else {
-					console.warn('schema not found', schema.$ref);
+					console.warn('AngularSwaggerUI: schema not found', schema.$ref);
 					sample = schema.$ref;
 				}
 			} else if (schema.type === 'array') {
@@ -157,7 +157,7 @@ angular
 					json = angular.toJson(obj, true);
 				}
 			} catch (ex) {
-				console.error('failed to generate sample json', schema, ex);
+				console.error('AngularSwaggerUI: failed to generate sample json', schema, ex);
 				json = 'failed to generate sample json';
 			}
 			clearCache();
@@ -226,7 +226,7 @@ angular
 					model.push(getModel(openApiSpec, schema, modelName, subModels, subModelIds, operationId));
 				});
 			} catch (ex) {
-				console.error('failed to generate model', schema, ex);
+				console.error('AngularSwaggerUI: failed to generate model', schema, ex);
 				model = ['failed to generate model'];
 			}
 			clearCache();

@@ -16,7 +16,7 @@ angular
 		this.execute = function(data) {
 			var deferred = $q.defer();
 			if (typeof $window.marked === 'undefined') {
-				console.error('SwaggerUiMarkdown: marked.js is missing');
+				console.error('AngularSwaggerUI: marked.js is missing');
 				deferred.resolve(false);
 			} else {
 				transformMarkdown(data.ui);

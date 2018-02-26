@@ -72,7 +72,7 @@ angular
 				phaseModules = modules[phase] || [];
 
 			if (!angular.isObject(args)) {
-				console.warn('argument should be an object!');
+				console.warn('AngularSwaggerUI: module execution argument should be an object!');
 			}
 			executeAll(deferred, [].concat(phaseModules), args);
 			return deferred.promise;
