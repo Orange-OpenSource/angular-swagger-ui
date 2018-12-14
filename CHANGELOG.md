@@ -1,3 +1,9 @@
+### 0.6.0 (2019-01-08)
+
+ * Refactor module swagger-auth to be able to auto validate authorization at startup (apiKey, basicAuth) (#93)
+ * Make operationId optionnal (#92)
+ * Fix model generator for array of enums
+
 ### 0.5.5 (2018-02-26)
 
  * Refactor module swagger-auth (beta) to be able to use multiple api keys (#86)
