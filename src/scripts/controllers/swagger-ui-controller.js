@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.5.5
+ * Orange angular-swagger-ui - v0.5.6
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -231,7 +231,6 @@ angular
 		$scope.getModel = function(obj, operationId, section) {
 			var id = operationId + '-' + section;
 			obj.models = obj.models || {};
-				console.log(obj)
 			if (!obj.models[id] && obj.schema) {
 				obj.models[id] = $sce.trustAsHtml(swaggerModel.generateModel(openApiSpec, obj.schema, id));
 			}
@@ -240,7 +239,6 @@ angular
 
 		$scope.getSample = function(obj, contentType) {
 			obj.samples = obj.samples || {};
-				console.log(obj)
 			if (contentType && !obj.samples[contentType] && obj.schema) {
 				obj.samples[contentType] = swaggerModel[contentType.indexOf('/xml') >= 0 ? 'generateSampleXml' : 'generateSampleJson'](openApiSpec, obj.schema, obj.examples && obj.examples[contentType]);
 			}
