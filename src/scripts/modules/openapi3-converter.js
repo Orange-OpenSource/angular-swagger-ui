@@ -19,9 +19,9 @@ angular
 		 */
 		this.execute = function(data) {
 			var deferred = $q.defer(),
-				version = data.openApiSpec && data.openApiSpec.openapi;
+				version = data.openApiSpec && data.openApiSpec.openapi || '-1';
 
-			if (version === '3.0.0' && (data.parser === 'json' || (data.parser === 'auto' && data.contentType === 'application/json'))) {
+			if (version.indexOf('3.0.') > -1 && (data.parser === 'json' || (data.parser === 'auto' && data.contentType === 'application/json'))) {
 				convert(deferred, data);
 			} else {
 				deferred.resolve(false);
@@ -173,28 +173,32 @@ angular
 		}
 
 		function convertSecurityDefinitions(openApiSpec) {
-			openApiSpec.securityDefinitions = openApiSpec.components.securitySchemes;
-			angular.forEach(openApiSpec.securityDefinitions, function(security) {
-				if (security.type === 'http' && security.scheme === 'basic') {
-					security.type = 'basic';
-				} else if (security.type === 'oauth2') {
-					var flowName = Object.keys(security.flows)[0],
-						flow = security.flows[flowName];
+			if (openApiSpec.components && openApiSpec.components.securitySchemes) {
+				openApiSpec.securityDefinitions = openApiSpec.components && openApiSpec.components.securitySchemes;
+				angular.forEach(openApiSpec.securityDefinitions, function(security) {
+					if (security.type === 'http' && security.scheme === 'basic') {
+						security.type = 'basic';
+					} else if (security.type === 'oauth2') {
+						var flowName = Object.keys(security.flows)[0],
+							flow = security.flows[flowName];
 
-					if (flowName === 'clientCredentials') {
-						security.flow = 'application';
-					} else if (flowName === 'authorizationCode') {
-						security.flow = 'accessCode';
-					} else {
-						security.flow = flowName;
+						if (flowName === 'clientCredentials') {
+							security.flow = 'application';
+						} else if (flowName === 'authorizationCode') {
+							security.flow = 'accessCode';
+						} else {
+							security.flow = flowName;
+						}
+						security.authorizationUrl = flow.authorizationUrl;
+						security.tokenUrl = flow.tokenUrl;
+						security.scopes = flow.scopes;
+						delete security.flows;
 					}
-					security.authorizationUrl = flow.authorizationUrl;
-					security.tokenUrl = flow.tokenUrl;
-					security.scopes = flow.scopes;
-					delete security.flows;
-				}
-			});
-			delete openApiSpec.components.securitySchemes;
+				});
+				delete openApiSpec.components.securitySchemes;
+			} else {
+				openApiSpec.securityDefinitions = [];
+			}
 		}
 
 	})
