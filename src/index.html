@@ -88,16 +88,25 @@
                     });
             })
             .config(function(swaggerUiAuthProvider) {
-                swaggerUiAuthProvider.credentials({
-                    oauth2: {
-                        redirectUrl: 'http://orange-opensource.github.io/angular-swagger-ui/oauth2-redirect.html'
+                swaggerUiAuthProvider.configuration({
+                    redirectUrl: 'http://orange-opensource.github.io/angular-swagger-ui/oauth2-redirect.html',
+                    api_key_auth: {
+                        apiKey: 'myApiKey'
+                    },
+                    user_auth: {
+                        clientId: 'myClientId',
+                        clientSecret: 'myClientSecret'
+                    },
+                    basic_auth: {
+                        login: 'myLogin',
+                        password: 'myPassword'
                     }
                 });
             })
             .controller('MyCtrl', function($scope, swaggerTranslator, swaggerUiAuth) {
                 // init form
                 $scope.isLoading = false;
-                $scope.url = $scope.swaggerUrl = 'http://petstore.swagger.io/v2/swagger.json';
+                $scope.url = $scope.swaggerUrl = '/samples/2.0/petstore.json';
                 // error management
                 $scope.myErrorHandler = function(message, code){
                     alert(swaggerTranslator.translate('error', {

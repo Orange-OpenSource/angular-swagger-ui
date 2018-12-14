@@ -10,18 +10,24 @@ angular
 	.module('swaggerUiAuthorization', ['swaggerUi', 'ui.bootstrap.modal'])
 	.provider('swaggerUiAuth', function() {
 
-		var credentials;
+		var authConfig;
 
-		this.credentials = function(creds) {
-			credentials = creds;
+		this.configuration = function(config) {
+			if (config) {
+				authConfig = config;
+			}
+			return authConfig;
 		};
 
 		this.$get = function($q, $uibModal) {
 
 			return {
 
-				credentials: function(creds) {
-					credentials = creds;
+				configuration: function(config) {
+					if (config) {
+						authConfig = config;
+					}
+					return authConfig;
 				},
 
 				/**
@@ -37,8 +43,8 @@ angular
 								securityDefinitions: function() {
 									return data.securityDefinitions;
 								},
-								credentials: function() {
-									return credentials;
+								authConfig: function() {
+									return authConfig;
 								}
 							}
 						});
@@ -49,7 +55,7 @@ angular
 						// dismissed, do nothing
 					});
 
-					deferred.resolve(true);
+					deferred.resolve(data);
 					return deferred.promise;
 				}
 
@@ -57,7 +63,7 @@ angular
 		};
 
 	})
-	.controller('SwaggerUiModalAuthCtrl', function($scope, $http, $window, securityDefinitions, credentials) {
+	.controller('SwaggerUiModalAuthCtrl', function($scope, $http, $window, securityDefinitions, authConfig) {
 
 		$scope.form = {};
 		$scope.securityDefinitions = securityDefinitions;
@@ -97,7 +103,7 @@ angular
 
 		$scope.logout = function(key) {
 			var security = securityDefinitions[key];
-			angular.forEach(['apiKey', 'clientId', 'clientSecret', 'login', 'password', 'selectedScopes', 'token_type', 'access_token'], function(key) {
+			angular.forEach(['apiKey', 'clientId', 'clientSecret', 'login', 'password', 'selectedScopes', 'tokenType', 'accessToken'], function(key) {
 				delete security[key];
 			});
 			security.valid = false;
@@ -111,24 +117,23 @@ angular
 				security.authByClientId = security.type === 'oauth2' && ['application', 'clientCredentials', 'accessCode', 'implicit'].indexOf(security.flow) > -1;
 				security.authByClientSecret = security.authByClientId && security.flow !== 'implicit';
 				$scope.form[key] = $scope.form[key] || {};
-				var creds;
+				var creds = authConfig && authConfig[key] || null;
 				switch (security.type) {
 					case 'apiKey':
-						creds = credentials && credentials.apiKey;
-						$scope.form[key].apiKey = security.apiKey || (creds && creds[key]);
+						$scope.form[key].apiKey = security.apiKey || creds;
 						break;
 					case 'oauth2':
-						creds = creds || credentials.oauth2;
-						$scope.form[key].clientId = security.clientId || (creds && creds.clientId);
-						$scope.form[key].clientSecret = security.clientSecret || (creds && creds.clientSecret);
+						creds = creds || {};
+						$scope.form[key].clientId = security.clientId || creds.clientId;
+						$scope.form[key].clientSecret = security.clientSecret || creds.clientSecret;
 						$scope.form[key].selectedScopes = security.selectedScopes || angular.copy(security.scopes);
-						$scope.form[key].login = security.login || (creds && creds.login);
-						$scope.form[key].password = security.password || (creds && creds.password);
+						$scope.form[key].login = security.login || creds.login;
+						$scope.form[key].password = security.password || creds.password;
 						break;
 					case 'basic':
-						creds = creds || credentials.basic;
-						$scope.form[key].login = security.login || (creds && creds.login);
-						$scope.form[key].password = security.password || (creds && creds.password);
+						creds = creds || {};
+						$scope.form[key].login = security.login || creds.login;
+						$scope.form[key].password = security.password || creds.password;
 						break;
 				}
 			});
@@ -145,8 +150,8 @@ angular
 			var security = securityDefinitions[key];
 			security.login = $scope.form[key].login;
 			security.password = $scope.form[key].password;
-			security.token_type = 'Basic';
-			security.access_token = btoa(security.login + ':' + security.password);
+			security.tokenType = 'Basic';
+			security.accessToken = btoa(security.login + ':' + security.password);
 			security.valid = true;
 			$scope.inProgress = false;
 		}
@@ -170,8 +175,8 @@ angular
 		function oauth2Implicit(key) {
 			var security = securityDefinitions[key];
 			oauth(key, 'token', function(data) {
-				security.token_type = data.token_type;
-				security.access_token = data.access_token;
+				security.tokenType = data.token_type;
+				security.accessToken = data.access_token;
 				security.valid = true;
 				$scope.inProgress = false;
 			});
@@ -186,7 +191,7 @@ angular
 
 		function getToken(key, body, id, secret) {
 			var security = securityDefinitions[key],
-				creds = credentials && credentials.oauth2;
+				creds = authConfig && authConfig[key] || null;
 
 			$http({
 					method: 'POST',
@@ -199,8 +204,8 @@ angular
 					params: creds && creds.queryParams
 				})
 				.then(function(resp) {
-					security.token_type = resp.data.token_type;
-					security.access_token = resp.data.access_token;
+					security.tokenType = resp.data.token_type;
+					security.accessToken = resp.data.access_token;
 					security.valid = true;
 				})
 				.catch(function(error) {
@@ -212,12 +217,13 @@ angular
 		function oauth(key, responseType, callback) {
 			var query = [],
 				security = securityDefinitions[key],
-				creds = credentials && credentials.oauth2,
+				creds = authConfig && authConfig[key] || null,
+				redirectUrl = authConfig && authConfig.redirectUrl || null,
 				state = btoa(new Date());
 
 			query.push('response_type=' + responseType);
-			if (creds && creds.redirectUrl) {
-				query.push('redirect_uri=' + encodeURIComponent(creds.redirectUrl));
+			if (redirectUrl) {
+				query.push('redirect_uri=' + encodeURIComponent(redirectUrl));
 			} else {
 				$scope.error[key] = 'No redirect URI defined';
 				return;
@@ -235,12 +241,14 @@ angular
 				query.push('scope=' + encodeURIComponent(scopes.join(creds && creds.scopeSeparator || ' ')));
 			}
 			query.push('state=' + encodeURIComponent(state));
-			if (creds && creds.realm) {
-				query.push('realm=' + encodeURIComponent(creds.realm));
+			if (creds && creds.queryParams) {
+				angular.forEach(creds.queryParams, function(value, name) {
+					query.push(name + '=' + encodeURIComponent(value));
+				});
 			}
 			$window.redirectOauth2 = {
 				state: state,
-				redirectUrl: creds.redirectUrl,
+				redirectUrl: redirectUrl,
 				flow: security.flow,
 				callback: callback,
 				error: function(error) {
@@ -253,6 +261,45 @@ angular
 		init();
 
 	})
-	.run(function(swaggerModules, swaggerUiAuth) {
+	.service('__swaggerUiAuthInit', function($q, swaggerUiAuth) {
+
+		/** !!!!!!!!!!!!!!!!! SHOULD NOT BE USED BY ANYONE !!!!!!!!!!!!!!!! **/
+
+		/**
+		 * Module entry point
+		 */
+		this.execute = function(data) {
+			var deferred = $q.defer(),
+				authConfig = swaggerUiAuth.configuration();
+
+			if (data && data.openApiSpec && authConfig) {
+				angular.forEach(data.openApiSpec.securityDefinitions, function(securityDefinition, key) {
+					var creds = authConfig[key] || null;
+					if (creds) {
+						switch (securityDefinition.type) {
+							case 'apiKey':
+								if (creds.apiKey) {
+									securityDefinition.apiKey = creds.apiKey;
+									securityDefinition.valid = true;
+								}
+								break;
+							case 'basic':
+								if (creds.login && creds.password) {
+									securityDefinition.tokenType = 'Basic';
+									securityDefinition.accessToken = btoa(creds.login + ':' + creds.password);
+									securityDefinition.valid = true;
+								}
+								break;
+						}
+					}
+				});
+			}
+			deferred.resolve(data);
+			return deferred.promise;
+		};
+
+	})
+	.run(function(swaggerModules, swaggerUiAuth, __swaggerUiAuthInit) {
 		swaggerModules.add(swaggerModules.AUTH, swaggerUiAuth, 1);
+		swaggerModules.add(swaggerModules.BEFORE_DISPLAY, __swaggerUiAuthInit, 1);
 	});

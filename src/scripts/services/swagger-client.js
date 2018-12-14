@@ -108,8 +108,8 @@ angular
 							}
 							break;
 						default:
-							if (security.token_type && security.access_token) {
-								headers.Authorization = security.token_type + ' ' + security.access_token;
+							if (security.tokenType && security.accessToken) {
+								headers.Authorization = security.tokenType + ' ' + security.accessToken;
 							}
 							break;
 					}
