@@ -75,6 +75,7 @@ angular
 			openApiSpec.produces = openApiSpec.produces || [defaultContentType];
 			// build main infos
 			infos.scheme = openApiSpec.schemes[0];
+			infos.schemes = openApiSpec.schemes;
 			infos.basePath = openApiSpec.basePath;
 			infos.host = openApiSpec.host;
 			infos.description = trustHtml(infos.description);
@@ -147,7 +148,8 @@ angular
 							resource = resources[map[tag]];
 							resource.operations = resource.operations || [];
 							operation.id = operationId++;
-							operation.open = openPath && (openPath.match(new RegExp(operation.operationId + '.*|' + resource.name + '\\*$')));
+							operation.operationId = operation.operationId || ('operation-' + operation.id);
+							operation.open = openPath && (openPath.match(new RegExp(operation.operationId + '$|' + operation.operationId + '-(default|parameter|response)-model-.*|' + resource.name + '\\*$')));
 							resource.operations.push(angular.copy(operation));
 							if (operation.open) {
 								resource.open = true;
