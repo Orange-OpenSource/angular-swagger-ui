@@ -27,8 +27,8 @@
         			<li><a ng-click="op.responseClass.display=0" ng-class="{active:op.responseClass.display==0}" swagger-translate="responseModel"></a></li>
         			<li><a ng-click="op.responseClass.display=1" ng-class="{active:op.responseClass.display==1}" swagger-translate="responseSchema"></a></li>
         		</ul>
-        		<pre class="model" ng-if="op.responseClass.display==0" ng-bind-html="getModel(op,op.responseClass,'default')"></pre>
-        		<pre select-on-db-click class="model-schema" ng-if="op.responseClass.display==1" ng-bind="getSample(op,op.responseClass,'default',ui.form[op.id].responseType)"></pre>
+        		<pre class="model" ng-if="op.responseClass.display==0" ng-bind-html="getModel(op.responseClass,op.operationId,'default')"></pre>
+        		<pre select-on-db-click class="model-schema" ng-if="op.responseClass.display==1" ng-bind="getSample(op.responseClass,ui.form[op.id].responseType)"></pre>
     		</div>
     	</div>
         <div ng-if="op.headers" class="table-responsive">

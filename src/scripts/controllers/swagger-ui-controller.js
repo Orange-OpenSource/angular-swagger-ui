@@ -8,7 +8,7 @@
 
 angular
 	.module('swaggerUi')
-	.controller('swaggerUiController', function($scope, $window, $location, $anchorScroll, $timeout, $sce, swaggerClient, swaggerModules, swaggerTranslator, swaggerLoader, swaggerModel) {
+	.controller('swaggerUiController', function($scope, $window, $location, $anchorScroll, $timeout, $sce, $q, swaggerClient, swaggerModules, swaggerTranslator, swaggerLoader, swaggerModel) {
 
 		var openApiSpec;
 
@@ -17,6 +17,7 @@ angular
 		 */
 		function swaggerLoaded(url, data) {
 			$scope.loading = false;
+			swaggerModel.clearCache();
 			// execute modules
 			swaggerModules
 				.execute(swaggerModules.PARSE, data)
@@ -115,7 +116,9 @@ angular
 				infos: {},
 				resources: []
 			};
-			openApiSpec = null;
+			$timeout(function() {
+				openApiSpec = null;
+			}, 0);
 		}
 
 		function watchInputType() {
@@ -166,6 +169,7 @@ angular
 			if ($scope.permalinks) {
 				$timeout(function() {
 					$location.hash(name);
+					$anchorScroll(name);
 				}, 50);
 			}
 		};
@@ -224,23 +228,23 @@ angular
 			return true;
 		};
 
-		var models = {};
-		$scope.getModel = function(operation, obj, section) {
-			var id = operation.operationId + '-' + section;
-			if (obj.schema && !models[id]) {
-				models[id] = $sce.trustAsHtml(swaggerModel.generateModel(openApiSpec, obj.schema, id));
+		$scope.getModel = function(obj, operationId, section) {
+			var id = operationId + '-' + section;
+			obj.models = obj.models || {};
+				console.log(obj)
+			if (!obj.models[id] && obj.schema) {
+				obj.models[id] = $sce.trustAsHtml(swaggerModel.generateModel(openApiSpec, obj.schema, id));
 			}
-			return models[id];
+			return obj.models[id];
 		};
 
-		var samples = {};
-		$scope.getSample = function(operation, obj, section, contentType) {
-			var id = operation.operationId + '-' + section;
-			samples[id] = samples[id] || {};
-			if (obj.schema && !samples[id][contentType]) {
-				samples[id][contentType] = swaggerModel[contentType.indexOf('/xml') >= 0 ? 'generateSampleXml' : 'generateSampleJson'](openApiSpec, obj.schema, obj.examples && obj.examples[contentType]);
+		$scope.getSample = function(obj, contentType) {
+			obj.samples = obj.samples || {};
+				console.log(obj)
+			if (contentType && !obj.samples[contentType] && obj.schema) {
+				obj.samples[contentType] = swaggerModel[contentType.indexOf('/xml') >= 0 ? 'generateSampleXml' : 'generateSampleJson'](openApiSpec, obj.schema, obj.examples && obj.examples[contentType]);
 			}
-			return samples[id][contentType];
+			return obj.samples[contentType];
 		};
 
 	});

@@ -160,7 +160,6 @@ angular
 				console.error('AngularSwaggerUI: failed to generate sample json', schema, ex);
 				json = 'failed to generate sample json';
 			}
-			clearCache();
 			return json;
 		};
 
@@ -229,7 +228,7 @@ angular
 				console.error('AngularSwaggerUI: failed to generate model', schema, ex);
 				model = ['failed to generate model'];
 			}
-			clearCache();
+			clearModelCache();
 			return model.join('');
 		};
 
@@ -394,10 +393,13 @@ angular
 		/**
 		 * clears generated samples cache
 		 */
-		function clearCache() {
-			sampleCache = {};
+		function clearModelCache() {
 			countModel = 0;
 			countInLineModels = 1;
 		}
+
+		this.clearCache = function() {
+			sampleCache = {};
+		};
 
 	});

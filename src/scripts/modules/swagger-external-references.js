@@ -85,6 +85,8 @@ angular
 					swaggerUrlParts = URL.parse(url);
 					externalUrl = swaggerUrlParts.protocol + '//' + swaggerUrlParts.host + externalUrl;
 				} else {
+					//TODO resolve paths like ./* or ../ => https://swagger.io/docs/specification/using-ref/
+					//@see https://github.com/garycourt/uri-js ??
 					pos = url.lastIndexOf('/');
 					externalUrl = url.substring(0, pos) + '/' + externalUrl;
 				}
