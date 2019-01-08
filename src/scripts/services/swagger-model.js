@@ -29,6 +29,7 @@ angular
 					result = result[parts[i]];
 				}
 			}
+			result = resolveAllOf(openApiSpec, result);
 			return angular.copy(result);
 		};
 
@@ -254,10 +255,13 @@ angular
 					def = resolveReference(openApiSpec, subSchema),
 					subPropertyModelName = getClassName(subSchema);
 
-				if (def) {
+				if (def && (def.type === 'object' || def.type === 'array')) {
 					models[subPropertyModelName] = def;
 					subModelIds[subPropertyModelName] = countModel++;
 					angular.merge(models, findAllModels(openApiSpec, def, subModelIds, subPropertyModelName, onGoing));
+				} else if (def) {
+					schema = angular.merge(schema, def);
+					delete schema.$ref;
 				}
 			} else if (schema.type === 'array') {
 				inspectSubModel(openApiSpec, schema.items, models, subModelIds, onGoing);
@@ -343,8 +347,9 @@ angular
 					if (property.description) {
 						buffer.push(': ', property.description);
 					}
-					if (property.enum) {
-						buffer.push(' = ', angular.toJson(property.enum).replace(/,/g, swaggerTranslator.translate('modelOr')));
+					var enumValues = property.enum || (property.items && property.items.enum);
+					if (enumValues) {
+						buffer.push(', Enum = ', angular.toJson(enumValues).replace(/,/g, ', '));
 					}
 					buffer.push(',</div>');
 				});
