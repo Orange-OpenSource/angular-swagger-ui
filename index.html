@@ -70,10 +70,8 @@
                     });
             })
             .config(function(swaggerUiAuthProvider) {
-                swaggerUiAuthProvider.credentials({
-                    oauth2: {
-                        redirectUrl: 'http://orange-opensource.github.io/angular-swagger-ui/oauth2-redirect.html'
-                    }
+                swaggerUiAuthProvider.configuration({
+                    redirectUrl: 'http://orange-opensource.github.io/angular-swagger-ui/oauth2-redirect.html'
                 });
             })
             .controller('MyCtrl', function($scope, swaggerTranslator, swaggerUiAuth) {
