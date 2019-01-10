@@ -116,9 +116,7 @@ angular
 				infos: {},
 				resources: []
 			};
-			$timeout(function() {
-				openApiSpec = null;
-			}, 0);
+			openApiSpec = null;
 		}
 
 		function watchInputType() {
@@ -193,10 +191,12 @@ angular
 				operationSecurityDefinitions = {},
 				securities = operation.security || [];
 
-			for (; i < securities.length; i++) {
-				security = securities[i];
-				for (key in security) {
-					operationSecurityDefinitions[key] = openApiSpec.securityDefinitions[key];
+			if (openApiSpec) {
+				for (; i < securities.length; i++) {
+					security = securities[i];
+					for (key in security) {
+						operationSecurityDefinitions[key] = openApiSpec.securityDefinitions[key];
+					}
 				}
 			}
 			return operationSecurityDefinitions;
