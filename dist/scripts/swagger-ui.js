@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.6.0
+ * Orange angular-swagger-ui - v0.6.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -70,7 +70,7 @@ angular
 		};
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.0
+ * Orange angular-swagger-ui - v0.6.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -187,9 +187,7 @@ angular
 				infos: {},
 				resources: []
 			};
-			$timeout(function() {
-				openApiSpec = null;
-			}, 0);
+			openApiSpec = null;
 		}
 
 		function watchInputType() {
@@ -264,10 +262,12 @@ angular
 				operationSecurityDefinitions = {},
 				securities = operation.security || [];
 
-			for (; i < securities.length; i++) {
-				security = securities[i];
-				for (key in security) {
-					operationSecurityDefinitions[key] = openApiSpec.securityDefinitions[key];
+			if (openApiSpec) {
+				for (; i < securities.length; i++) {
+					security = securities[i];
+					for (key in security) {
+						operationSecurityDefinitions[key] = openApiSpec.securityDefinitions[key];
+					}
 				}
 			}
 			return operationSecurityDefinitions;
@@ -318,7 +318,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.0
+ * Orange angular-swagger-ui - v0.6.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -343,7 +343,7 @@ angular
 		};
 	});
 /*
- * Orange angular-swagger-ui - v0.6.0
+ * Orange angular-swagger-ui - v0.6.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -369,7 +369,7 @@ angular
 		};
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.0
+ * Orange angular-swagger-ui - v0.6.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -535,7 +535,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.0
+ * Orange angular-swagger-ui - v0.6.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -628,7 +628,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.0
+ * Orange angular-swagger-ui - v0.6.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -674,7 +674,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.0
+ * Orange angular-swagger-ui - v0.6.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -1084,7 +1084,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.0
+ * Orange angular-swagger-ui - v0.6.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -1166,7 +1166,7 @@ angular
 	}]);
 
 /*
- * Orange angular-swagger-ui - v0.6.0
+ * Orange angular-swagger-ui - v0.6.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -1508,7 +1508,7 @@ angular
 		swaggerModules.add(swaggerModules.PARSE, swaggerParser, 1);
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.0
+ * Orange angular-swagger-ui - v0.6.1
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
