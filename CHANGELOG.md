@@ -1,3 +1,7 @@
+### 0.6.1 (2019-01-09)
+
+ * Fix issue with angular digest on huge openapi descriptors
+
 ### 0.6.0 (2019-01-08)
 
  * Refactor module swagger-auth to be able to auto validate authorization at startup (apiKey, basicAuth) (#93)
