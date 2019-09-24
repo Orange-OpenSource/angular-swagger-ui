@@ -41,7 +41,16 @@ module.exports = {
             port: 9003,
             open: true,
             livereload: false,
-            base: 'dist'
+            base: 'dist',
+            middleware: function(connect, options, middlewares) {
+                // configure & add middlewares:
+                var serveStatic = require('serve-static');
+                middlewares.unshift(
+                    connect().use('/samples', serveStatic('./src/samples')),
+                    serveStatic('dist')
+                );
+                return middlewares;
+            }
         }
     }
 }
