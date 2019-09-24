@@ -1,3 +1,8 @@
+### 0.6.2 (2019-09-24)
+
+ * Fix complex models generation
+ * Fix polymorphic models generation
+
 ### 0.6.1 (2019-01-09)
 
  * Fix issue with angular digest on huge openapi descriptors
