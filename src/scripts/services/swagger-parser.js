@@ -53,6 +53,7 @@ angular
 			parseInfos(data.openApiSpec, data.url, infos, defaultContentType);
 			parseTags(data.openApiSpec, resources, map);
 			parseOperations(data.openApiSpec, resources, form, map, defaultContentType, openPath);
+			swaggerModel.resolveInheritance(data.openApiSpec);
 			cleanUp(resources, openPath, sortResources);
 			// prepare result
 			data.ui = {

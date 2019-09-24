@@ -54,8 +54,13 @@ angular
 		 */
 		function resolveAllOf(openApiSpec, schema) {
 			if (schema.allOf) {
+				schema = angular.copy(schema);
 				angular.forEach(schema.allOf, function(def) {
-					angular.merge(schema, resolveReference(openApiSpec, def));
+					var ref = resolveReference(openApiSpec, def);
+					if (!ref.discriminator) {
+						// do not handle inhertited properties here
+						angular.merge(schema, ref);
+					}
 				});
 				delete schema.allOf;
 			}
@@ -69,6 +74,12 @@ angular
 			var sample, def, name, prop;
 			currentGenerated = currentGenerated || {}; // used to handle circular references
 			schema = resolveAllOf(openApiSpec, schema);
+			if (schema.parentModelsRef) {
+				angular.forEach(schema.parentModelsRef, function(ref) {
+					var def = resolveReference(openApiSpec, ref);
+					angular.merge(schema, def);
+				});
+			}
 			if (schema.default || schema.example) {
 				sample = schema.default || schema.example;
 			} else if (schema.properties) {
@@ -201,15 +212,43 @@ angular
 		}
 
 		/**
+		 * identify models using inheritance
+		 */
+		this.resolveInheritance = function(openApiSpec) {
+			angular.forEach(openApiSpec.definitions, function(schema, modelName) {
+				if (schema.discriminator) {
+					schema.subModelsRef = [];
+					angular.forEach(openApiSpec.definitions, function(subSchema, subModelName) {
+						if (schema !== subSchema && subSchema.allOf) {
+							angular.forEach(subSchema.allOf, function(parent) {
+								if (parent.$ref && modelName === getClassName(parent)) {
+									subSchema.parentModelsRef = subSchema.parentModelsRef || [];
+									subSchema.parentModelsRef.push({
+										'$ref': '#/definitions/' + modelName
+									});
+									schema.subModelsRef.push({
+										'$ref': '#/definitions/' + subModelName
+									});
+								}
+							});
+						}
+					});
+				}
+			});
+		};
+
+		/**
 		 * generate a model and its submodels from schema
 		 */
 		this.generateModel = function(openApiSpec, schema, operationId) {
 			var model = [],
 				subModelIds = {},
-				subModels = {};
+				subModels = {},
+				def;
 
 			try {
 				schema = resolveAllOf(openApiSpec, schema);
+				// find models to generate
 				if (schema.properties) {
 					// if inline model
 					subModels[getInlineModelName()] = schema;
@@ -217,13 +256,13 @@ angular
 				} else {
 					subModels = findAllModels(openApiSpec, schema, subModelIds);
 				}
-
-				if (!schema.$ref && !schema.properties) {
-					// if array or map/dictionary or simple type
-					model.push('<strong>', getModelProperty(schema, subModels, subModelIds, operationId), '</strong><br><br>');
+				def = resolveReference(openApiSpec, schema);
+				if (!def.properties) {
+					// if not complex type
+					model.push('<strong>', getModelProperty(def, subModels, subModelIds, operationId), '</strong><br><br>');
 				}
-				angular.forEach(subModels, function(schema, modelName) {
-					model.push(getModel(openApiSpec, schema, modelName, subModels, subModelIds, operationId));
+				angular.forEach(subModels, function(subSchema, subModelName) {
+					model.push(getModel(openApiSpec, subSchema, subModelName, subModels, subModelIds, operationId));
 				});
 			} catch (ex) {
 				console.error('AngularSwaggerUI: failed to generate model', schema, ex);
@@ -255,13 +294,11 @@ angular
 					def = resolveReference(openApiSpec, subSchema),
 					subPropertyModelName = getClassName(subSchema);
 
-				if (def && (def.type === 'object' || def.type === 'array')) {
+				if (def && (!def.type || def.type === 'object' || def.type === 'array')) {
+					def = resolveAllOf(openApiSpec, def);
 					models[subPropertyModelName] = def;
 					subModelIds[subPropertyModelName] = countModel++;
 					angular.merge(models, findAllModels(openApiSpec, def, subModelIds, subPropertyModelName, onGoing));
-				} else if (def) {
-					schema = angular.merge(schema, def);
-					delete schema.$ref;
 				}
 			} else if (schema.type === 'array') {
 				inspectSubModel(openApiSpec, schema.items, models, subModelIds, onGoing);
@@ -269,22 +306,40 @@ angular
 				// this is a map/dictionary
 				inspectSubModel(openApiSpec, schema.additionalProperties, models, subModelIds, onGoing);
 			}
-			if (schema.discriminator) {
-				// find subclasses
-				angular.forEach(openApiSpec.definitions, function(subSchema, subModelName) {
-					if (subSchema.allOf) {
-						angular.forEach(subSchema.allOf, function(parent) {
-							if (parent.$ref && modelName === getClassName(parent)) {
-								subSchema.parentModel = modelName;
-								models[subModelName] = subSchema;
-								subModelIds[subModelName] = countModel++;
-								angular.merge(models, findAllModels(openApiSpec, subSchema, subModelIds, subModelName, onGoing));
-							}
-						});
+			if (schema.subModelsRef) {
+				// check if subclass not already built
+				var subClasses = schema.subModelsRef.map(getClassName),
+					found = false,
+					keys = Object.keys(subModelIds),
+					i = 0;
+
+				for (; i < subClasses.length; i++) {
+					if (keys.indexOf(subClasses[i]) > -1) {
+						found = true;
+						break;
 					}
-				});
+				}
+				if (!found) {
+					// add sub classes
+					addInheritanceModels(openApiSpec, schema.subModelsRef, models, subModelIds, onGoing);
+				}
+			}
+			if (schema.parentModelsRef) {
+				// find super classes
+				addInheritanceModels(openApiSpec, schema.parentModelsRef, models, subModelIds, onGoing);
 			}
 			return models;
+		}
+
+		function addInheritanceModels(openApiSpec, inheritanceModels, models, subModelIds, onGoing) {
+			angular.forEach(inheritanceModels, function(ref) {
+				var def = resolveReference(openApiSpec, ref),
+					subModelName = getClassName(ref);
+
+				models[subModelName] = def;
+				subModelIds[subModelName] = countModel++;
+				angular.merge(models, findAllModels(openApiSpec, def, subModelIds, subModelName, onGoing));
+			});
 		}
 
 		/**
@@ -312,7 +367,7 @@ angular
 		/**
 		 * generates an HTML link to a submodel
 		 */
-		function getSubModelLink(operationId, modelId, name) {
+		function getSubModelLink(operationId, name) {
 			var linkModelId = operationId + '-model-' + name;
 			return ['<a class="model-link type" onclick="swaggerlink(\'', linkModelId, '\')">', name, '</a>'].join('');
 		}
@@ -330,13 +385,24 @@ angular
 			schema = resolveAllOf(openApiSpec, schema);
 			if (schema.properties) {
 				buffer.push('<div><strong>', modelName);
-				if (schema.parentModel) {
-					buffer.push('</strong> extends <strong>', schema.parentModel);
+				if (schema.parentModelsRef) {
+					buffer.push('</strong> extends <strong>');
+					angular.forEach(schema.parentModelsRef, function(ref) {
+						buffer.push(getSubModelLink(operationId, getClassName(ref)), ' ');
+					});
+					buffer.pop();
 				}
 				buffer.push(' {</strong></div>');
 				var hasProperties = false;
 				angular.forEach(schema.properties, function(property, propertyName) {
 					hasProperties = true;
+					if (!property.type && property.$ref) {
+						var ref = resolveReference(openApiSpec, property);
+						if (ref.type !== 'object' && ref.type !== 'array') {
+							// this is a simple type
+							property = ref;
+						}
+					}
 					buffer.push('<div class="pad"><strong>', propertyName, '</strong> (<span class="type">');
 					buffer.push(getModelProperty(property, subModels, subModelIds, operationId));
 					buffer.push('</span>');
@@ -374,16 +440,16 @@ angular
 		function getModelProperty(property, subModels, subModelIds, operationId) {
 			var modelName, buffer = [];
 			if (property.modelName) {
-				buffer.push(getSubModelLink(operationId, subModelIds[property.modelName], property.modelName));
+				buffer.push(getSubModelLink(operationId, property.modelName));
 			} else if (property.schema || property.$ref) {
 				modelName = getClassName(property.schema || property);
-				buffer.push(getSubModelLink(operationId, subModelIds[modelName], modelName));
+				buffer.push(getSubModelLink(operationId, modelName));
 			} else if (property.type === 'array') {
 				buffer.push('Array[');
 				buffer.push(getModelProperty(property.items, subModels, subModelIds, operationId));
 				buffer.push(']');
 			} else if (property.properties) {
-				buffer.push(getSubModelLink(operationId, subModelIds[property.modelName], modelName));
+				buffer.push(getSubModelLink(operationId, modelName));
 			} else if (property.additionalProperties) {
 				// this is a map/dictionary
 				buffer.push('Map&lt;string, ');
