@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.6.2
+ * Orange angular-swagger-ui - v0.6.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -70,7 +70,7 @@ angular
 		};
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.2
+ * Orange angular-swagger-ui - v0.6.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -318,7 +318,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.2
+ * Orange angular-swagger-ui - v0.6.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -343,7 +343,7 @@ angular
 		};
 	});
 /*
- * Orange angular-swagger-ui - v0.6.2
+ * Orange angular-swagger-ui - v0.6.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -369,7 +369,7 @@ angular
 		};
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.2
+ * Orange angular-swagger-ui - v0.6.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -535,7 +535,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.2
+ * Orange angular-swagger-ui - v0.6.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -628,7 +628,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.2
+ * Orange angular-swagger-ui - v0.6.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -674,7 +674,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.2
+ * Orange angular-swagger-ui - v0.6.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -732,8 +732,8 @@ angular
 				schema = angular.copy(schema);
 				angular.forEach(schema.allOf, function(def) {
 					var ref = resolveReference(openApiSpec, def);
-					if (!ref.discriminator) {
-						// do not handle inhertited properties here
+					if (!def.$ref || !ref.discriminator) {
+						// do not handle inherited properties here
 						angular.merge(schema, ref);
 					}
 				});
@@ -882,8 +882,7 @@ angular
 		 * generates new inline model name
 		 */
 		function getInlineModelName() {
-			var name = INLINE_MODEL_NAME + (countInLineModels++);
-			return name;
+			return INLINE_MODEL_NAME + (countInLineModels++);
 		}
 
 		/**
@@ -891,26 +890,31 @@ angular
 		 */
 		this.resolveInheritance = function(openApiSpec) {
 			angular.forEach(openApiSpec.definitions, function(schema, modelName) {
-				if (schema.discriminator) {
-					schema.subModelsRef = [];
-					angular.forEach(openApiSpec.definitions, function(subSchema, subModelName) {
-						if (schema !== subSchema && subSchema.allOf) {
-							angular.forEach(subSchema.allOf, function(parent) {
-								if (parent.$ref && modelName === getClassName(parent)) {
-									subSchema.parentModelsRef = subSchema.parentModelsRef || [];
-									subSchema.parentModelsRef.push({
-										'$ref': '#/definitions/' + modelName
-									});
-									schema.subModelsRef.push({
-										'$ref': '#/definitions/' + subModelName
-									});
-								}
-							});
-						}
-					});
-				}
+				resolveItemInheritance(openApiSpec, schema, schema, modelName);
 			});
 		};
+
+		function resolveItemInheritance(openApiSpec, schema, def, modelName) {
+			if (def.discriminator && !schema.subModelsRef) {
+				schema.subModelsRef = [];
+				angular.forEach(openApiSpec.definitions, function(subSchema, subModelName) {
+					if (modelName !== subModelName && subSchema.allOf) {
+						angular.forEach(subSchema.allOf, function(parent) {
+							if (parent.$ref && modelName === getClassName(parent)) {
+								subSchema.parentModelsRef = subSchema.parentModelsRef || [];
+								subSchema.parentModelsRef.push({
+									'$ref': '#/definitions/' + modelName
+								});
+								schema.subModelsRef.push({
+									'$ref': '#/definitions/' + subModelName
+								});
+							}
+							resolveItemInheritance(openApiSpec, subSchema, parent, subModelName);
+						});
+					}
+				});
+			}
+		}
 
 		/**
 		 * generate a model and its submodels from schema
@@ -927,7 +931,7 @@ angular
 				if (schema.properties) {
 					// if inline model
 					subModels[getInlineModelName()] = schema;
-					subModels = angular.merge(subModels, findAllModels(openApiSpec, schema, subModelIds));
+					angular.merge(subModels, findAllModels(openApiSpec, schema, subModelIds));
 				} else {
 					subModels = findAllModels(openApiSpec, schema, subModelIds);
 				}
@@ -1150,7 +1154,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.2
+ * Orange angular-swagger-ui - v0.6.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -1232,7 +1236,7 @@ angular
 	}]);
 
 /*
- * Orange angular-swagger-ui - v0.6.2
+ * Orange angular-swagger-ui - v0.6.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -1575,7 +1579,7 @@ angular
 		swaggerModules.add(swaggerModules.PARSE, swaggerParser, 1);
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.2
+ * Orange angular-swagger-ui - v0.6.3
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
