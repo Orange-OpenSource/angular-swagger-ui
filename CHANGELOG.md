@@ -1,3 +1,7 @@
+### 0.6.3 (2020-06-22)
+
+ * Fix polymorphic models generation
+
 ### 0.6.2 (2019-09-24)
 
  * Fix complex models generation
