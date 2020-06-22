@@ -1,3 +1,7 @@
+### 0.6.4 (2020-06-22)
+
+ * Create new tag to fix npm crap
+
 ### 0.6.3 (2020-06-22)
 
  * Fix polymorphic models generation

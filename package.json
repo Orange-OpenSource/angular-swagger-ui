@@ -1,6 +1,6 @@
 {
     "name": "angular-swagger-ui",
-    "version": "0.6.3",
+    "version": "0.6.4",
     "license": "MIT",
     "description": "AngularJS implementation of OpenAPI (aka Swagger) UI",
     "homepage": "https://github.com/Orange-OpenSource/angular-swagger-ui",
