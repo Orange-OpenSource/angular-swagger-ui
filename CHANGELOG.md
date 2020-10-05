@@ -1,3 +1,8 @@
+### 0.6.5 (2020-10-05)
+
+ * Fix polymorphic models generation
+ * Allow displaying or hiding inherited properties of polymorphic models by configuration
+
 ### 0.6.4 (2020-06-22)
 
  * Create new tag to fix npm crap
