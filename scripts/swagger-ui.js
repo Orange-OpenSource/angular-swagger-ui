@@ -1,5 +1,5 @@
 /*
- * Orange angular-swagger-ui - v0.6.3
+ * Orange angular-swagger-ui - v0.6.5
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -53,7 +53,9 @@ angular
 				//
 				inputType: '@?',
 				// Allows rendering an external OpenApi specification (string or object, optional)
-				input: '=?'
+				input: '=?',
+				// When displaying polymorphic models, show inherited properties ? (boolean, optional, default = false)
+				showInheritedProperties: '=?'
 			},
 			link: function(scope) {
 				// check parameters
@@ -70,7 +72,7 @@ angular
 		};
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.3
+ * Orange angular-swagger-ui - v0.6.5
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -303,7 +305,7 @@ angular
 			var id = operationId + '-' + section;
 			obj.models = obj.models || {};
 			if (!obj.models[id] && obj.schema) {
-				obj.models[id] = $sce.trustAsHtml(swaggerModel.generateModel(openApiSpec, obj.schema, id));
+				obj.models[id] = $sce.trustAsHtml(swaggerModel.generateModel(openApiSpec, obj.schema, id, $scope.showInheritedProperties));
 			}
 			return obj.models[id];
 		};
@@ -318,7 +320,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.3
+ * Orange angular-swagger-ui - v0.6.5
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -343,7 +345,7 @@ angular
 		};
 	});
 /*
- * Orange angular-swagger-ui - v0.6.3
+ * Orange angular-swagger-ui - v0.6.5
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -369,7 +371,7 @@ angular
 		};
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.3
+ * Orange angular-swagger-ui - v0.6.5
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -535,7 +537,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.3
+ * Orange angular-swagger-ui - v0.6.5
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -628,7 +630,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.3
+ * Orange angular-swagger-ui - v0.6.5
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -674,7 +676,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.3
+ * Orange angular-swagger-ui - v0.6.5
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -702,6 +704,9 @@ angular
 				result = openApiSpec;
 				for (var i = 0, j = parts.length; i < j; i++) {
 					result = result[parts[i]];
+				}
+				if (!result) {
+					console.error('could not resolve model definition', object.$ref);
 				}
 			}
 			result = resolveAllOf(openApiSpec, result);
@@ -919,7 +924,7 @@ angular
 		/**
 		 * generate a model and its submodels from schema
 		 */
-		this.generateModel = function(openApiSpec, schema, operationId) {
+		this.generateModel = function(openApiSpec, schema, operationId, showInheritedProperties) {
 			var model = [],
 				subModelIds = {},
 				subModels = {},
@@ -941,7 +946,7 @@ angular
 					model.push('<strong>', getModelProperty(def, subModels, subModelIds, operationId), '</strong><br><br>');
 				}
 				angular.forEach(subModels, function(subSchema, subModelName) {
-					model.push(getModel(openApiSpec, subSchema, subModelName, subModels, subModelIds, operationId));
+					model.push(getModel(openApiSpec, subSchema, subModelName, subModels, subModelIds, operationId, showInheritedProperties));
 				});
 			} catch (ex) {
 				console.error('AngularSwaggerUI: failed to generate model', schema, ex);
@@ -986,21 +991,19 @@ angular
 				inspectSubModel(openApiSpec, schema.additionalProperties, models, subModelIds, onGoing);
 			}
 			if (schema.subModelsRef) {
-				// check if subclass not already built
-				var subClasses = schema.subModelsRef.map(getClassName),
-					found = false,
+				// find missing subclasses
+				var missingModelsRef = [],
 					keys = Object.keys(subModelIds),
 					i = 0;
 
-				for (; i < subClasses.length; i++) {
-					if (keys.indexOf(subClasses[i]) > -1) {
-						found = true;
-						break;
+				for (; i < schema.subModelsRef.length; i++) {
+					if (keys.indexOf(getClassName(schema.subModelsRef[i])) === -1) {
+						missingModelsRef.push(schema.subModelsRef[i]);
 					}
 				}
-				if (!found) {
+				if (missingModelsRef.length > 0) {
 					// add sub classes
-					addInheritanceModels(openApiSpec, schema.subModelsRef, models, subModelIds, onGoing);
+					addInheritanceModels(openApiSpec, missingModelsRef, models, subModelIds, onGoing);
 				}
 			}
 			if (schema.parentModelsRef) {
@@ -1059,7 +1062,7 @@ angular
 		/**
 		 * generates a single model in HTML
 		 */
-		function getModel(openApiSpec, schema, modelName, subModels, subModelIds, operationId) {
+		function getModel(openApiSpec, schema, modelName, subModels, subModelIds, operationId, showInheritedProperties) {
 			var buffer = ['<div class="model" id="', operationId + '-model-' + modelName, '">'];
 			schema = resolveAllOf(openApiSpec, schema);
 			if (schema.properties) {
@@ -1068,6 +1071,15 @@ angular
 					buffer.push('</strong> extends <strong>');
 					angular.forEach(schema.parentModelsRef, function(ref) {
 						buffer.push(getSubModelLink(operationId, getClassName(ref)), ' ');
+						if (!showInheritedProperties) {
+							// remove inherited properties
+							var parentSchema = resolveReference(openApiSpec, ref);
+							angular.forEach(parentSchema.properties, function (property, name) {
+								if (schema.properties[name]) {
+									delete schema.properties[name];
+								}
+							});
+						}
 					});
 					buffer.pop();
 				}
@@ -1154,7 +1166,7 @@ angular
 
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.3
+ * Orange angular-swagger-ui - v0.6.5
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -1236,7 +1248,7 @@ angular
 	}]);
 
 /*
- * Orange angular-swagger-ui - v0.6.3
+ * Orange angular-swagger-ui - v0.6.5
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
@@ -1579,7 +1591,7 @@ angular
 		swaggerModules.add(swaggerModules.PARSE, swaggerParser, 1);
 	}]);
 /*
- * Orange angular-swagger-ui - v0.6.3
+ * Orange angular-swagger-ui - v0.6.5
  *
  * (C) 2015 Orange, all right reserved
  * MIT Licensed
