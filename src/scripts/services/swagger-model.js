@@ -247,7 +247,7 @@ angular
 		/**
 		 * generate a model and its submodels from schema
 		 */
-		this.generateModel = function(openApiSpec, schema, operationId) {
+		this.generateModel = function(openApiSpec, schema, operationId, showInheritedProperties) {
 			var model = [],
 				subModelIds = {},
 				subModels = {},
@@ -269,7 +269,7 @@ angular
 					model.push('<strong>', getModelProperty(def, subModels, subModelIds, operationId), '</strong><br><br>');
 				}
 				angular.forEach(subModels, function(subSchema, subModelName) {
-					model.push(getModel(openApiSpec, subSchema, subModelName, subModels, subModelIds, operationId));
+					model.push(getModel(openApiSpec, subSchema, subModelName, subModels, subModelIds, operationId, showInheritedProperties));
 				});
 			} catch (ex) {
 				console.error('AngularSwaggerUI: failed to generate model', schema, ex);
@@ -385,7 +385,7 @@ angular
 		/**
 		 * generates a single model in HTML
 		 */
-		function getModel(openApiSpec, schema, modelName, subModels, subModelIds, operationId) {
+		function getModel(openApiSpec, schema, modelName, subModels, subModelIds, operationId, showInheritedProperties) {
 			var buffer = ['<div class="model" id="', operationId + '-model-' + modelName, '">'];
 			schema = resolveAllOf(openApiSpec, schema);
 			if (schema.properties) {
@@ -394,6 +394,15 @@ angular
 					buffer.push('</strong> extends <strong>');
 					angular.forEach(schema.parentModelsRef, function(ref) {
 						buffer.push(getSubModelLink(operationId, getClassName(ref)), ' ');
+						if (!showInheritedProperties) {
+							// remove inherited properties
+							var parentSchema = resolveReference(openApiSpec, ref);
+							angular.forEach(parentSchema.properties, function (property, name) {
+								if (schema.properties[name]) {
+									delete schema.properties[name];
+								}
+							});
+						}
 					});
 					buffer.pop();
 				}

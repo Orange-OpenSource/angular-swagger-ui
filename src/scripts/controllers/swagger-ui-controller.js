@@ -232,7 +232,7 @@ angular
 			var id = operationId + '-' + section;
 			obj.models = obj.models || {};
 			if (!obj.models[id] && obj.schema) {
-				obj.models[id] = $sce.trustAsHtml(swaggerModel.generateModel(openApiSpec, obj.schema, id));
+				obj.models[id] = $sce.trustAsHtml(swaggerModel.generateModel(openApiSpec, obj.schema, id, $scope.showInheritedProperties));
 			}
 			return obj.models[id];
 		};

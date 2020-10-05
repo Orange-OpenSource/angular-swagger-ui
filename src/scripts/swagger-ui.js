@@ -53,7 +53,9 @@ angular
 				//
 				inputType: '@?',
 				// Allows rendering an external OpenApi specification (string or object, optional)
-				input: '=?'
+				input: '=?',
+				// When displaying polymorphic models, show inherited properties ? (boolean, optional, default = false)
+				showInheritedProperties: '=?'
 			},
 			link: function(scope) {
 				// check parameters

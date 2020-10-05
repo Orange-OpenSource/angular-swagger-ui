@@ -113,7 +113,7 @@ Allows having a URL direct access to a group of operations or to an operation an
 <div swagger-ui url="URLToYourOpenAPISpecification" permalinks="true/false"></div>
 ```
 
-#### download
+#### Download
 Display or not a link to download swagger file. 
 
 ```html
@@ -141,6 +141,12 @@ OpenAPI specification parser is chosen depending on the `Content-Type` of the sp
 Define a custom template to be used by OpenAPIUI
 ```html
 <div swagger-ui url="URLToYourOpenAPISpecification" template-url="yourTemplatePath"></div>
+```
+
+#### Inherited properties
+Allows displaying inherited properties of polymorphic models
+```html
+<div swagger-ui url="URLToYourOpenAPISpecification" show-inherited-properties="true/false"></div>
 ```
 
 #### Input type and input
