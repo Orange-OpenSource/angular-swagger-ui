@@ -311,21 +311,19 @@ angular
 				inspectSubModel(openApiSpec, schema.additionalProperties, models, subModelIds, onGoing);
 			}
 			if (schema.subModelsRef) {
-				// check if subclass not already built
-				var subClasses = schema.subModelsRef.map(getClassName),
-					found = false,
+				// find missing subclasses
+				var missingModelsRef = [],
 					keys = Object.keys(subModelIds),
 					i = 0;
 
-				for (; i < subClasses.length; i++) {
-					if (keys.indexOf(subClasses[i]) > -1) {
-						found = true;
-						break;
+				for (; i < schema.subModelsRef.length; i++) {
+					if (keys.indexOf(getClassName(schema.subModelsRef[i])) === -1) {
+						missingModelsRef.push(schema.subModelsRef[i]);
 					}
 				}
-				if (!found) {
+				if (missingModelsRef.length > 0) {
 					// add sub classes
-					addInheritanceModels(openApiSpec, schema.subModelsRef, models, subModelIds, onGoing);
+					addInheritanceModels(openApiSpec, missingModelsRef, models, subModelIds, onGoing);
 				}
 			}
 			if (schema.parentModelsRef) {
