@@ -28,6 +28,9 @@ angular
 				for (var i = 0, j = parts.length; i < j; i++) {
 					result = result[parts[i]];
 				}
+				if (!result) {
+					console.error('could not resolve model definition', object.$ref);
+				}
 			}
 			result = resolveAllOf(openApiSpec, result);
 			return angular.copy(result);
