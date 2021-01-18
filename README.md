@@ -260,7 +260,7 @@ Add `openapi3-converter.min.js` at the end of the body
 ```
 
 #### Enable authorization
-`oauth` is not implemented, only `basic` and `API key` authorizations are implemented.
+`oauth` is partially implemented with password flow, and `basic` and `API key` authorizations are implemented.
 Add `swagger-auth.min.js` at the end of the body
 ```html
 <body>
@@ -280,16 +280,16 @@ Add `swagger-auth.min.js` at the end of the body
           swaggerUiAuthProvider.configuration({
               // required for oauth2 flow 'implicit' and 'accessCode' (ie. authorizationCode)
              	redirectUrl: 'yourPathToAngularSwaggerUI/oauth2-redirect.html' 
-              // optional
+              // optional, must match one of your swagger authentication method
               yourSecurityName: {
               	apiKey: 'yourApiKeyValue' // optional, can be used to initialize api key value
               },
-              // optional
+              // optional, must match one of your swagger authentication method
               yourSecurityName: {
               	login: 'yourLogin', // optional, can be used to initialize basic login
               	password: 'yourPassword' // optional, can be used to initialize basic password
               },
-              // optional
+              // optional, must match one of your swagger authentication method
               yourSecurityName: {
               	clientId: 'yourClientId', // optional, can be used to initialize oauth2 credentials
               	clientSecret: 'yourClientSecret', // optional, can be used to initialize oauth2 credentials

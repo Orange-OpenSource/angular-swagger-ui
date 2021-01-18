@@ -186,7 +186,12 @@ angular
 			var security = securityDefinitions[key];
 			security.login = $scope.form[key].login;
 			security.password = $scope.form[key].password;
-			getToken(key, 'grant_type=password', security.login, security.password);
+			var body = 'grant_type=password&username=' + security.login + "&password=" + security.password
+
+			getToken(key, body, $scope.form[key].clientId, $scope.form[key].clientSecret);
+			if (security.valid === true) {
+				$scope.inProgress = false;
+			}
 		}
 
 		function getToken(key, body, id, secret) {
