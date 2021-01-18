@@ -91,7 +91,7 @@
 			</div>
 			<p ng-if="error[key]" class="text-danger" ng-bind="error[key]"></p>
 			<div class="form-group buttons">
-				<button class="btn btn-default" type="button" ng-disabled="inProgress" ng-click="$close()" swagger-translate="authDone"></button>
+				<button class="btn btn-default" type="button" ng-disabled="!item.valid && inProgress" ng-click="$close()" swagger-translate="authDone"></button>
 				<button class="btn btn-primary" type="submit" ng-disabled="inProgress" ng-if="!item.valid" swagger-translate="authAuthorize"></button>
 				<button class="btn btn-primary" type="button" ng-if="item.valid" ng-click="logout(key)" swagger-translate="authLogout"></button>
 			</div>
